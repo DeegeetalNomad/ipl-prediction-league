@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 // ─────────────────────────────────────────────
-// SUPABASE CONFIG  ← replace before deploying
+// SUPABASE CONFIG
 // ─────────────────────────────────────────────
-const SB_URL  = "https://rpzpnbhaqpfejolgjggu.supabase.co";
-const SB_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwenBuYmhhcXBmZWpvbGdqZ2d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTcyODQsImV4cCI6MjA4OTk3MzI4NH0.tDRO6axPkvI4udJJz2cJCOcH0WQFlu4sOl7U-h50s30";
-const ADMIN_PWD = "RCBIPLChampion@2026"; // change this!
+const SB_URL    = "https://rpzpnbhaqpfejolgjggu.supabase.co";
+const SB_KEY    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwenBuYmhhcXBmZWpvbGdqZ2d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTcyODQsImV4cCI6MjA4OTk3MzI4NH0.tDRO6axPkvI4udJJz2cJCOcH0WQFlu4sOl7U-h50s30";
+const ADMIN_PWD = "ipl2026admin";
 
 // ─────────────────────────────────────────────
 // IPL 2026 DATA
@@ -23,16 +23,16 @@ const SHORT = {
   "Gujarat Titans":"GT","Punjab Kings":"PBKS",
 };
 const TC = {
-  "Chennai Super Kings":     { bg:"#F9CD1B", fg:"#1a1a2e" },
-  "Mumbai Indians":          { bg:"#004BA0", fg:"#ffffff" },
-  "Royal Challengers Bengaluru":{ bg:"#C8102E", fg:"#ffffff" },
-  "Kolkata Knight Riders":   { bg:"#3A225D", fg:"#F0C040" },
-  "Sunrisers Hyderabad":     { bg:"#F7500E", fg:"#ffffff" },
-  "Delhi Capitals":          { bg:"#17479E", fg:"#EF3340" },
-  "Lucknow Super Giants":    { bg:"#A72B2A", fg:"#FBBF24" },
-  "Rajasthan Royals":        { bg:"#EA1A85", fg:"#ffffff" },
-  "Gujarat Titans":          { bg:"#1C2B4A", fg:"#8AC0DE" },
-  "Punjab Kings":            { bg:"#ED1B24", fg:"#ffffff" },
+  "Chennai Super Kings":         { bg:"#F9CD1B", fg:"#1a1a2e" },
+  "Mumbai Indians":              { bg:"#004BA0", fg:"#ffffff" },
+  "Royal Challengers Bengaluru": { bg:"#C8102E", fg:"#ffffff" },
+  "Kolkata Knight Riders":       { bg:"#3A225D", fg:"#F0C040" },
+  "Sunrisers Hyderabad":         { bg:"#F7500E", fg:"#ffffff" },
+  "Delhi Capitals":              { bg:"#17479E", fg:"#EF3340" },
+  "Lucknow Super Giants":        { bg:"#A72B2A", fg:"#FBBF24" },
+  "Rajasthan Royals":            { bg:"#EA1A85", fg:"#ffffff" },
+  "Gujarat Titans":              { bg:"#1C2B4A", fg:"#8AC0DE" },
+  "Punjab Kings":                { bg:"#ED1B24", fg:"#ffffff" },
 };
 const SQUADS = {
   "Chennai Super Kings":["Ruturaj Gaikwad","MS Dhoni","Sanju Samson","Dewald Brevis","Ayush Mhatre","Kartik Sharma","Sarfaraz Khan","Urvil Patel","Anshul Kamboj","Jamie Overton","Ramakrishna Ghosh","Prashant Veer","Matthew Short","Aman Khan","Zak Foulkes","Shivam Dube","Khaleel Ahmed","Noor Ahmad","Mukesh Choudhary","Nathan Ellis","Shreyas Gopal","Gurjapneet Singh","Akeal Hosein","Matt Henry","Rahul Chahar"],
@@ -47,11 +47,10 @@ const SQUADS = {
   "Punjab Kings":["Shreyas Iyer","Nehal Wadhera","Vishnu Vinod","Harnoor Pannu","Prabhsimran Singh","Shashank Singh","Marcus Stoinis","Harpreet Brar","Marco Jansen","Azmatullah Omarzai","Priyansh Arya","Musheer Khan","Mitch Owen","Cooper Connolly","Ben Dwarshuis","Arshdeep Singh","Yuzvendra Chahal","Vyshak Vijaykumar","Yash Thakur","Xavier Bartlett","Lockie Ferguson"],
 };
 const ALL_PLAYERS = [...new Set(Object.values(SQUADS).flat())].sort();
-const LOCK_DATE = new Date("2026-03-28T10:00:00Z"); // 3:30pm IST
-const isLocked = () => new Date() >= LOCK_DATE;
-
-const POINTS = { winner:20, finalist2:10, top4_each:5, top_scorer:15, top_wicket_taker:15, max_sixes:10, max_fours:10 };
-const MAX_PTS = 20+10+(5*4)+15+15+10+10; // 95
+const LOCK_DATE   = new Date("2026-03-28T10:00:00Z");
+const isLocked    = () => new Date() >= LOCK_DATE;
+const POINTS      = { winner:20, finalist2:10, top4_each:5, top_scorer:15, top_wicket_taker:15, max_sixes:10, max_fours:10 };
+const MAX_PTS     = 95;
 
 // ─────────────────────────────────────────────
 // SUPABASE MINI-CLIENT
@@ -59,13 +58,12 @@ const MAX_PTS = 20+10+(5*4)+15+15+10+10; // 95
 const sb = async (path, opts = {}) => {
   const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
     headers: {
-      apikey: SB_KEY,
-      Authorization: `Bearer ${SB_KEY}`,
-      "Content-Type": "application/json",
+      apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
+      "Content-Type":"application/json",
       Prefer: opts.prefer ?? "return=representation",
-      ...(opts.headers || {}),
+      ...(opts.headers||{}),
     },
-    method: opts.method || "GET",
+    method: opts.method||"GET",
     body: opts.body != null ? JSON.stringify(opts.body) : undefined,
   });
   const txt = await r.text();
@@ -73,99 +71,245 @@ const sb = async (path, opts = {}) => {
   return txt ? JSON.parse(txt) : null;
 };
 
-// ─────────────────────────────────────────────
-// SCORE CALCULATOR
-// ─────────────────────────────────────────────
 const calcScore = (pred, act) => {
-  if (!act || !pred) return null;
+  if (!act||!pred) return null;
   let s = 0;
-  if (pred.winner === act.winner) s += POINTS.winner;
-  if (pred.finalist2 && (pred.finalist2 === act.finalist2 || pred.finalist2 === act.winner)) s += POINTS.finalist2;
-  (pred.top4 || []).forEach(t => { if ((act.top4||[]).includes(t)) s += POINTS.top4_each; });
-  if (pred.top_scorer === act.top_scorer) s += POINTS.top_scorer;
-  if (pred.top_wicket_taker === act.top_wicket_taker) s += POINTS.top_wicket_taker;
-  if (pred.max_sixes === act.max_sixes) s += POINTS.max_sixes;
-  if (pred.max_fours === act.max_fours) s += POINTS.max_fours;
+  if (pred.winner===act.winner) s += POINTS.winner;
+  if (pred.finalist2 && (pred.finalist2===act.finalist2||pred.finalist2===act.winner)) s += POINTS.finalist2;
+  (pred.top4||[]).forEach(t=>{ if ((act.top4||[]).includes(t)) s += POINTS.top4_each; });
+  if (pred.top_scorer===act.top_scorer) s += POINTS.top_scorer;
+  if (pred.top_wicket_taker===act.top_wicket_taker) s += POINTS.top_wicket_taker;
+  if (pred.max_sixes===act.max_sixes) s += POINTS.max_sixes;
+  if (pred.max_fours===act.max_fours) s += POINTS.max_fours;
   return s;
 };
 
-// ─────────────────────────────────────────────
-// GENERATE LEAGUE CODE
-// ─────────────────────────────────────────────
-const genCode = () => Math.random().toString(36).substring(2,8).toUpperCase();
+const genCode    = () => Math.random().toString(36).substring(2,8).toUpperCase();
+const initials   = (n="") => n.trim().split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+const AV_COLORS  = ["#E8480C","#004BA0","#C8102E","#3A225D","#F7500E","#17479E","#EA1A85","#1A7A4A"];
+const avColor    = (n="") => AV_COLORS[n.charCodeAt(0)%AV_COLORS.length];
 
 // ─────────────────────────────────────────────
-// TINY UI PRIMITIVES
+// CONFETTI
 // ─────────────────────────────────────────────
-const Input = ({ label, ...p }) => (
-  <div className="flex flex-col gap-1.5">
-    {label && <label className="text-[10px] font-black uppercase tracking-[0.15em] text-amber-400">{label}</label>}
-    <input {...p} className="bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 text-sm placeholder-white/20 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all" />
+const Confetti = ({active}) => {
+  const ref = useRef(null);
+  useEffect(()=>{
+    if (!active) return;
+    const canvas = ref.current; if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const pieces = Array.from({length:100},()=>({
+      x:Math.random()*canvas.width, y:Math.random()*canvas.height-canvas.height,
+      r:Math.random()*6+4, d:Math.random()*80+40,
+      color:["#E8480C","#F9CD1B","#004BA0","#C8102E","#EA1A85","#1A7A4A"][Math.floor(Math.random()*6)],
+      tilt:0, tiltAngle:0, tiltSpeed:Math.random()*.1+.04,
+    }));
+    let angle=0, frame;
+    const draw=()=>{
+      ctx.clearRect(0,0,canvas.width,canvas.height); angle+=.01;
+      pieces.forEach(p=>{
+        p.tiltAngle+=p.tiltSpeed; p.y+=(Math.cos(angle+p.d)+3)*1.5;
+        p.x+=Math.sin(angle)*1.5; p.tilt=Math.sin(p.tiltAngle)*12;
+        ctx.beginPath(); ctx.lineWidth=p.r/2; ctx.strokeStyle=p.color;
+        ctx.moveTo(p.x+p.tilt+p.r/4,p.y); ctx.lineTo(p.x+p.tilt,p.y+p.tilt+p.r/4);
+        ctx.stroke(); if(p.y>canvas.height){p.y=-10;p.x=Math.random()*canvas.width;}
+      });
+      frame=requestAnimationFrame(draw);
+    };
+    draw();
+    const t=setTimeout(()=>cancelAnimationFrame(frame),3200);
+    return()=>{cancelAnimationFrame(frame);clearTimeout(t);};
+  },[active]);
+  if (!active) return null;
+  return <canvas ref={ref} style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:999}}/>;
+};
+
+// ─────────────────────────────────────────────
+// GLOBAL STYLES
+// ─────────────────────────────────────────────
+const GS = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#F4F1EA; --bg2:#EDE9E0; --sf:#FFFFFF; --bd:#E5DFD2; --bd2:#CFC8B8;
+      --t:#1A1612; --t2:#6B6358; --t3:#9C9080;
+      --ac:#E8480C; --ac2:#D03A00;
+      --gold:#C8820A; --gold-bg:#FFF8E8;
+      --gr:#1A7A4A; --gr-bg:#EDFAF3;
+      --re:#C40000; --re-bg:#FFF0F0;
+      --r:14px; --r-sm:10px;
+      --sh:0 1px 3px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06);
+      --sh-md:0 2px 8px rgba(0,0,0,.08),0 8px 32px rgba(0,0,0,.09);
+      --fd:'Syne',sans-serif; --fb:'DM Sans',sans-serif;
+    }
+    body{background:var(--bg);color:var(--t);font-family:var(--fb);-webkit-font-smoothing:antialiased;}
+    button{font-family:var(--fb);}
+    select{appearance:none;-webkit-appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B6358' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 12px center;padding-right:38px!important;}
+    select option{background:#fff;color:#1A1612;}
+    input:focus,select:focus{outline:none;border-color:var(--ac)!important;box-shadow:0 0 0 3px rgba(232,72,12,.12)!important;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+    .fu{animation:fadeUp .28s ease forwards;}
+    .pop{animation:pop .32s cubic-bezier(.34,1.56,.64,1) forwards;}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+  `}</style>
+);
+
+// ─────────────────────────────────────────────
+// UI PRIMITIVES
+// ─────────────────────────────────────────────
+const inp = {background:"var(--sf)",border:"1.5px solid var(--bd)",borderRadius:"var(--r-sm)",padding:"12px 14px",fontSize:14,color:"var(--t)",fontFamily:"var(--fb)",width:"100%",transition:"border-color .15s,box-shadow .15s"};
+const lbl = {fontSize:11,fontWeight:700,fontFamily:"var(--fd)",color:"var(--t2)",textTransform:"uppercase",letterSpacing:"0.08em",display:"block",marginBottom:6};
+
+const Card = ({children,style={}}) => (
+  <div style={{background:"var(--sf)",border:"1.5px solid var(--bd)",borderRadius:"var(--r)",padding:20,...style}}>{children}</div>
+);
+
+const Inp = ({label,hint,...p}) => (
+  <div>
+    {label&&<label style={lbl}>{label}</label>}
+    <input {...p} style={{...inp,...(p.style||{})}}/>
+    {hint&&<p style={{fontSize:11,color:"var(--t3)",marginTop:4}}>{hint}</p>}
   </div>
 );
 
-const Btn = ({ children, variant="primary", className="", ...p }) => {
-  const base = "font-black text-xs uppercase tracking-[0.12em] rounded-xl px-5 py-3 transition-all disabled:opacity-40 disabled:cursor-not-allowed";
-  const v = {
-    primary: "bg-amber-500 hover:bg-amber-400 text-black",
-    ghost:   "bg-white/5 hover:bg-white/10 text-white border border-white/10",
-    danger:  "bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-800/40",
-  };
-  return <button className={`${base} ${v[variant]} ${className}`} {...p}>{children}</button>;
-};
-
-const Sel = ({ label, value, onChange, options, placeholder, disabled }) => (
-  <div className="flex flex-col gap-1.5">
-    {label && <label className="text-[10px] font-black uppercase tracking-[0.15em] text-amber-400">{label}</label>}
+const Sel = ({label,value,onChange,options,placeholder,disabled}) => (
+  <div>
+    {label&&<label style={lbl}>{label}</label>}
     <select value={value} onChange={e=>onChange(e.target.value)} disabled={disabled}
-      className="bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/60 disabled:opacity-40">
-      <option value="">{placeholder||"— select —"}</option>
+      style={{...inp,cursor:disabled?"not-allowed":"pointer",color:value?"var(--t)":"var(--t3)",opacity:disabled?.5:1}}>
+      <option value="">{placeholder||"Choose one…"}</option>
       {options.map(o=><option key={o} value={o}>{o}</option>)}
     </select>
   </div>
 );
 
-const Chip = ({ team, size="sm" }) => {
-  const c = TC[team]||{bg:"#334155",fg:"#fff"};
+const Btn = ({children,variant="primary",disabled,style={},...p}) => {
+  const base = {display:"flex",alignItems:"center",justifyContent:"center",gap:6,border:"none",borderRadius:"var(--r-sm)",padding:"13px 20px",fontFamily:"var(--fd)",fontWeight:700,fontSize:14,cursor:"pointer",transition:"all .15s",letterSpacing:"0.02em",width:"100%"};
+  const v = {
+    primary:{background:"var(--ac)",color:"#fff"},
+    secondary:{background:"var(--sf)",color:"var(--t)",border:"1.5px solid var(--bd)"},
+    ghost:{background:"transparent",color:"var(--t2)",border:"1.5px solid var(--bd)"},
+  };
+  return <button {...p} disabled={disabled} style={{...base,...(v[variant]||v.primary),...style,opacity:disabled?.4:1,cursor:disabled?"not-allowed":"pointer"}}>{children}</button>;
+};
+
+const Badge = ({children,color="orange"}) => {
+  const c = {orange:{bg:"#FFF0E8",tc:"#C43A00"},green:{bg:"#EDFAF3",tc:"#1A7A4A"},red:{bg:"#FFF0F0",tc:"#C40000"},grey:{bg:"#F0EDE8",tc:"#6B6358"}}[color]||{bg:"#F0EDE8",tc:"#6B6358"};
+  return <span style={{display:"inline-block",background:c.bg,color:c.tc,fontSize:10,fontWeight:700,fontFamily:"var(--fd)",letterSpacing:"0.06em",textTransform:"uppercase",padding:"3px 8px",borderRadius:100,whiteSpace:"nowrap"}}>{children}</span>;
+};
+
+const Avatar = ({name,size=36}) => (
+  <div style={{width:size,height:size,borderRadius:"50%",background:avColor(name),display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"#fff",fontFamily:"var(--fd)",fontWeight:800,fontSize:size*.38}}>
+    {initials(name)}
+  </div>
+);
+
+const TeamChip = ({team,size="sm"}) => {
+  const c = TC[team]||{bg:"#ccc",fg:"#333"};
+  const tc = c.fg==="#ffffff"?"#444":c.fg;
   return (
-    <span className={`inline-block font-black rounded-full ${size==="lg"?"px-4 py-1.5 text-sm":"px-2.5 py-0.5 text-xs"}`}
-      style={{background:c.bg,color:c.fg}}>
-      {size==="lg" ? team : SHORT[team]||team}
+    <span style={{display:"inline-flex",alignItems:"center",gap:5,background:c.bg+"18",color:tc,border:`1.5px solid ${c.bg}44`,borderRadius:100,padding:size==="lg"?"5px 12px 5px 8px":"3px 9px 3px 6px",fontFamily:"var(--fd)",fontWeight:700,fontSize:size==="lg"?13:11,whiteSpace:"nowrap"}}>
+      <span style={{width:size==="lg"?9:7,height:size==="lg"?9:7,borderRadius:"50%",background:c.bg,flexShrink:0}}/>
+      {size==="lg"?team:SHORT[team]||team}
     </span>
   );
 };
 
-const Card = ({ children, className="" }) => (
-  <div className={`bg-white/[0.03] border border-white/8 rounded-2xl p-5 ${className}`}>{children}</div>
+const SecHead = ({step,icon,title,sub}) => (
+  <div style={{marginBottom:18}}>
+    {step&&<div style={{fontSize:10,fontWeight:700,fontFamily:"var(--fd)",color:"var(--ac)",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:3}}>Step {step}</div>}
+    <div style={{display:"flex",alignItems:"center",gap:8}}>
+      {icon&&<span style={{fontSize:19}}>{icon}</span>}
+      <h3 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:16,color:"var(--t)"}}>{title}</h3>
+    </div>
+    {sub&&<p style={{fontSize:12,color:"var(--t3)",marginTop:3,marginLeft:icon?"27px":"0"}}>{sub}</p>}
+  </div>
 );
 
-const SectionLabel = ({ children }) => (
-  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-400/80 mb-3">{children}</p>
-);
+// ─────────────────────────────────────────────
+// SEARCHABLE PLAYER PICKER
+// ─────────────────────────────────────────────
+const PlayerPick = ({label,value,onChange,disabled}) => {
+  const [q,setQ]     = useState("");
+  const [open,setOpen] = useState(false);
+  const ref          = useRef(null);
 
-// Top-4 multi-picker
-const Top4Picker = ({ value, onChange, excluded, disabled }) => {
+  useEffect(()=>{
+    const h = e=>{ if(ref.current&&!ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown",h);
+    return ()=>document.removeEventListener("mousedown",h);
+  },[]);
+
+  const filtered = ALL_PLAYERS.filter(p=>p.toLowerCase().includes(q.toLowerCase())).slice(0,50);
+  const teamOf   = p => Object.entries(SQUADS).find(([,sq])=>sq.includes(p))?.[0];
+
+  return (
+    <div ref={ref} style={{position:"relative"}}>
+      {label&&<label style={lbl}>{label}</label>}
+      <div onClick={()=>{ if(!disabled){setOpen(o=>!o);setQ("");} }}
+        style={{...inp,cursor:disabled?"not-allowed":"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",opacity:disabled?.5:1,userSelect:"none"}}>
+        <span style={{color:value?"var(--t)":"var(--t3)",fontSize:14,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{value||"Search player…"}</span>
+        {value&&<span style={{fontSize:10,color:"var(--t3)",marginLeft:6,flexShrink:0}}>{SHORT[teamOf(value)]||""}</span>}
+        <span style={{color:"var(--t3)",fontSize:11,marginLeft:8,flexShrink:0}}>▾</span>
+      </div>
+      {open&&(
+        <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,zIndex:200,background:"var(--sf)",border:"1.5px solid var(--bd)",borderRadius:"var(--r)",boxShadow:"var(--sh-md)",overflow:"hidden"}}>
+          <div style={{padding:8,borderBottom:"1px solid var(--bd)"}}>
+            <input autoFocus value={q} onChange={e=>setQ(e.target.value)} placeholder="Type a name…" style={{...inp,padding:"8px 12px",fontSize:13}}/>
+          </div>
+          <div style={{maxHeight:220,overflowY:"auto"}}>
+            {filtered.length===0&&<div style={{padding:"12px 16px",color:"var(--t3)",fontSize:13}}>No players found</div>}
+            {filtered.map(p=>{
+              const team=teamOf(p); const c=TC[team]||{bg:"#ccc"};
+              return (
+                <div key={p} onClick={()=>{onChange(p);setOpen(false);setQ("");}}
+                  style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",cursor:"pointer",background:value===p?"#FFF0E8":"transparent",borderLeft:value===p?"3px solid var(--ac)":"3px solid transparent"}}
+                  onMouseEnter={e=>e.currentTarget.style.background=value===p?"#FFF0E8":"#F5F2EB"}
+                  onMouseLeave={e=>e.currentTarget.style.background=value===p?"#FFF0E8":"transparent"}>
+                  <span style={{fontSize:14,fontWeight:value===p?600:400,color:"var(--t)"}}>{p}</span>
+                  <span style={{display:"inline-flex",alignItems:"center",gap:4,fontSize:10,color:"var(--t3)"}}>
+                    <span style={{width:6,height:6,borderRadius:"50%",background:c.bg}}/>{SHORT[team]||""}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// TOP-4 PICKER
+// ─────────────────────────────────────────────
+const Top4 = ({value,onChange,excluded,disabled}) => {
   const toggle = t => {
     if (value.includes(t)) onChange(value.filter(x=>x!==t));
     else if (value.length<4) onChange([...value,t]);
   };
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-[10px] font-black uppercase tracking-[0.15em] text-amber-400">
-        Top 4 Playoff Teams <span className="text-white/30 normal-case">({value.length}/4 picked)</span>
-      </label>
-      <div className="grid grid-cols-2 gap-2">
+    <div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+        <label style={lbl}>Top 4 Playoff Teams</label>
+        <Badge color={value.length===4?"green":"grey"}>{value.length}/4 picked</Badge>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
         {TEAMS.filter(t=>!excluded.includes(t)).map(t=>{
-          const on = value.includes(t);
-          const full = !on && value.length>=4;
+          const on=value.includes(t); const full=!on&&value.length>=4; const c=TC[t]||{bg:"#ccc"};
           return (
             <button key={t} type="button" disabled={disabled||full} onClick={()=>toggle(t)}
-              className={`text-left px-3 py-2.5 rounded-xl text-xs font-bold border transition-all ${
-                on  ? "border-amber-500/60 bg-amber-500/15 text-amber-300"
-                    : "border-white/8 bg-white/3 text-white/50 hover:text-white hover:border-white/20"
-              } disabled:opacity-30`}>
-              <span className="text-white/40 mr-1">{SHORT[t]}</span> {t.split(" ").slice(-1)[0]}
-              {on && <span className="float-right text-amber-500">✓</span>}
+              style={{display:"flex",alignItems:"center",gap:8,padding:"10px 12px",borderRadius:"var(--r-sm)",border:`1.5px solid ${on?"var(--t)":"var(--bd)"}`,background:on?"var(--t)":"var(--sf)",cursor:(disabled||full)?"not-allowed":"pointer",opacity:full?.35:1,transition:"all .15s",textAlign:"left"}}>
+              <span style={{width:9,height:9,borderRadius:"50%",background:c.bg,flexShrink:0}}/>
+              <span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:12,color:on?"#fff":"var(--t)",flex:1}}>
+                <span style={{opacity:.6,fontSize:10}}>{SHORT[t]} </span>{t.split(" ").slice(-1)[0]}
+              </span>
+              {on&&<span style={{color:"#fff",fontSize:14,marginLeft:"auto"}}>✓</span>}
             </button>
           );
         })}
@@ -175,381 +319,334 @@ const Top4Picker = ({ value, onChange, excluded, disabled }) => {
 };
 
 // ─────────────────────────────────────────────
-// SCREEN: AUTH
+// AUTH SCREEN
 // ─────────────────────────────────────────────
-const AuthScreen = ({ onLogin }) => {
-  const [mode, setMode] = useState("login");
-  const [form, setForm] = useState({username:"",password:"",name:""});
-  const [err, setErr] = useState("");
-  const [busy, setBusy] = useState(false);
+const AuthScreen = ({onLogin}) => {
+  const [mode,setMode] = useState("login");
+  const [form,setForm] = useState({username:"",password:"",name:""});
+  const [err,setErr]   = useState("");
+  const [busy,setBusy] = useState(false);
+  const urlCode = (()=>{ try{const m=window.location.pathname.match(/\/join\/([A-Z0-9]{4,8})/i);return m?m[1].toUpperCase():null;}catch{return null;}})();
+  const set = k=>e=>setForm(f=>({...f,[k]:e.target.value}));
 
-  const set = k => e => setForm(f=>({...f,[k]:e.target.value}));
-
-  const submit = async () => {
+  const submit = async()=>{
     setErr(""); setBusy(true);
     try {
-      if (mode==="signup") {
-        if (!form.name.trim()||!form.username.trim()||!form.password.trim()) throw new Error("Fill all fields");
-        // check unique
-        const exists = await sb(`users?username=eq.${form.username.toLowerCase()}&select=id`);
-        if (exists?.length) throw new Error("Username taken — try another");
-        const [user] = await sb("users", { method:"POST", body:{ username:form.username.toLowerCase().trim(), password:form.password, name:form.name.trim() }});
-        onLogin(user);
+      let user;
+      if (mode==="signup"){
+        if(!form.name.trim()||!form.username.trim()||!form.password.trim()) throw new Error("Please fill in all fields");
+        const ex=await sb(`users?username=eq.${form.username.toLowerCase()}&select=id`);
+        if(ex?.length) throw new Error("Username taken — try another");
+        [user]=await sb("users",{method:"POST",body:{username:form.username.toLowerCase().trim(),password:form.password,name:form.name.trim()}});
       } else {
-        const rows = await sb(`users?username=eq.${form.username.toLowerCase()}&password=eq.${form.password}&select=*`);
-        if (!rows?.length) throw new Error("Wrong username or password");
-        onLogin(rows[0]);
+        const rows=await sb(`users?username=eq.${form.username.toLowerCase()}&password=eq.${form.password}&select=*`);
+        if(!rows?.length) throw new Error("Wrong username or password");
+        user=rows[0];
       }
-    } catch(e){ setErr(e.message); }
+      if(urlCode){
+        try{
+          const rows=await sb(`leagues?code=eq.${urlCode}&select=*`);
+          if(rows?.length){
+            const l=rows[0];
+            const al=await sb(`league_members?league_id=eq.${l.id}&user_id=eq.${user.id}&select=id`);
+            if(!al?.length) await sb("league_members",{method:"POST",body:{league_id:l.id,user_id:user.id}});
+          }
+        } catch{}
+        window.history.replaceState({},"","/");
+      }
+      onLogin(user);
+    } catch(e){setErr(e.message);}
     setBusy(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
-      style={{background:"radial-gradient(ellipse 80% 60% at 50% -10%, #92400e33, transparent), radial-gradient(ellipse 60% 80% at 80% 110%, #1e3a5f44, transparent), #030712"}}>
-
-      {/* ambient glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full opacity-20 blur-[100px]" style={{background:"radial-gradient(#F59E0B,transparent)"}}/>
-      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full opacity-10 blur-[120px]" style={{background:"radial-gradient(#3B82F6,transparent)"}}/>
-
-      <div className="w-full max-w-sm relative z-10">
+    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:20,background:"linear-gradient(180deg,#F4F1EA 0%,#EDE9E0 100%)",position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",top:-100,right:-100,width:340,height:340,borderRadius:"50%",background:"radial-gradient(circle,#E8480C18,transparent 70%)",pointerEvents:"none"}}/>
+      <div style={{position:"absolute",bottom:-80,left:-80,width:260,height:260,borderRadius:"50%",background:"radial-gradient(circle,#F9CD1B18,transparent 70%)",pointerEvents:"none"}}/>
+      <div style={{width:"100%",maxWidth:380,position:"relative",zIndex:1}} className="fu">
         {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-4 relative"
-            style={{background:"linear-gradient(135deg,#92400e,#F59E0B22)",border:"1px solid #F59E0B33"}}>
-            <span className="text-4xl">🏏</span>
-          </div>
-          <h1 className="text-3xl font-black text-white leading-none" style={{fontFamily:"'Palatino Linotype','Book Antiqua',Palatino,serif",letterSpacing:"-0.02em"}}>
-            IPL Prediction
-          </h1>
-          <h2 className="text-xl font-black leading-none mt-0.5" style={{fontFamily:"'Palatino Linotype','Book Antiqua',Palatino,serif",color:"#F59E0B"}}>
-            League 2026
-          </h2>
-          <p className="text-white/30 text-xs mt-3 tracking-widest uppercase">Predict · Compete · Dominate</p>
+        <div style={{textAlign:"center",marginBottom:26}}>
+          <div style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:66,height:66,borderRadius:18,background:"var(--ac)",fontSize:28,marginBottom:12,boxShadow:"0 8px 24px rgba(232,72,12,.3)"}}>🏏</div>
+          <h1 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:26,color:"var(--t)",lineHeight:1.1}}>IPL Prediction</h1>
+          <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:20,color:"var(--ac)",marginTop:2}}>League 2026</h2>
+          <p style={{fontSize:12,color:"var(--t3)",letterSpacing:"0.1em",textTransform:"uppercase",marginTop:8}}>Predict · Compete · Win</p>
         </div>
 
-        {/* Tab */}
-        <div className="flex bg-white/5 rounded-2xl p-1 mb-5 border border-white/8">
-          {[["login","Sign In"],["signup","Join League"]].map(([m,l])=>(
-            <button key={m} onClick={()=>{setMode(m);setErr("");}}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                mode===m ? "bg-amber-500 text-black shadow-lg" : "text-white/40 hover:text-white"
-              }`}>{l}</button>
+        {/* How it works */}
+        <div style={{background:"var(--gold-bg)",border:"1.5px solid #F5D170",borderRadius:"var(--r)",padding:"13px 16px",marginBottom:14}}>
+          <p style={{fontSize:11,fontWeight:700,fontFamily:"var(--fd)",color:"var(--gold)",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.08em"}}>🎯 How it works</p>
+          {["1. Join a league using a code from your friend","2. Make your IPL 2026 predictions","3. Watch live scores on the leaderboard"].map((s,i)=>(
+            <p key={i} style={{fontSize:13,color:"var(--t2)",marginBottom:i<2?4:0}}>{s}</p>
           ))}
         </div>
 
-        <Card className="space-y-4">
-          {mode==="signup" && <Input label="Display Name" value={form.name} onChange={set("name")} placeholder="e.g. Swapnil" />}
-          <Input label="Username" value={form.username} onChange={set("username")} placeholder="your_username" autoCapitalize="none" />
-          <Input label="Password" type="password" value={form.password} onChange={set("password")} placeholder="••••••••"
-            onKeyDown={e=>e.key==="Enter"&&submit()} />
-          {err && <p className="text-red-400 text-xs bg-red-950/40 border border-red-900/50 rounded-xl px-4 py-2.5">{err}</p>}
-          <Btn onClick={submit} disabled={busy} className="w-full py-3.5">
-            {busy?"…":mode==="login"?"Sign In →":"Create Account →"}
-          </Btn>
-        </Card>
+        {urlCode&&<div className="pop" style={{background:"var(--gr-bg)",border:"1.5px solid #88DDB0",borderRadius:"var(--r-sm)",padding:"10px 14px",marginBottom:12,fontSize:13,color:"var(--gr)",fontWeight:600,display:"flex",alignItems:"center",gap:8}}>🔗 You've been invited! Sign in to join.</div>}
 
-        <p className="text-center text-white/20 text-xs mt-5">🔒 Predictions lock 28 Mar · 3:30 PM IST</p>
+        {/* Mode toggle */}
+        <div style={{display:"flex",background:"var(--bg2)",borderRadius:"var(--r-sm)",padding:3,marginBottom:14}}>
+          {[["login","Sign In"],["signup","Create Account"]].map(([m,l])=>(
+            <button key={m} onClick={()=>{setMode(m);setErr("");}} style={{flex:1,padding:"10px 0",borderRadius:8,border:"none",cursor:"pointer",fontFamily:"var(--fd)",fontWeight:700,fontSize:13,transition:"all .15s",background:mode===m?"var(--sf)":"transparent",color:mode===m?"var(--t)":"var(--t3)",boxShadow:mode===m?"0 1px 4px rgba(0,0,0,.1)":"none"}}>{l}</button>
+          ))}
+        </div>
+
+        <Card style={{boxShadow:"var(--sh-md)"}}>
+          <div style={{display:"flex",flexDirection:"column",gap:13}}>
+            {mode==="signup"&&<Inp label="Your Name" value={form.name} onChange={set("name")} placeholder="e.g. Swapnil"/>}
+            <Inp label="Username" value={form.username} onChange={set("username")} placeholder="your_username" autoCapitalize="none"/>
+            <Inp label="Password" type="password" value={form.password} onChange={set("password")} placeholder="••••••••" onKeyDown={e=>e.key==="Enter"&&submit()}/>
+            {err&&<div style={{background:"var(--re-bg)",border:"1.5px solid #FFBBBB",borderRadius:"var(--r-sm)",padding:"10px 12px",fontSize:13,color:"var(--re)",display:"flex",gap:8"}}>⚠️ {err}</div>}
+            <Btn onClick={submit} disabled={busy} style={{padding:"14px 0",fontSize:15}}>{busy?"Please wait…":mode==="login"?"Sign In →":"Create Account →"}</Btn>
+          </div>
+        </Card>
+        <p style={{textAlign:"center",fontSize:11,color:"var(--t3)",marginTop:12}}>🔒 Predictions lock 28 Mar · 3:30 PM IST</p>
       </div>
     </div>
   );
 };
 
 // ─────────────────────────────────────────────
-// SCREEN: LEAGUES HUB
+// LEAGUES SCREEN
 // ─────────────────────────────────────────────
-const LeaguesScreen = ({ user, onEnterLeague }) => {
-  const [leagues, setLeagues] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [createName, setCreateName] = useState("");
-  const [joinCode, setJoinCode] = useState("");
-  const [err, setErr] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [tab, setTab] = useState("my"); // my | create | join
+const LeaguesScreen = ({user,onEnterLeague}) => {
+  const [leagues,setLeagues] = useState([]);
+  const [loading,setLoading] = useState(true);
+  const [joinCode,setJoinCode] = useState("");
+  const [err,setErr]         = useState("");
+  const [busy,setBusy]       = useState(false);
+  const [toast,setToast]     = useState("");
+  const [view,setView]       = useState("list");
 
-  const load = useCallback(async () => {
+  const load = useCallback(async()=>{
     setLoading(true);
-    try {
-      // leagues this user is a member of
-      const memberships = await sb(`league_members?user_id=eq.${user.id}&select=league_id`);
-      const ids = (memberships||[]).map(m=>m.league_id);
-      if (!ids.length) { setLeagues([]); setLoading(false); return; }
-      const rows = await sb(`leagues?id=in.(${ids.join(",")})&select=*&order=created_at.asc`);
-      // get member counts
-      const counts = await Promise.all((rows||[]).map(l=>sb(`league_members?league_id=eq.${l.id}&select=user_id`)));
+    try{
+      const ms=await sb(`league_members?user_id=eq.${user.id}&select=league_id`);
+      const ids=(ms||[]).map(m=>m.league_id);
+      if(!ids.length){setLeagues([]);setLoading(false);return;}
+      const rows=await sb(`leagues?id=in.(${ids.join(",")})&select=*&order=created_at.asc`);
+      const counts=await Promise.all((rows||[]).map(l=>sb(`league_members?league_id=eq.${l.id}&select=user_id`)));
       setLeagues((rows||[]).map((l,i)=>({...l,member_count:counts[i]?.length||0})));
-    } catch(e){ setErr(e.message); }
+    } catch(e){setErr(e.message);}
     setLoading(false);
   },[user.id]);
 
-  useEffect(()=>{ load(); },[load]);
+  useEffect(()=>{load();},[load]);
 
-  const createLeague = async () => {
-    if (!createName.trim()) return;
+  const join = async()=>{
+    if(joinCode.length<4) return;
     setBusy(true); setErr("");
-    try {
-      const code = genCode();
-      const [league] = await sb("leagues",{method:"POST",body:{name:createName.trim(),code,created_by:user.id}});
+    try{
+      const rows=await sb(`leagues?code=eq.${joinCode.trim().toUpperCase()}&select=*`);
+      if(!rows?.length) throw new Error("League not found — double-check the code with your friend");
+      const league=rows[0];
+      const al=await sb(`league_members?league_id=eq.${league.id}&user_id=eq.${user.id}&select=id`);
+      if(al?.length) throw new Error("You're already in this league!");
       await sb("league_members",{method:"POST",body:{league_id:league.id,user_id:user.id}});
-      setCreateName(""); setTab("my"); load();
-    } catch(e){ setErr(e.message); }
-    setBusy(false);
-  };
-
-  const joinLeague = async () => {
-    if (!joinCode.trim()) return;
-    setBusy(true); setErr("");
-    try {
-      const rows = await sb(`leagues?code=eq.${joinCode.trim().toUpperCase()}&select=*`);
-      if (!rows?.length) throw new Error("League not found — check the code");
-      const league = rows[0];
-      const already = await sb(`league_members?league_id=eq.${league.id}&user_id=eq.${user.id}&select=id`);
-      if (already?.length) throw new Error("You're already in this league");
-      await sb("league_members",{method:"POST",body:{league_id:league.id,user_id:user.id}});
-      setJoinCode(""); setTab("my"); load();
-    } catch(e){ setErr(e.message); }
+      setJoinCode(""); setView("list");
+      setToast(`You've joined "${league.name}"! 🎉`);
+      setTimeout(()=>setToast(""),4000);
+      load();
+    } catch(e){setErr(e.message);}
     setBusy(false);
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
+    <div style={{maxWidth:520,margin:"0 auto",padding:"24px 16px"}} className="fu">
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:20}}>
         <div>
-          <h2 className="text-xl font-black text-white" style={{fontFamily:"'Palatino Linotype',Palatino,serif"}}>My Leagues</h2>
-          <p className="text-white/30 text-xs mt-0.5">Hi {user.name} 👋</p>
+          <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:22,color:"var(--t)"}}>My Leagues</h2>
+          <p style={{fontSize:13,color:"var(--t3)",marginTop:3}}>Hi {user.name} 👋</p>
         </div>
+        {view==="list"
+          ? <Btn onClick={()=>{setView("join");setErr("");}} variant="secondary" style={{width:"auto",padding:"10px 16px",fontSize:13}}>🔗 Join League</Btn>
+          : <Btn onClick={()=>{setView("list");setErr("");}} variant="ghost"     style={{width:"auto",padding:"10px 16px",fontSize:13}}>← Back</Btn>
+        }
       </div>
 
-      {/* Sub-tabs */}
-      <div className="flex gap-2 mb-5">
-        {[["my","🏟️ My Leagues"],["create","✨ Create"],["join","🔗 Join"]].map(([t,l])=>(
-          <button key={t} onClick={()=>{setTab(t);setErr("");}}
-            className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${
-              tab===t?"bg-amber-500 text-black":"bg-white/5 text-white/50 hover:text-white border border-white/8"
-            }`}>{l}</button>
-        ))}
-      </div>
+      {toast&&<div className="pop" style={{display:"flex",alignItems:"center",gap:10,background:"var(--gr-bg)",border:"1.5px solid #88DDB0",borderRadius:"var(--r)",padding:"14px 16px",marginBottom:12}}><span style={{fontSize:22}}>🎉</span><span style={{fontWeight:600,fontSize:14,color:"var(--gr)"}}>{toast}</span></div>}
+      {err&&<div style={{background:"var(--re-bg)",border:"1.5px solid #FFBBBB",borderRadius:"var(--r-sm)",padding:"11px 14px",marginBottom:12,fontSize:13,color:"var(--re)"}}>⚠️ {err}</div>}
 
-      {err && <p className="text-red-400 text-xs bg-red-950/40 border border-red-900/40 rounded-xl px-4 py-2.5 mb-4">{err}</p>}
+      {view==="join"&&(
+        <Card style={{marginBottom:14,boxShadow:"var(--sh-md)"}}>
+          <SecHead icon="🔗" title="Join a League" sub="Ask your league admin for their 6-character code"/>
+          <div style={{display:"flex",flexDirection:"column",gap:13}}>
+            <Inp label="League Code" value={joinCode} onChange={e=>setJoinCode(e.target.value.toUpperCase())} placeholder="e.g. RCB007" maxLength={6}
+              style={{letterSpacing:"0.25em",fontFamily:"monospace",fontSize:20,textAlign:"center",fontWeight:700}} onKeyDown={e=>e.key==="Enter"&&join()}/>
+            <Btn onClick={join} disabled={busy||joinCode.length<4} style={{padding:"14px 0"}}>{busy?"Joining…":"Join League →"}</Btn>
+          </div>
+        </Card>
+      )}
 
-      {/* MY LEAGUES */}
-      {tab==="my" && (
-        <div className="space-y-3">
-          {loading ? (
-            <div className="text-center py-10 text-white/20 text-sm">Loading…</div>
-          ) : leagues.length===0 ? (
-            <div className="text-center py-12">
-              <p className="text-4xl mb-3">🏏</p>
-              <p className="text-white/30 text-sm">No leagues yet.</p>
-              <p className="text-white/20 text-xs mt-1">Create one or join a friend's league.</p>
-            </div>
-          ) : leagues.map(l=>(
-            <button key={l.id} onClick={()=>onEnterLeague(l)}
-              className="w-full text-left bg-white/[0.03] hover:bg-white/[0.06] border border-white/8 hover:border-amber-500/30 rounded-2xl px-5 py-4 transition-all group">
-              <div className="flex items-start justify-between">
+      {view==="list"&&(
+        loading ? (
+          <div style={{textAlign:"center",padding:"48px 0",color:"var(--t3)",fontSize:14}}>Loading your leagues…</div>
+        ) : leagues.length===0 ? (
+          <div style={{textAlign:"center",padding:"48px 16px"}}>
+            <div style={{fontSize:44,marginBottom:12}}>🏏</div>
+            <p style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:16,color:"var(--t)"}}>No league yet</p>
+            <p style={{fontSize:13,color:"var(--t3)",margin:"6px 0 20px"}}>Enter a code to start playing with friends 👇</p>
+            <Btn onClick={()=>setView("join")} style={{width:"auto",padding:"12px 24px",margin:"0 auto"}}>🔗 Enter League Code</Btn>
+          </div>
+        ) : (
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            {leagues.map(l=>(
+              <button key={l.id} onClick={()=>onEnterLeague(l)}
+                style={{width:"100%",textAlign:"left",background:"var(--sf)",border:"1.5px solid var(--bd)",borderRadius:"var(--r)",padding:"16px 18px",cursor:"pointer",transition:"all .2s",display:"flex",alignItems:"center",justifyContent:"space-between"}}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--ac)";e.currentTarget.style.transform="translateY(-1px)";e.currentTarget.style.boxShadow="var(--sh-md)";}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--bd)";e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none";}}>
                 <div>
-                  <p className="text-white font-black text-sm group-hover:text-amber-300 transition-colors">{l.name}</p>
-                  <p className="text-white/30 text-xs mt-0.5">{l.member_count} member{l.member_count!==1?"s":""}</p>
+                  <p style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:15,color:"var(--t)"}}>{l.name}</p>
+                  <p style={{fontSize:12,color:"var(--t3)",marginTop:3}}>{l.member_count} member{l.member_count!==1?"s":""}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-amber-500/60 font-black text-xs tracking-widest font-mono">{l.code}</p>
-                  {l.created_by===user.id && <p className="text-white/20 text-[10px] mt-0.5">Admin</p>}
+                <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
+                  <span style={{fontFamily:"monospace",fontWeight:700,fontSize:13,letterSpacing:"0.2em",color:"var(--ac)",background:"#FFF0E8",padding:"4px 10px",borderRadius:100}}>{l.code}</span>
+                  {l.created_by===user.id&&<Badge color="grey">Admin</Badge>}
                 </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* CREATE */}
-      {tab==="create" && (
-        <Card className="space-y-4">
-          <SectionLabel>Create a New League</SectionLabel>
-          <Input label="League Name" value={createName} onChange={e=>setCreateName(e.target.value)}
-            placeholder="e.g. Family IPL 2026" onKeyDown={e=>e.key==="Enter"&&createLeague()} />
-          <p className="text-white/30 text-xs">A unique 6-digit code will be generated. Share it with friends to let them join.</p>
-          <Btn onClick={createLeague} disabled={busy||!createName.trim()} className="w-full">
-            {busy?"Creating…":"Create League →"}
-          </Btn>
-        </Card>
-      )}
-
-      {/* JOIN */}
-      {tab==="join" && (
-        <Card className="space-y-4">
-          <SectionLabel>Join a League</SectionLabel>
-          <Input label="League Code" value={joinCode} onChange={e=>setJoinCode(e.target.value.toUpperCase())}
-            placeholder="e.g. RCB007" maxLength={6} style={{letterSpacing:"0.2em",fontFamily:"monospace"}}
-            onKeyDown={e=>e.key==="Enter"&&joinLeague()} />
-          <p className="text-white/30 text-xs">Ask your league admin for their 6-digit code.</p>
-          <Btn onClick={joinLeague} disabled={busy||joinCode.length<4} className="w-full">
-            {busy?"Joining…":"Join League →"}
-          </Btn>
-        </Card>
+              </button>
+            ))}
+          </div>
+        )
       )}
     </div>
   );
 };
 
 // ─────────────────────────────────────────────
-// SCREEN: LEAGUE DETAIL (leaderboard)
+// LEAGUE DETAIL — Leaderboard
 // ─────────────────────────────────────────────
-const LeagueScreen = ({ league, user, onBack }) => {
-  const [members, setMembers] = useState([]);
-  const [actuals, setActuals] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
+const LeagueScreen = ({league,user,onBack}) => {
+  const [members,setMembers] = useState([]);
+  const [actuals,setActuals] = useState(null);
+  const [loading,setLoading] = useState(true);
+  const [copied,setCopied]   = useState(false);
+  const medals = ["🥇","🥈","🥉"];
 
   useEffect(()=>{
     (async()=>{
       setLoading(true);
-      try {
-        // members
-        const mems = await sb(`league_members?league_id=eq.${league.id}&select=user_id`);
-        const uids = mems.map(m=>m.user_id);
-        const users = await sb(`users?id=in.(${uids.join(",")})&select=id,username,name`);
-        // predictions
-        const preds = uids.length ? await sb(`predictions?user_id=in.(${uids.join(",")})&select=*`) : [];
-        // actuals
-        const acts = await sb(`actuals?select=*`);
-        const act = acts?.[0]||null;
-        setActuals(act);
-
-        const predMap = {};
-        (preds||[]).forEach(p=>{ predMap[p.user_id]=p; });
-
-        const ranked = (users||[]).map(u=>({
-          ...u,
-          pred: predMap[u.id]||null,
-          score: predMap[u.id]&&act ? calcScore(predMap[u.id],act) : null,
-          hasPred: !!predMap[u.id],
-        })).sort((a,b)=>{
-          if (a.score===null && b.score===null) return 0;
-          if (a.score===null) return 1;
-          if (b.score===null) return -1;
-          return b.score-a.score;
-        });
+      try{
+        const mems=await sb(`league_members?league_id=eq.${league.id}&select=user_id`);
+        const uids=mems.map(m=>m.user_id);
+        const users=await sb(`users?id=in.(${uids.join(",")})&select=id,username,name`);
+        const preds=uids.length?await sb(`predictions?user_id=in.(${uids.join(",")})&select=*`):[];
+        const acts=await sb(`actuals?select=*`);
+        const act=acts?.[0]||null; setActuals(act);
+        const pm={}; (preds||[]).forEach(p=>{pm[p.user_id]=p;});
+        const ranked=(users||[]).map(u=>({...u,pred:pm[u.id]||null,score:pm[u.id]&&act?calcScore(pm[u.id],act):null,hasPred:!!pm[u.id]}))
+          .sort((a,b)=>{ if(a.score===null&&b.score===null) return 0; if(a.score===null) return 1; if(b.score===null) return -1; return b.score-a.score; });
         setMembers(ranked);
-      } catch(e){ console.error(e); }
+      } catch(e){console.error(e);}
       setLoading(false);
     })();
   },[league.id]);
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(league.code).then(()=>{ setCopied(true); setTimeout(()=>setCopied(false),2000); });
+  const copyLink = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/join/${league.code}`).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2500);});
   };
 
-  const medals = ["🥇","🥈","🥉"];
+  const me       = members.find(m=>m.id===user.id);
+  const myRank   = members.findIndex(m=>m.id===user.id)+1;
+  const leader   = members[0];
+  const ptsBehind = leader&&me&&me.score!==null&&leader.score!==null&&me.id!==leader.id ? leader.score-me.score : null;
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6">
+    <div style={{maxWidth:520,margin:"0 auto",padding:"24px 16px"}} className="fu">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-1">
-        <button onClick={onBack} className="text-white/30 hover:text-white transition-colors text-xl leading-none">←</button>
-        <h2 className="text-xl font-black text-white" style={{fontFamily:"'Palatino Linotype',Palatino,serif"}}>{league.name}</h2>
+      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:4}}>
+        <button onClick={onBack} style={{width:38,height:38,borderRadius:10,background:"var(--sf)",border:"1.5px solid var(--bd)",cursor:"pointer",fontSize:16,color:"var(--t2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>←</button>
+        <div>
+          <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:20,color:"var(--t)"}}>{league.name}</h2>
+          <p style={{fontSize:12,color:"var(--t3)",marginTop:1}}>🏆 Leaderboard</p>
+        </div>
       </div>
 
-      {/* League code pill */}
-      <div className="flex items-center gap-3 mb-6 ml-8">
-        <button onClick={copyCode}
-          className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/50 rounded-full px-4 py-1.5 transition-all">
-          <span className="text-amber-400 font-black text-xs tracking-[0.2em] font-mono">{league.code}</span>
-          <span className="text-amber-500/60 text-xs">{copied?"✓ Copied!":"tap to copy"}</span>
+      {/* Invite row */}
+      <div style={{display:"flex",alignItems:"center",gap:10,paddingLeft:50,marginBottom:20,flexWrap:"wrap"}}>
+        <button onClick={copyLink} style={{display:"inline-flex",alignItems:"center",gap:7,background:"#FFF0E8",border:"1.5px solid #FFD0B8",borderRadius:100,padding:"6px 14px",cursor:"pointer"}}>
+          <span style={{fontFamily:"monospace",fontWeight:700,fontSize:13,letterSpacing:"0.2em",color:"var(--ac)"}}>{league.code}</span>
+          <span style={{fontSize:11,color:"var(--t3)",fontWeight:600}}>{copied?"✓ Invite link copied!":"📋 copy invite link"}</span>
         </button>
-        <span className="text-white/20 text-xs">{members.length} member{members.length!==1?"s":""}</span>
+        <span style={{fontSize:12,color:"var(--t3)"}}>{members.length} player{members.length!==1?"s":""}</span>
       </div>
 
-      {loading ? (
-        <div className="text-center py-16 text-white/20">Loading…</div>
-      ) : (
+      {/* My position banner */}
+      {actuals&&me?.score!==null&&(
+        <div className="pop" style={{background:"linear-gradient(135deg,#FFF5EE,#FFEEE0)",border:"1.5px solid #FFD0B0",borderRadius:"var(--r)",padding:"14px 18px",marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <span style={{fontSize:28}}>{medals[myRank-1]||`#${myRank}`}</span>
+            <div>
+              <p style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:14,color:"var(--t)"}}>You're #{myRank} of {members.length}</p>
+              <p style={{fontSize:12,color:"var(--t2)",marginTop:2}}>{ptsBehind?`🔥 ${ptsBehind} pts behind ${leader.name.split(" ")[0]}`:"🏆 You're leading!"}</p>
+            </div>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <p style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:26,color:"var(--ac)"}}>{me.score}</p>
+            <p style={{fontSize:11,color:"var(--t3)"}}>/ {MAX_PTS} pts</p>
+          </div>
+        </div>
+      )}
+
+      {loading?(
+        <div style={{textAlign:"center",padding:"48px 0",color:"var(--t3)"}}>Loading leaderboard…</div>
+      ):(
         <>
-          {/* Scoring info banner if no actuals yet */}
-          {!actuals && (
-            <div className="bg-amber-900/15 border border-amber-800/30 rounded-2xl px-5 py-3.5 mb-5 flex items-center gap-3">
-              <span className="text-2xl">⏳</span>
+          {!actuals&&(
+            <div style={{display:"flex",alignItems:"center",gap:12,background:"var(--gold-bg)",border:"1.5px solid #F5D170",borderRadius:"var(--r)",padding:"14px 16px",marginBottom:14}}>
+              <span style={{fontSize:22}}>⏳</span>
               <div>
-                <p className="text-amber-400 text-xs font-black">Tournament not started</p>
-                <p className="text-white/30 text-[11px] mt-0.5">Scores will appear once results are entered</p>
+                <p style={{fontWeight:700,fontSize:13,color:"var(--gold)"}}>Tournament not started yet</p>
+                <p style={{fontSize:12,color:"#9A7A00",marginTop:2}}>Scores appear once the admin enters results</p>
               </div>
             </div>
           )}
-
-          {/* Leaderboard */}
-          <div className="space-y-2.5">
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {members.map((m,i)=>{
-              const isMe = m.id===user.id;
-              const pct = m.score!==null ? Math.round((m.score/MAX_PTS)*100) : 0;
+              const isMe=m.id===user.id;
+              const pct=m.score!==null?Math.round((m.score/MAX_PTS)*100):0;
               return (
-                <div key={m.id}
-                  className={`rounded-2xl px-5 py-4 border transition-all ${isMe?"bg-amber-500/8 border-amber-500/30":"bg-white/[0.02] border-white/6"}`}>
-                  <div className="flex items-center gap-4">
-                    {/* Rank */}
-                    <div className="w-8 text-center flex-shrink-0">
-                      {actuals ? (
-                        <span className="text-xl">{medals[i]||<span className="text-white/30 text-sm font-black">#{i+1}</span>}</span>
-                      ) : (
-                        <span className="text-white/20 text-sm font-black">#{i+1}</span>
-                      )}
+                <div key={m.id} style={{background:isMe?"#FFF5EE":"var(--sf)",border:`1.5px solid ${isMe?"#FFD0B0":i<3&&actuals?"var(--bd2)":"var(--bd)"}`,borderRadius:"var(--r)",padding:"14px 16px",boxShadow:i<3&&actuals?"var(--sh)":"none"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{width:34,textAlign:"center",flexShrink:0,fontSize:i<3&&actuals?22:13,fontFamily:"var(--fd)",fontWeight:700,color:"var(--t3)"}}>
+                      {actuals&&i<3?medals[i]:`#${i+1}`}
                     </div>
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className={`font-black text-sm ${isMe?"text-amber-300":"text-white"}`}>{m.name}</p>
-                        {isMe && <span className="text-[9px] text-amber-500/60 uppercase tracking-wider font-bold">you</span>}
-                        {!m.hasPred && <span className="text-[9px] text-red-400/60 uppercase tracking-wider font-bold">no prediction</span>}
+                    <Avatar name={m.name}/>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                        <span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:14,color:isMe?"var(--ac)":"var(--t)"}}>{m.name}</span>
+                        {isMe&&<Badge color="orange">You</Badge>}
+                        {!m.hasPred&&<Badge color="red">No pick yet</Badge>}
                       </div>
-                      {m.pred?.winner && (
-                        <div className="mt-1"><Chip team={m.pred.winner}/></div>
-                      )}
-                      {/* Score bar */}
-                      {actuals && m.score!==null && (
-                        <div className="mt-2">
-                          <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full rounded-full transition-all duration-700"
-                              style={{width:`${pct}%`,background:`linear-gradient(90deg,#F59E0B,#FCD34D)`}}/>
-                          </div>
+                      {m.pred?.winner&&<div style={{marginTop:5}}><TeamChip team={m.pred.winner}/></div>}
+                      {actuals&&m.score!==null&&(
+                        <div style={{marginTop:8,height:4,background:"var(--bg2)",borderRadius:100,overflow:"hidden"}}>
+                          <div style={{height:"100%",borderRadius:100,background:"linear-gradient(90deg,var(--ac),#FF6B35)",width:`${pct}%`,transition:"width .8s cubic-bezier(.4,0,.2,1)"}}/>
                         </div>
                       )}
                     </div>
-                    {/* Score */}
-                    <div className="text-right flex-shrink-0">
-                      {actuals && m.score!==null ? (
+                    <div style={{textAlign:"right",flexShrink:0}}>
+                      {actuals&&m.score!==null?(
                         <>
-                          <p className={`text-2xl font-black ${isMe?"text-amber-400":"text-white"}`}>{m.score}</p>
-                          <p className="text-white/20 text-[10px]">/ {MAX_PTS}</p>
+                          <p style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:22,color:isMe?"var(--ac)":"var(--t)"}}>{m.score}</p>
+                          <p style={{fontSize:11,color:"var(--t3)"}}>/{MAX_PTS}</p>
                         </>
-                      ) : (
-                        <p className="text-white/15 text-xs">—</p>
-                      )}
+                      ):<span style={{color:"var(--bd2)",fontSize:18}}>—</span>}
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-
-          {/* Actuals recap */}
-          {actuals && (
-            <div className="mt-6">
-              <Card>
-                <SectionLabel>📊 Tournament Results So Far</SectionLabel>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-                  {[
-                    ["🏆 Champion",actuals.winner],
-                    ["🥈 Runner-Up",actuals.finalist2],
-                    ["🍊 Orange Cap",actuals.top_scorer],
-                    ["💜 Purple Cap",actuals.top_wicket_taker],
-                    ["💥 Most Sixes",actuals.max_sixes],
-                    ["🏏 Most Fours",actuals.max_fours],
-                  ].filter(([,v])=>v).map(([k,v])=>(
-                    <div key={k} className="flex flex-col">
-                      <span className="text-white/25">{k}</span>
-                      <span className="text-white font-bold truncate">{v}</span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
+          {actuals&&(
+            <Card style={{marginTop:14}}>
+              <SecHead icon="📊" title="Tournament Results"/>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                {[["🏆 Champion",actuals.winner],["🥈 Runner-Up",actuals.finalist2],["🍊 Orange Cap",actuals.top_scorer],["💜 Purple Cap",actuals.top_wicket_taker],["💥 Most Sixes",actuals.max_sixes],["🏏 Most Fours",actuals.max_fours]].filter(([,v])=>v).map(([k,v])=>(
+                  <div key={k} style={{background:"var(--bg2)",borderRadius:"var(--r-sm)",padding:"10px 12px"}}>
+                    <p style={{fontSize:11,color:"var(--t3)"}}>{k}</p>
+                    <p style={{fontSize:13,fontWeight:700,color:"var(--t)",marginTop:3}}>{v}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
           )}
         </>
       )}
@@ -558,199 +655,293 @@ const LeagueScreen = ({ league, user, onBack }) => {
 };
 
 // ─────────────────────────────────────────────
-// SCREEN: PREDICTIONS
+// MY PICKS SCREEN  (3-step flow)
 // ─────────────────────────────────────────────
-const PredictScreen = ({ user }) => {
+const PicksScreen = ({user}) => {
   const locked = isLocked();
-  const empty = {winner:"",finalist2:"",top4:[],top_scorer:"",top_wicket_taker:"",max_sixes:"",max_fours:""};
-  const [pred, setPred] = useState(empty);
-  const [saved, setSaved] = useState(false);
-  const [msg, setMsg] = useState("");
-  const [loading, setLoading] = useState(true);
+  const empty  = {winner:"",finalist2:"",top4:[],top_scorer:"",top_wicket_taker:"",max_sixes:"",max_fours:""};
+  const [pred,setPred]     = useState(empty);
+  const [saved,setSaved]   = useState(false);
+  const [step,setStep]     = useState(1);
+  const [loading,setLoading] = useState(true);
+  const [status,setStatus] = useState(null);
+  const [confetti,setConfetti] = useState(false);
 
   useEffect(()=>{
     (async()=>{
-      const rows = await sb(`predictions?user_id=eq.${user.id}&select=*`);
-      if (rows?.length) { setPred(rows[0]); setSaved(true); }
+      const rows=await sb(`predictions?user_id=eq.${user.id}&select=*`);
+      if(rows?.length){setPred(rows[0]);setSaved(true);}
       setLoading(false);
     })();
   },[user.id]);
 
-  const upd = (k,v) => setPred(p=>({...p,[k]:v}));
-  const complete = pred.winner&&pred.finalist2&&pred.top4.length===4&&pred.top_scorer&&pred.top_wicket_taker&&pred.max_sixes&&pred.max_fours;
+  const upd = (k,v)=>setPred(p=>({...p,[k]:v}));
+  const fields = [pred.winner,pred.finalist2,pred.top4.length===4,pred.top_scorer,pred.top_wicket_taker,pred.max_sixes,pred.max_fours];
+  const done   = fields.filter(Boolean).length;
+  const complete = done===7;
 
-  const save = async () => {
-    if (!complete) { setMsg("⚠️ Complete all fields first"); return; }
-    try {
-      if (saved) {
+  const save = async()=>{
+    if(!complete) return;
+    setStatus("saving");
+    try{
+      if(saved){
         await sb(`predictions?user_id=eq.${user.id}`,{method:"PATCH",body:{...pred,updated_at:new Date().toISOString()}});
       } else {
         await sb("predictions",{method:"POST",body:{...pred,user_id:user.id}});
+        setConfetti(true); setTimeout(()=>setConfetti(false),3400);
       }
-      setSaved(true);
-      setMsg("✅ Predictions saved!");
-      setTimeout(()=>setMsg(""),3000);
-    } catch(e){ setMsg("❌ "+e.message); }
+      setSaved(true); setStatus("saved"); setTimeout(()=>setStatus(null),4000);
+    } catch(e){setStatus("error:"+e.message);}
   };
 
-  const excl2 = [pred.winner].filter(Boolean);
+  const exclF4   = [pred.winner].filter(Boolean);
   const exclTop4 = [pred.winner,pred.finalist2].filter(Boolean);
+  const canNext1 = !!(pred.winner&&pred.finalist2);
+  const canNext2 = pred.top4.length===4;
 
-  if (loading) return <div className="text-center py-16 text-white/20">Loading…</div>;
+  if(loading) return <div style={{textAlign:"center",padding:"48px 0",color:"var(--t3)"}}>Loading…</div>;
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
-      <div>
-        <h2 className="text-xl font-black text-white" style={{fontFamily:"'Palatino Linotype',Palatino,serif"}}>My Predictions</h2>
-        <p className="text-white/30 text-xs mt-1">
-          {locked ? "🔒 Locked — IPL has started!" : "⏰ Locks 28 Mar · 3:30 PM IST"}
-        </p>
+    <div style={{maxWidth:520,margin:"0 auto",padding:"24px 16px"}} className="fu">
+      <Confetti active={confetti}/>
+
+      <div style={{marginBottom:18}}>
+        <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:22,color:"var(--t)"}}>My Picks</h2>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginTop:6,flexWrap:"wrap"}}>
+          {locked?<Badge color="red">🔒 Locked</Badge>:<Badge color="orange">⏰ Locks 28 Mar · 3:30 PM IST</Badge>}
+          {saved&&!locked&&<Badge color="green">✓ Saved</Badge>}
+        </div>
       </div>
 
-      {locked&&saved && (
-        <div className="bg-green-900/20 border border-green-800/40 rounded-2xl px-5 py-3.5">
-          <p className="text-green-400 text-xs font-black">🔒 Your predictions are locked in. Good luck!</p>
+      {locked&&saved&&(
+        <div style={{display:"flex",alignItems:"center",gap:12,background:"var(--gr-bg)",border:"1.5px solid #88DDB0",borderRadius:"var(--r)",padding:"14px 16px",marginBottom:14}}>
+          <span style={{fontSize:22}}>🎉</span>
+          <div>
+            <p style={{fontWeight:700,fontSize:13,color:"var(--gr)"}}>Your picks are locked in!</p>
+            <p style={{fontSize:12,color:"#2A8A5A",marginTop:2}}>Check the leaderboard once the tournament starts</p>
+          </div>
         </div>
       )}
 
-      {/* Podium */}
-      <Card className="space-y-5">
-        <SectionLabel>🏆 Tournament Podium</SectionLabel>
-        <Sel label="IPL 2026 Champion" value={pred.winner} onChange={v=>upd("winner",v)} options={TEAMS} disabled={locked}/>
-        <Sel label="Runner-Up (Finalist 2)" value={pred.finalist2} onChange={v=>upd("finalist2",v)}
-          options={TEAMS.filter(t=>t!==pred.winner)} disabled={locked}/>
-        <Top4Picker value={pred.top4} onChange={v=>upd("top4",v)} excluded={exclTop4} disabled={locked}/>
-        <p className="text-white/20 text-xs">Pick the 4 semi-finalists (winner & runner-up already counted above)</p>
-      </Card>
+      {/* Progress */}
+      {!locked&&(
+        <div style={{marginBottom:18}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
+            <span style={{fontSize:12,color:"var(--t3)",fontWeight:600}}>Progress</span>
+            <span style={{fontSize:12,fontWeight:700,color:complete?"var(--gr)":"var(--t2)"}}>{done}/7 complete</span>
+          </div>
+          <div style={{height:6,background:"var(--bg2)",borderRadius:100,overflow:"hidden"}}>
+            <div style={{height:"100%",borderRadius:100,background:complete?"var(--gr)":"var(--ac)",width:`${(done/7)*100}%`,transition:"width .4s ease"}}/>
+          </div>
+        </div>
+      )}
 
-      {/* Player awards */}
-      <Card className="space-y-5">
-        <SectionLabel>🎖️ Player Awards</SectionLabel>
-        <Sel label="🍊 Orange Cap — Top Run Scorer" value={pred.top_scorer} onChange={v=>upd("top_scorer",v)} options={ALL_PLAYERS} disabled={locked}/>
-        <Sel label="💜 Purple Cap — Most Wickets" value={pred.top_wicket_taker} onChange={v=>upd("top_wicket_taker",v)} options={ALL_PLAYERS} disabled={locked}/>
-        <Sel label="💥 Most Sixes" value={pred.max_sixes} onChange={v=>upd("max_sixes",v)} options={ALL_PLAYERS} disabled={locked}/>
-        <Sel label="🏏 Most Fours" value={pred.max_fours} onChange={v=>upd("max_fours",v)} options={ALL_PLAYERS} disabled={locked}/>
-      </Card>
+      {/* Step pills */}
+      {!locked&&(
+        <div style={{display:"flex",gap:8,marginBottom:18}}>
+          {[["1","Tournament","🏆"],["2","Top 4","🏅"],["3","Players","🎖️"]].map(([n,l,ic])=>(
+            <button key={n} onClick={()=>setStep(Number(n))}
+              style={{flex:1,padding:"10px 6px",borderRadius:"var(--r-sm)",border:`1.5px solid ${step===Number(n)?"var(--t)":"var(--bd)"}`,background:step===Number(n)?"var(--t)":"var(--sf)",color:step===Number(n)?"#fff":"var(--t3)",fontFamily:"var(--fd)",fontWeight:700,fontSize:11,cursor:"pointer",transition:"all .15s",textAlign:"center"}}>
+              <div style={{fontSize:14,marginBottom:2}}>{ic}</div>
+              <div style={{fontSize:9,opacity:.8,marginBottom:1}}>STEP {n}</div>
+              {l}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* Points table */}
-      <Card>
-        <SectionLabel>Points on Offer</SectionLabel>
-        <div className="grid grid-cols-2 gap-y-2 text-xs">
-          {[["Champion","20"],["Runner-Up","10"],["Each Top-4 Team","5"],["Top Scorer","15"],["Top Wickets","15"],["Max Sixes","10"],["Max Fours","10"]].map(([k,v])=>(
-            <div key={k} className="flex justify-between pr-4">
-              <span className="text-white/30">{k}</span><span className="text-amber-400 font-black">{v} pts</span>
+      {/* STEP 1 */}
+      {(step===1||locked)&&(
+        <Card style={{marginBottom:10}}>
+          <SecHead step={locked?null:1} icon="🏆" title="Tournament Podium" sub="Who wins IPL 2026?"/>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            <Sel label="IPL 2026 Champion"    value={pred.winner}    onChange={v=>upd("winner",v)}    options={TEAMS}                         disabled={locked}/>
+            <Sel label="Runner-Up (Finalist)" value={pred.finalist2} onChange={v=>upd("finalist2",v)} options={TEAMS.filter(t=>t!==pred.winner)} disabled={locked}/>
+          </div>
+          {!locked&&step===1&&<Btn onClick={()=>setStep(2)} disabled={!canNext1} style={{marginTop:14,padding:"13px 0"}}>Next: Pick Top 4 →</Btn>}
+        </Card>
+      )}
+
+      {/* STEP 2 */}
+      {(step===2||locked)&&(
+        <Card style={{marginBottom:10}}>
+          <SecHead step={locked?null:2} icon="🏅" title="Top 4 Playoff Teams" sub="Pick the 4 semi-finalists (winner & runner-up already count)"/>
+          <Top4 value={pred.top4} onChange={v=>upd("top4",v)} excluded={exclTop4} disabled={locked}/>
+          {!locked&&step===2&&(
+            <div style={{display:"flex",gap:8,marginTop:14}}>
+              <Btn onClick={()=>setStep(1)} variant="ghost"   style={{width:"auto",padding:"13px 20px"}}>← Back</Btn>
+              <Btn onClick={()=>setStep(3)} disabled={!canNext2} style={{flex:1,padding:"13px 0"}}>Next: Player Awards →</Btn>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* STEP 3 */}
+      {(step===3||locked)&&(
+        <Card style={{marginBottom:10}}>
+          <SecHead step={locked?null:3} icon="🎖️" title="Player Awards" sub="Type a name to search"/>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            <PlayerPick label="🍊 Orange Cap — Top Run Scorer"   value={pred.top_scorer}       onChange={v=>upd("top_scorer",v)}       disabled={locked}/>
+            <PlayerPick label="💜 Purple Cap — Most Wickets"     value={pred.top_wicket_taker} onChange={v=>upd("top_wicket_taker",v)} disabled={locked}/>
+            <PlayerPick label="💥 Most Sixes in Tournament"      value={pred.max_sixes}        onChange={v=>upd("max_sixes",v)}        disabled={locked}/>
+            <PlayerPick label="🏏 Most Fours in Tournament"      value={pred.max_fours}        onChange={v=>upd("max_fours",v)}        disabled={locked}/>
+          </div>
+          {!locked&&step===3&&<Btn onClick={()=>setStep(2)} variant="ghost" style={{marginTop:12,padding:"11px 0",fontSize:13}}>← Back to Top 4</Btn>}
+        </Card>
+      )}
+
+      {/* Points */}
+      <Card style={{marginBottom:14}}>
+        <SecHead icon="💰" title="Points on Offer"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+          {[["🏆 Champion","20"],["🥈 Runner-Up","10"],["Each Top-4","5"],["🍊 Orange Cap","15"],["💜 Purple Cap","15"],["💥 Sixes","10"],["🏏 Fours","10"]].map(([k,v])=>(
+            <div key={k} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"var(--bg2)",borderRadius:"var(--r-sm)",padding:"8px 10px"}}>
+              <span style={{fontSize:12,color:"var(--t2)"}}>{k}</span>
+              <span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:13,color:"var(--ac)"}}>{v} pts</span>
             </div>
           ))}
         </div>
-        <div className="mt-3 pt-3 border-t border-white/8 flex justify-between text-sm">
-          <span className="text-white/40 font-bold">Maximum possible</span>
-          <span className="text-amber-400 font-black">{MAX_PTS} pts</span>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",borderTop:"1.5px solid var(--bd)",marginTop:10,paddingTop:10}}>
+          <span style={{fontWeight:700,color:"var(--t2)"}}>Maximum possible</span>
+          <span style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:17,color:"var(--t)"}}>{MAX_PTS} pts</span>
         </div>
       </Card>
 
-      {!locked && (
-        <Btn onClick={save} disabled={!complete} className="w-full py-4">
-          {saved ? "✅ Update Predictions" : "Save Predictions →"}
+      {!locked&&(
+        <Btn onClick={save} disabled={!complete||status==="saving"} style={{padding:"15px 0",fontSize:15,opacity:complete?1:.4}}>
+          {status==="saving"?"Saving…":saved?"✅ Update My Picks":"Save My Picks →"}
         </Btn>
       )}
-      {msg && <p className="text-center text-xs font-bold text-amber-400">{msg}</p>}
+
+      {status==="saved"&&<div className="pop" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,background:"var(--gr-bg)",border:"1.5px solid #88DDB0",borderRadius:"var(--r-sm)",padding:"13px 16px",marginTop:10,fontSize:14,fontWeight:600,color:"var(--gr)"}}>🎉 Picks saved! Good luck!</div>}
+      {status?.startsWith("error:")&&<div style={{background:"var(--re-bg)",border:"1.5px solid #FFBBBB",borderRadius:"var(--r-sm)",padding:"12px 16px",marginTop:10,fontSize:13,color:"var(--re)"}}>❌ {status.replace("error:","")}</div>}
     </div>
   );
 };
 
 // ─────────────────────────────────────────────
-// SCREEN: ADMIN
+// ADMIN SCREEN
 // ─────────────────────────────────────────────
-const AdminScreen = ({ user }) => {
-  const [unlocked, setUnlocked] = useState(false);
-  const [pwd, setPwd] = useState("");
-  const [act, setAct] = useState({winner:"",finalist2:"",top4:[],top_scorer:"",top_wicket_taker:"",max_sixes:"",max_fours:""});
-  const [saved, setSaved] = useState(false);
-  const [participants, setParticipants] = useState([]);
-  const [loading, setLoading] = useState(false);
+const AdminScreen = () => {
+  const [unlocked,setUnlocked] = useState(false);
+  const [pwd,setPwd]           = useState("");
+  const [act,setAct]           = useState({winner:"",finalist2:"",top4:[],top_scorer:"",top_wicket_taker:"",max_sixes:"",max_fours:""});
+  const [saved,setSaved]       = useState(false);
+  const [participants,setParticipants] = useState([]);
+  const [loading,setLoading]   = useState(false);
+  const [leagueName,setLeagueName] = useState("");
+  const [leagueResult,setLeagueResult] = useState(null);
 
-  const unlock = () => { if (pwd===ADMIN_PWD) setUnlocked(true); else alert("Wrong password"); };
+  const unlock = ()=>{ if(pwd===ADMIN_PWD) setUnlocked(true); else alert("Wrong password"); };
+  const upd    = (k,v)=>setAct(a=>({...a,[k]:v}));
 
   useEffect(()=>{
-    if (!unlocked) return;
+    if(!unlocked) return;
     (async()=>{
       setLoading(true);
-      const rows = await sb("actuals?select=*");
-      if (rows?.[0]) setAct(rows[0]);
-      const preds = await sb("predictions?select=user_id");
-      const uids = (preds||[]).map(p=>p.user_id);
-      if (uids.length) {
-        const users = await sb(`users?id=in.(${uids.join(",")})&select=id,name,username`);
-        const predsFull = await sb(`predictions?select=*`);
-        const pm = {}; (predsFull||[]).forEach(p=>pm[p.user_id]=p);
+      const rows=await sb("actuals?select=*"); if(rows?.[0]) setAct(rows[0]);
+      const preds=await sb("predictions?select=user_id");
+      const uids=(preds||[]).map(p=>p.user_id);
+      if(uids.length){
+        const users=await sb(`users?id=in.(${uids.join(",")})&select=id,name,username`);
+        const pf=await sb(`predictions?select=*`); const pm={};(pf||[]).forEach(p=>pm[p.user_id]=p);
         setParticipants((users||[]).map(u=>({...u,pred:pm[u.id]})));
       }
       setLoading(false);
     })();
   },[unlocked]);
 
-  const save = async () => {
-    const rows = await sb("actuals?select=id");
-    if (rows?.length) {
-      await sb(`actuals?id=eq.${rows[0].id}`,{method:"PATCH",body:act});
-    } else {
-      await sb("actuals",{method:"POST",body:act});
-    }
-    setSaved(true); setTimeout(()=>setSaved(false),2000);
+  const saveResults = async()=>{
+    const rows=await sb("actuals?select=id");
+    if(rows?.length) await sb(`actuals?id=eq.${rows[0].id}`,{method:"PATCH",body:act});
+    else             await sb("actuals",{method:"POST",body:act});
+    setSaved(true); setTimeout(()=>setSaved(false),2500);
   };
 
-  const upd = (k,v)=>setAct(a=>({...a,[k]:v}));
+  const createLeague = async()=>{
+    if(!leagueName.trim()) return;
+    const code=genCode();
+    const rows=await sb("leagues",{method:"POST",body:{name:leagueName.trim(),code,created_by:null}});
+    const l=Array.isArray(rows)?rows[0]:rows;
+    setLeagueResult({name:leagueName.trim(),code:l?.code||code});
+    setLeagueName("");
+  };
 
-  if (!unlocked) return (
-    <div className="max-w-sm mx-auto px-4 py-16 text-center">
-      <div className="text-5xl mb-4">🔐</div>
-      <h2 className="text-xl font-black text-white mb-5">Admin Panel</h2>
-      <Input label="Password" type="password" value={pwd} onChange={e=>setPwd(e.target.value)}
-        placeholder="••••••••" onKeyDown={e=>e.key==="Enter"&&unlock()} />
-      <Btn onClick={unlock} className="w-full mt-4">Unlock →</Btn>
+  if(!unlocked) return (
+    <div style={{maxWidth:360,margin:"0 auto",padding:"60px 16px",textAlign:"center"}} className="fu">
+      <div style={{fontSize:52,marginBottom:12}}>🔐</div>
+      <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:22,marginBottom:8}}>Admin Panel</h2>
+      <p style={{color:"var(--t3)",fontSize:13,marginBottom:24}}>Enter results as the IPL progresses</p>
+      <Card>
+        <div style={{display:"flex",flexDirection:"column",gap:12}}>
+          <Inp label="Admin Password" type="password" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="••••••••" onKeyDown={e=>e.key==="Enter"&&unlock()}/>
+          <Btn onClick={unlock} style={{padding:"14px 0"}}>Unlock Admin →</Btn>
+        </div>
+      </Card>
     </div>
   );
 
-  if (loading) return <div className="text-center py-16 text-white/20">Loading…</div>;
+  if(loading) return <div style={{textAlign:"center",padding:"48px 0",color:"var(--t3)"}}>Loading…</div>;
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
-      <div>
-        <h2 className="text-xl font-black text-white" style={{fontFamily:"'Palatino Linotype',Palatino,serif"}}>Admin Panel</h2>
-        <p className="text-white/30 text-xs mt-1">Enter results — scores update instantly across all leagues</p>
+    <div style={{maxWidth:520,margin:"0 auto",padding:"24px 16px"}} className="fu">
+      <div style={{marginBottom:20}}>
+        <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:22,color:"var(--t)"}}>Admin Panel</h2>
+        <p style={{fontSize:13,color:"var(--t3)",marginTop:3}}>Manage leagues & enter results</p>
       </div>
 
-      <Card className="space-y-5">
-        <SectionLabel>🏆 Tournament Results</SectionLabel>
-        <Sel label="IPL 2026 Champion" value={act.winner} onChange={v=>upd("winner",v)} options={TEAMS}/>
-        <Sel label="Runner-Up" value={act.finalist2} onChange={v=>upd("finalist2",v)} options={TEAMS.filter(t=>t!==act.winner)}/>
-        <Top4Picker value={act.top4||[]} onChange={v=>upd("top4",v)} excluded={[act.winner,act.finalist2].filter(Boolean)} disabled={false}/>
-      </Card>
-
-      <Card className="space-y-5">
-        <SectionLabel>🎖️ Player Awards</SectionLabel>
-        <Sel label="Orange Cap" value={act.top_scorer} onChange={v=>upd("top_scorer",v)} options={ALL_PLAYERS}/>
-        <Sel label="Purple Cap" value={act.top_wicket_taker} onChange={v=>upd("top_wicket_taker",v)} options={ALL_PLAYERS}/>
-        <Sel label="Most Sixes" value={act.max_sixes} onChange={v=>upd("max_sixes",v)} options={ALL_PLAYERS}/>
-        <Sel label="Most Fours" value={act.max_fours} onChange={v=>upd("max_fours",v)} options={ALL_PLAYERS}/>
-      </Card>
-
-      <Btn onClick={save} className="w-full py-4">{saved?"✅ Saved!":"Save Results"}</Btn>
-
-      {/* Participants list */}
-      <Card>
-        <SectionLabel>All Participants ({participants.length})</SectionLabel>
-        <div className="space-y-2">
-          {participants.map(p=>(
-            <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-              <div>
-                <span className="text-white text-sm font-bold">{p.name}</span>
-                <span className="text-white/30 text-xs ml-2">@{p.username}</span>
-              </div>
-              {p.pred?.winner ? <Chip team={p.pred.winner}/> : <span className="text-red-400/50 text-xs">No prediction</span>}
-            </div>
-          ))}
+      {/* Create League */}
+      <Card style={{marginBottom:12}}>
+        <SecHead icon="✨" title="Create a League"/>
+        <div style={{display:"flex",gap:8}}>
+          <input value={leagueName} onChange={e=>setLeagueName(e.target.value)} placeholder="e.g. Family IPL 2026"
+            style={{...inp,flex:1}} onKeyDown={e=>e.key==="Enter"&&createLeague()}/>
+          <Btn onClick={createLeague} disabled={!leagueName.trim()} style={{width:"auto",padding:"0 18px",whiteSpace:"nowrap",flexShrink:0}}>Create</Btn>
         </div>
+        {leagueResult&&(
+          <div className="pop" style={{marginTop:12,background:"var(--gr-bg)",border:"1.5px solid #88DDB0",borderRadius:"var(--r-sm)",padding:"12px 14px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span style={{fontWeight:600,fontSize:13,color:"var(--gr)"}}>✅ "{leagueResult.name}" created!</span>
+            <span style={{fontFamily:"monospace",fontWeight:700,fontSize:15,letterSpacing:"0.2em",color:"var(--ac)",background:"#FFF0E8",padding:"4px 12px",borderRadius:100}}>{leagueResult.code}</span>
+          </div>
+        )}
+      </Card>
+
+      {/* Results */}
+      <Card style={{marginBottom:12}}>
+        <SecHead icon="🏆" title="Tournament Results"/>
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <Sel label="IPL 2026 Champion" value={act.winner}    onChange={v=>upd("winner",v)}    options={TEAMS}/>
+          <Sel label="Runner-Up"         value={act.finalist2} onChange={v=>upd("finalist2",v)} options={TEAMS.filter(t=>t!==act.winner)}/>
+          <Top4 value={act.top4||[]} onChange={v=>upd("top4",v)} excluded={[act.winner,act.finalist2].filter(Boolean)} disabled={false}/>
+        </div>
+      </Card>
+
+      <Card style={{marginBottom:12}}>
+        <SecHead icon="🎖️" title="Player Awards"/>
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <PlayerPick label="Orange Cap — Top Scorer"   value={act.top_scorer}       onChange={v=>upd("top_scorer",v)}/>
+          <PlayerPick label="Purple Cap — Most Wickets" value={act.top_wicket_taker} onChange={v=>upd("top_wicket_taker",v)}/>
+          <PlayerPick label="Most Sixes"                value={act.max_sixes}        onChange={v=>upd("max_sixes",v)}/>
+          <PlayerPick label="Most Fours"                value={act.max_fours}        onChange={v=>upd("max_fours",v)}/>
+        </div>
+      </Card>
+
+      <Btn onClick={saveResults} style={{padding:"15px 0",fontSize:15,marginBottom:14}}>{saved?"✅ Saved!":"Save Results"}</Btn>
+
+      <Card>
+        <SecHead icon="👥" title={`All Participants (${participants.length})`}/>
+        {participants.map((p,i)=>(
+          <div key={p.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:i<participants.length-1?"1px solid var(--bd)":"none"}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <Avatar name={p.name} size={32}/>
+              <div>
+                <p style={{fontWeight:700,fontSize:14,color:"var(--t)"}}>{p.name}</p>
+                <p style={{fontSize:11,color:"var(--t3)"}}>@{p.username}</p>
+              </div>
+            </div>
+            {p.pred?.winner?<TeamChip team={p.pred.winner}/>:<Badge color="red">No pick</Badge>}
+          </div>
+        ))}
       </Card>
     </div>
   );
@@ -760,72 +951,70 @@ const AdminScreen = ({ user }) => {
 // ROOT APP
 // ─────────────────────────────────────────────
 export default function App() {
-  const [user, setUser] = useState(()=>{ try{ return JSON.parse(localStorage.getItem("ipl_user")); }catch{return null;} });
-  const [tab, setTab] = useState("leagues");
-  const [activeLeague, setActiveLeague] = useState(null);
+  const [user,setUser] = useState(()=>{ try{return JSON.parse(localStorage.getItem("ipl_user"));}catch{return null;} });
+  const [tab,setTab]   = useState("leagues");
+  const [activeLeague,setActiveLeague] = useState(null);
 
-  const login = u => { localStorage.setItem("ipl_user",JSON.stringify(u)); setUser(u); };
-  const logout = () => { localStorage.removeItem("ipl_user"); setUser(null); };
+  const isAdminRoute = window.location.pathname.startsWith("/admin");
 
-  if (!user) return <AuthScreen onLogin={login}/>;
+  const login  = u=>{localStorage.setItem("ipl_user",JSON.stringify(u));setUser(u);};
+  const logout = ()=>{localStorage.removeItem("ipl_user");setUser(null);};
 
-  const enterLeague = l => { setActiveLeague(l); setTab("league-detail"); };
-  const backToLeagues = () => { setActiveLeague(null); setTab("leagues"); };
+  if(!user) return <><GS/><AuthScreen onLogin={login}/></>;
 
-  const navTabs = [
+  const enterLeague  = l=>{ setActiveLeague(l); setTab("league-detail"); };
+  const backToLeagues = ()=>{ setActiveLeague(null); setTab("leagues"); };
+
+  const navItems = [
     {id:"leagues",icon:"🏟️",label:"Leagues"},
-    {id:"predict",icon:"🎯",label:"Predict"},
-    {id:"admin",icon:"⚙️",label:"Admin"},
+    {id:"picks",  icon:"🎯",label:"My Picks"},
+    ...(isAdminRoute?[{id:"admin",icon:"⚙️",label:"Admin"}]:[]),
   ];
 
   return (
-    <div className="min-h-screen text-white"
-      style={{background:"radial-gradient(ellipse 100% 40% at 50% 0%, #92400e18, transparent), #030712"}}>
+    <>
+      <GS/>
+      <div style={{minHeight:"100vh",background:"linear-gradient(180deg,#F4F1EA 0%,#EDE9E0 100%)"}}>
 
-      {/* Ambient texture */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.015]"
-        style={{backgroundImage:"url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"}}/>
-
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <button onClick={backToLeagues} className="flex items-center gap-2.5">
-            <span className="text-xl">🏏</span>
-            <span className="font-black text-sm tracking-tight" style={{fontFamily:"'Palatino Linotype',Palatino,serif",color:"#F59E0B"}}>
-              IPL Prediction League
-            </span>
-          </button>
-          <div className="flex items-center gap-3">
-            <span className="text-white/25 text-xs hidden sm:block">{user.name}</span>
-            <button onClick={logout} className="text-white/20 hover:text-white/60 text-xs transition-colors">Sign out</button>
+        {/* Header */}
+        <header style={{position:"sticky",top:0,zIndex:50,background:"rgba(244,241,234,.94)",backdropFilter:"blur(12px)",borderBottom:"1.5px solid var(--bd)"}}>
+          <div style={{maxWidth:520,margin:"0 auto",padding:"0 16px",height:54,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <button onClick={backToLeagues} style={{display:"flex",alignItems:"center",gap:10,background:"none",border:"none",cursor:"pointer",padding:0}}>
+              <div style={{width:32,height:32,borderRadius:9,background:"var(--ac)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>🏏</div>
+              <span style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:15,color:"var(--t)"}}>IPL Prediction League</span>
+            </button>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <Avatar name={user.name} size={28}/>
+              <span style={{fontSize:13,color:"var(--t2)",fontWeight:600,maxWidth:80,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{user.name}</span>
+              <button onClick={logout} style={{background:"none",border:"1.5px solid var(--bd)",borderRadius:8,padding:"5px 10px",fontSize:12,fontWeight:600,color:"var(--t3)",cursor:"pointer",fontFamily:"var(--fb)"}}>Out</button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Content */}
-      <main className="pb-24 min-h-screen">
-        {tab==="leagues"       && <LeaguesScreen user={user} onEnterLeague={enterLeague}/>}
-        {tab==="league-detail" && activeLeague && <LeagueScreen league={activeLeague} user={user} onBack={backToLeagues}/>}
-        {tab==="predict"       && <PredictScreen user={user}/>}
-        {tab==="admin"         && <AdminScreen user={user}/>}
-      </main>
+        {/* Content */}
+        <main style={{paddingBottom:90}}>
+          {tab==="leagues"       && <LeaguesScreen user={user} onEnterLeague={enterLeague}/>}
+          {tab==="league-detail" && activeLeague && <LeagueScreen league={activeLeague} user={user} onBack={backToLeagues}/>}
+          {tab==="picks"         && <PicksScreen user={user}/>}
+          {(tab==="admin"||isAdminRoute) && <AdminScreen/>}
+        </main>
 
-      {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-t border-white/5">
-        <div className="max-w-lg mx-auto flex">
-          {navTabs.map(t=>{
-            const active = tab===t.id || (t.id==="leagues"&&tab==="league-detail");
-            return (
-              <button key={t.id} onClick={()=>{ setActiveLeague(null); setTab(t.id); }}
-                className={`flex-1 py-3 flex flex-col items-center gap-0.5 transition-all ${active?"text-amber-400":"text-white/25 hover:text-white/50"}`}>
-                <span className="text-lg leading-none">{t.icon}</span>
-                <span className="text-[10px] font-black uppercase tracking-wider">{t.label}</span>
-                {active && <span className="w-1 h-1 rounded-full bg-amber-500 mt-0.5"/>}
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-    </div>
+        {/* Bottom nav */}
+        <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:50,background:"rgba(244,241,234,.96)",backdropFilter:"blur(12px)",borderTop:"1.5px solid var(--bd)"}}>
+          <div style={{maxWidth:520,margin:"0 auto",display:"flex"}}>
+            {navItems.map(t=>{
+              const active=tab===t.id||(t.id==="leagues"&&tab==="league-detail");
+              return (
+                <button key={t.id} onClick={()=>{setActiveLeague(null);setTab(t.id);}}
+                  style={{flex:1,padding:"13px 0 10px",display:"flex",flexDirection:"column",alignItems:"center",gap:3,background:"none",border:"none",cursor:"pointer",transition:"all .15s",borderTop:`2.5px solid ${active?"var(--ac)":"transparent"}`,marginTop:"-1.5px"}}>
+                  <span style={{fontSize:20,lineHeight:1}}>{t.icon}</span>
+                  <span style={{fontSize:10,fontFamily:"var(--fd)",fontWeight:700,letterSpacing:"0.04em",textTransform:"uppercase",color:active?"var(--ac)":"var(--t3)"}}>{t.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      </div>
+    </>
   );
 }
