@@ -23,16 +23,21 @@ const SHORT = {
   "Gujarat Titans":"GT","Punjab Kings":"PBKS",
 };
 const TC = {
-  "Chennai Super Kings":         { bg:"#F9CD1B", fg:"#1a1a2e" },
-  "Mumbai Indians":              { bg:"#004BA0", fg:"#ffffff" },
-  "Royal Challengers Bengaluru": { bg:"#C8102E", fg:"#ffffff" },
-  "Kolkata Knight Riders":       { bg:"#3A225D", fg:"#F0C040" },
-  "Sunrisers Hyderabad":         { bg:"#F7500E", fg:"#ffffff" },
-  "Delhi Capitals":              { bg:"#17479E", fg:"#EF3340" },
-  "Lucknow Super Giants":        { bg:"#A72B2A", fg:"#FBBF24" },
-  "Rajasthan Royals":            { bg:"#EA1A85", fg:"#ffffff" },
-  "Gujarat Titans":              { bg:"#1C2B4A", fg:"#8AC0DE" },
-  "Punjab Kings":                { bg:"#ED1B24", fg:"#ffffff" },
+  "Chennai Super Kings":         { bg:"#F9CD1B", fg:"#0A1931", accent:"#0A1931" },
+  "Mumbai Indians":              { bg:"#004BA0", fg:"#FFFFFF", accent:"#D4AF37" },
+  "Royal Challengers Bengaluru": { bg:"#C8102E", fg:"#FFFFFF", accent:"#FFD700" },
+  "Kolkata Knight Riders":       { bg:"#3A225D", fg:"#F0C040", accent:"#F0C040" },
+  "Sunrisers Hyderabad":         { bg:"#F7500E", fg:"#FFFFFF", accent:"#1A1A2E" },
+  "Delhi Capitals":              { bg:"#17479E", fg:"#FFFFFF", accent:"#EF3340" },
+  "Lucknow Super Giants":        { bg:"#A72B2A", fg:"#FBBF24", accent:"#FBBF24" },
+  "Rajasthan Royals":            { bg:"#EA1A85", fg:"#FFFFFF", accent:"#1A1A6E" },
+  "Gujarat Titans":              { bg:"#1C2B4A", fg:"#8AC0DE", accent:"#8AC0DE" },
+  "Punjab Kings":                { bg:"#ED1B24", fg:"#FFFFFF", accent:"#FBBF24" },
+};
+const TEAM_EMOJI = {
+  "Chennai Super Kings":"🦁","Mumbai Indians":"🔵","Royal Challengers Bengaluru":"🔴",
+  "Kolkata Knight Riders":"💜","Sunrisers Hyderabad":"🌅","Delhi Capitals":"🔷",
+  "Lucknow Super Giants":"🟤","Rajasthan Royals":"💗","Gujarat Titans":"⚡","Punjab Kings":"🔴",
 };
 const SQUADS = {
   "Chennai Super Kings":["Ruturaj Gaikwad","MS Dhoni","Sanju Samson","Dewald Brevis","Ayush Mhatre","Kartik Sharma","Sarfaraz Khan","Urvil Patel","Anshul Kamboj","Jamie Overton","Ramakrishna Ghosh","Prashant Veer","Matthew Short","Aman Khan","Zak Foulkes","Shivam Dube","Khaleel Ahmed","Noor Ahmad","Mukesh Choudhary","Nathan Ellis","Shreyas Gopal","Gurjapneet Singh","Akeal Hosein","Matt Henry","Rahul Chahar"],
@@ -99,10 +104,10 @@ const Confetti = ({active}) => {
     const canvas = ref.current; if (!canvas) return;
     const ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const pieces = Array.from({length:100},()=>({
+    const pieces = Array.from({length:150},()=>({
       x:Math.random()*canvas.width, y:Math.random()*canvas.height-canvas.height,
       r:Math.random()*6+4, d:Math.random()*80+40,
-      color:["#E8480C","#F9CD1B","#004BA0","#C8102E","#EA1A85","#1A7A4A"][Math.floor(Math.random()*6)],
+      color:["#E8480C","#F9CD1B","#004BA0","#C8102E","#EA1A85","#1A7A4A","#F7500E","#F0C040"][Math.floor(Math.random()*8)],
       tilt:0, tiltAngle:0, tiltSpeed:Math.random()*.1+.04,
     }));
     let angle=0, frame;
@@ -118,7 +123,7 @@ const Confetti = ({active}) => {
       frame=requestAnimationFrame(draw);
     };
     draw();
-    const t=setTimeout(()=>cancelAnimationFrame(frame),3200);
+    const t=setTimeout(()=>cancelAnimationFrame(frame),3500);
     return()=>{cancelAnimationFrame(frame);clearTimeout(t);};
   },[active]);
   if (!active) return null;
@@ -126,47 +131,113 @@ const Confetti = ({active}) => {
 };
 
 // ─────────────────────────────────────────────
-// GLOBAL STYLES
+// GLOBAL STYLES — CARNIVAL THEME
 // ─────────────────────────────────────────────
 const GS = () => (
   <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap');
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{
-      --bg:#F4F1EA; --bg2:#EDE9E0; --sf:#FFFFFF; --bd:#E5DFD2; --bd2:#CFC8B8;
-      --t:#1A1612; --t2:#6B6358; --t3:#9C9080;
-      --ac:#E8480C; --ac2:#D03A00;
-      --gold:#C8820A; --gold-bg:#FFF8E8;
-      --gr:#1A7A4A; --gr-bg:#EDFAF3;
-      --re:#C40000; --re-bg:#FFF0F0;
-      --r:14px; --r-sm:10px;
-      --sh:0 1px 3px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.06);
-      --sh-md:0 2px 8px rgba(0,0,0,.08),0 8px 32px rgba(0,0,0,.09);
-      --fd:'Syne',sans-serif; --fb:'DM Sans',sans-serif;
+      --bg:#0D0D1A;
+      --bg2:#13132A;
+      --sf:#1A1A30;
+      --sf2:#20203A;
+      --bd:#2E2E52;
+      --bd2:#3D3D6A;
+      --t:#F0EFF8;
+      --t2:#A8A6C8;
+      --t3:#6A6890;
+      --ac:#FF4D00;
+      --ac2:#FF7A33;
+      --gold:#FFD700;
+      --gold2:#FFA500;
+      --gr:#00C96B;
+      --re:#FF3B5C;
+      --r:16px; --r-sm:10px; --r-xs:8px;
+      --sh:0 2px 12px rgba(0,0,0,.4);
+      --sh-md:0 4px 24px rgba(0,0,0,.5);
+      --sh-lg:0 8px 40px rgba(0,0,0,.6);
+      --fd:'Bebas Neue',sans-serif;
+      --fb:'Nunito',sans-serif;
+      --glow-or: 0 0 20px rgba(255,77,0,.4);
+      --glow-gold: 0 0 20px rgba(255,215,0,.3);
     }
-    body{background:var(--bg);color:var(--t);font-family:var(--fb);-webkit-font-smoothing:antialiased;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--t);font-family:var(--fb);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
     button{font-family:var(--fb);}
     select{appearance:none;-webkit-appearance:none;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B6358' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23A8A6C8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
       background-repeat:no-repeat;background-position:right 12px center;padding-right:38px!important;}
-    select option{background:#fff;color:#1A1612;}
-    input:focus,select:focus{outline:none;border-color:var(--ac)!important;box-shadow:0 0 0 3px rgba(232,72,12,.12)!important;}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes pop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
-    .fu{animation:fadeUp .28s ease forwards;}
-    .pop{animation:pop .32s cubic-bezier(.34,1.56,.64,1) forwards;}
-    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+    select option{background:#1A1A30;color:#F0EFF8;}
+    input:focus,select:focus{outline:none;border-color:var(--ac)!important;box-shadow:0 0 0 3px rgba(255,77,0,.2)!important;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pop{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+    @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    .fu{animation:fadeUp .35s ease forwards;}
+    .pop{animation:pop .35s cubic-bezier(.34,1.56,.64,1) forwards;}
+    .float{animation:float 3s ease-in-out infinite;}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:4px}
+    .ticker-wrap{overflow:hidden;white-space:nowrap;}
+    .ticker-inner{display:inline-flex;animation:marquee 24s linear infinite;}
   `}</style>
 );
 
 // ─────────────────────────────────────────────
+// TEAM COLOR BADGE STRIP (animated ticker)
+// ─────────────────────────────────────────────
+const TeamTicker = () => {
+  const items = [...TEAMS, ...TEAMS];
+  return (
+    <div className="ticker-wrap" style={{background:"var(--sf)",borderBottom:"1px solid var(--bd)",padding:"8px 0"}}>
+      <div className="ticker-inner">
+        {items.map((t,i) => {
+          const c = TC[t];
+          return (
+            <span key={i} style={{display:"inline-flex",alignItems:"center",gap:6,marginRight:28,fontSize:13,fontFamily:"var(--fd)",letterSpacing:"0.06em",color:c.fg,background:c.bg,padding:"3px 12px",borderRadius:100}}>
+              {SHORT[t]}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
 // UI PRIMITIVES
 // ─────────────────────────────────────────────
-const inp = {background:"var(--sf)",border:"1.5px solid var(--bd)",borderRadius:"var(--r-sm)",padding:"12px 14px",fontSize:14,color:"var(--t)",fontFamily:"var(--fb)",width:"100%",transition:"border-color .15s,box-shadow .15s"};
-const lbl = {fontSize:11,fontWeight:700,fontFamily:"var(--fd)",color:"var(--t2)",textTransform:"uppercase",letterSpacing:"0.08em",display:"block",marginBottom:6};
+const inp = {
+  background:"var(--sf2)",
+  border:"1.5px solid var(--bd)",
+  borderRadius:"var(--r-sm)",
+  padding:"12px 16px",
+  fontSize:14,
+  color:"var(--t)",
+  fontFamily:"var(--fb)",
+  width:"100%",
+  transition:"border-color .15s,box-shadow .15s",
+};
+const lbl = {
+  fontSize:11,fontWeight:800,fontFamily:"var(--fb)",
+  color:"var(--t2)",textTransform:"uppercase",
+  letterSpacing:"0.1em",display:"block",marginBottom:6,
+};
 
-const Card = ({children,style={}}) => (
-  <div style={{background:"var(--sf)",border:"1.5px solid var(--bd)",borderRadius:"var(--r)",padding:20,...style}}>{children}</div>
+const Card = ({children, style={}, glow}) => (
+  <div style={{
+    background:"var(--sf)",
+    border:"1.5px solid var(--bd)",
+    borderRadius:"var(--r)",
+    padding:20,
+    boxShadow: glow ? "var(--glow-or)" : "var(--sh)",
+    ...style
+  }}>{children}</div>
 );
 
 const Inp = ({label,hint,...p}) => (
@@ -181,7 +252,7 @@ const Sel = ({label,value,onChange,options,placeholder,disabled}) => (
   <div>
     {label&&<label style={lbl}>{label}</label>}
     <select value={value} onChange={e=>onChange(e.target.value)} disabled={disabled}
-      style={{...inp,cursor:disabled?"not-allowed":"pointer",color:value?"var(--t)":"var(--t3)",opacity:disabled?.5:1}}>
+      style={{...inp,cursor:disabled?"not-allowed":"pointer",color:value?"var(--t)":"var(--t3)",opacity:disabled?.6:1}}>
       <option value="">{placeholder||"Choose one…"}</option>
       {options.map(o=><option key={o} value={o}>{o}</option>)}
     </select>
@@ -189,32 +260,133 @@ const Sel = ({label,value,onChange,options,placeholder,disabled}) => (
 );
 
 const Btn = ({children,variant="primary",disabled,style={},...p}) => {
-  const base = {display:"flex",alignItems:"center",justifyContent:"center",gap:6,border:"none",borderRadius:"var(--r-sm)",padding:"13px 20px",fontFamily:"var(--fd)",fontWeight:700,fontSize:14,cursor:"pointer",transition:"all .15s",letterSpacing:"0.02em",width:"100%"};
-  const v = {
-    primary:{background:"var(--ac)",color:"#fff"},
-    secondary:{background:"var(--sf)",color:"var(--t)",border:"1.5px solid var(--bd)"},
-    ghost:{background:"transparent",color:"var(--t2)",border:"1.5px solid var(--bd)"},
+  const base = {
+    display:"flex",alignItems:"center",justifyContent:"center",gap:6,
+    border:"none",borderRadius:"var(--r-sm)",padding:"13px 20px",
+    fontFamily:"var(--fb)",fontWeight:800,fontSize:14,cursor:"pointer",
+    transition:"all .15s",letterSpacing:"0.02em",width:"100%",
   };
-  return <button {...p} disabled={disabled} style={{...base,...(v[variant]||v.primary),...style,opacity:disabled?.4:1,cursor:disabled?"not-allowed":"pointer"}}>{children}</button>;
+  const v = {
+    primary:{
+      background:"linear-gradient(135deg,#FF4D00,#FF7A33)",
+      color:"#fff",
+      boxShadow:"0 4px 16px rgba(255,77,0,.4)",
+    },
+    secondary:{background:"var(--sf2)",color:"var(--t)",border:"1.5px solid var(--bd)"},
+    ghost:{background:"transparent",color:"var(--t2)",border:"1.5px solid var(--bd)"},
+    gold:{
+      background:"linear-gradient(135deg,#FFD700,#FFA500)",
+      color:"#1A1A00",
+      boxShadow:"0 4px 16px rgba(255,215,0,.3)",
+    },
+  };
+  return (
+    <button {...p} disabled={disabled}
+      style={{...base,...(v[variant]||v.primary),...style,opacity:disabled?.4:1,cursor:disabled?"not-allowed":"pointer"}}
+      onMouseEnter={e=>{if(!disabled){e.currentTarget.style.transform="translateY(-1px)";e.currentTarget.style.filter="brightness(1.1)";}}}
+      onMouseLeave={e=>{e.currentTarget.style.transform="none";e.currentTarget.style.filter="none";}}>
+      {children}
+    </button>
+  );
 };
 
 const Badge = ({children,color="orange"}) => {
-  const c = {orange:{bg:"#FFF0E8",tc:"#C43A00"},green:{bg:"#EDFAF3",tc:"#1A7A4A"},red:{bg:"#FFF0F0",tc:"#C40000"},grey:{bg:"#F0EDE8",tc:"#6B6358"}}[color]||{bg:"#F0EDE8",tc:"#6B6358"};
-  return <span style={{display:"inline-block",background:c.bg,color:c.tc,fontSize:10,fontWeight:700,fontFamily:"var(--fd)",letterSpacing:"0.06em",textTransform:"uppercase",padding:"3px 8px",borderRadius:100,whiteSpace:"nowrap"}}>{children}</span>;
+  const c = {
+    orange:{bg:"rgba(255,77,0,.15)",tc:"#FF7A33",bd:"rgba(255,77,0,.3)"},
+    green: {bg:"rgba(0,201,107,.15)",tc:"#00C96B",bd:"rgba(0,201,107,.3)"},
+    red:   {bg:"rgba(255,59,92,.15)",tc:"#FF3B5C",bd:"rgba(255,59,92,.3)"},
+    grey:  {bg:"rgba(168,166,200,.1)",tc:"#A8A6C8",bd:"rgba(168,166,200,.2)"},
+    gold:  {bg:"rgba(255,215,0,.15)",tc:"#FFD700",bd:"rgba(255,215,0,.3)"},
+  }[color]||{bg:"rgba(168,166,200,.1)",tc:"#A8A6C8",bd:"rgba(168,166,200,.2)"};
+  return (
+    <span style={{
+      display:"inline-block",background:c.bg,color:c.tc,
+      border:`1px solid ${c.bd}`,
+      fontSize:10,fontWeight:800,letterSpacing:"0.07em",
+      textTransform:"uppercase",padding:"3px 9px",borderRadius:100,whiteSpace:"nowrap",
+    }}>{children}</span>
+  );
 };
 
 const Avatar = ({name,size=36}) => (
-  <div style={{width:size,height:size,borderRadius:"50%",background:avColor(name),display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"#fff",fontFamily:"var(--fd)",fontWeight:800,fontSize:size*.38}}>
+  <div style={{
+    width:size,height:size,borderRadius:"50%",
+    background:`linear-gradient(135deg,${avColor(name)},${avColor(name+"x")})`,
+    display:"flex",alignItems:"center",justifyContent:"center",
+    flexShrink:0,color:"#fff",fontFamily:"var(--fb)",fontWeight:900,fontSize:size*.36,
+    boxShadow:"0 2px 8px rgba(0,0,0,.3)",border:"2px solid rgba(255,255,255,.1)",
+  }}>
     {initials(name)}
   </div>
 );
 
+// Big visual team card for picking
+const TeamCard = ({team, selected, onClick, disabled, size="md"}) => {
+  const c = TC[team];
+  const isSmall = size === "sm";
+  return (
+    <button
+      onClick={onClick} disabled={disabled}
+      style={{
+        border: selected ? `2.5px solid ${c.bg}` : "2px solid var(--bd)",
+        borderRadius: isSmall ? "var(--r-sm)" : "var(--r)",
+        background: selected
+          ? `linear-gradient(135deg,${c.bg}22,${c.bg}44)`
+          : "var(--sf2)",
+        cursor: disabled ? "not-allowed" : "pointer",
+        padding: isSmall ? "10px 8px" : "14px 10px",
+        display:"flex",flexDirection:"column",alignItems:"center",gap: isSmall ? 4 : 6,
+        transition:"all .2s",
+        boxShadow: selected ? `0 0 16px ${c.bg}44` : "none",
+        opacity: disabled && !selected ? 0.4 : 1,
+        position:"relative",overflow:"hidden",
+      }}
+      onMouseEnter={e=>{ if(!disabled&&!selected){ e.currentTarget.style.borderColor=c.bg+"88"; e.currentTarget.style.transform="translateY(-2px)"; }}}
+      onMouseLeave={e=>{ if(!selected){ e.currentTarget.style.borderColor="var(--bd)"; e.currentTarget.style.transform="none"; }}}
+    >
+      {selected && (
+        <div style={{position:"absolute",top:6,right:6,width:18,height:18,borderRadius:"50%",background:c.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:900}}>✓</div>
+      )}
+      <div style={{
+        width: isSmall ? 36 : 48, height: isSmall ? 36 : 48,
+        borderRadius: isSmall ? 10 : 14,
+        background: `linear-gradient(135deg,${c.bg},${c.bg}cc)`,
+        display:"flex",alignItems:"center",justifyContent:"center",
+        fontSize: isSmall ? 18 : 24,
+        boxShadow: selected ? `0 4px 12px ${c.bg}66` : "none",
+      }}>
+        {TEAM_EMOJI[team] || "🏏"}
+      </div>
+      <span style={{
+        fontFamily:"var(--fd)",
+        fontSize: isSmall ? 16 : 20,
+        letterSpacing:"0.05em",
+        color: selected ? c.bg : "var(--t)",
+        lineHeight:1,
+      }}>{SHORT[team]}</span>
+      {!isSmall && (
+        <span style={{fontSize:9,color:"var(--t3)",fontWeight:700,textAlign:"center",lineHeight:1.2,maxWidth:70}}>
+          {team.split(" ").slice(-2).join(" ")}
+        </span>
+      )}
+    </button>
+  );
+};
+
 const TeamChip = ({team,size="sm"}) => {
   const c = TC[team]||{bg:"#ccc",fg:"#333"};
-  const tc = c.fg==="#ffffff"?"#444":c.fg;
   return (
-    <span style={{display:"inline-flex",alignItems:"center",gap:5,background:c.bg+"18",color:tc,border:`1.5px solid ${c.bg}44`,borderRadius:100,padding:size==="lg"?"5px 12px 5px 8px":"3px 9px 3px 6px",fontFamily:"var(--fd)",fontWeight:700,fontSize:size==="lg"?13:11,whiteSpace:"nowrap"}}>
-      <span style={{width:size==="lg"?9:7,height:size==="lg"?9:7,borderRadius:"50%",background:c.bg,flexShrink:0}}/>
+    <span style={{
+      display:"inline-flex",alignItems:"center",gap:5,
+      background:`${c.bg}22`,
+      color:c.bg,
+      border:`1.5px solid ${c.bg}55`,
+      borderRadius:100,
+      padding:size==="lg"?"6px 14px 6px 10px":"4px 10px 4px 7px",
+      fontFamily:"var(--fb)",fontWeight:800,
+      fontSize:size==="lg"?13:11,whiteSpace:"nowrap",
+    }}>
+      <span style={{width:size==="lg"?10:7,height:size==="lg"?10:7,borderRadius:"50%",background:c.bg,flexShrink:0}}/>
       {size==="lg"?team:SHORT[team]||team}
     </span>
   );
@@ -222,12 +394,12 @@ const TeamChip = ({team,size="sm"}) => {
 
 const SecHead = ({step,icon,title,sub}) => (
   <div style={{marginBottom:18}}>
-    {step&&<div style={{fontSize:10,fontWeight:700,fontFamily:"var(--fd)",color:"var(--ac)",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:3}}>Step {step}</div>}
+    {step&&<div style={{fontSize:10,fontWeight:800,color:"var(--ac)",textTransform:"uppercase",letterSpacing:"0.14em",marginBottom:4}}>Step {step}</div>}
     <div style={{display:"flex",alignItems:"center",gap:8}}>
-      {icon&&<span style={{fontSize:19}}>{icon}</span>}
-      <h3 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:16,color:"var(--t)"}}>{title}</h3>
+      {icon&&<span style={{fontSize:20}}>{icon}</span>}
+      <h3 style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:20,color:"var(--t)",letterSpacing:"0.03em"}}>{title}</h3>
     </div>
-    {sub&&<p style={{fontSize:12,color:"var(--t3)",marginTop:3,marginLeft:icon?"27px":"0"}}>{sub}</p>}
+    {sub&&<p style={{fontSize:12,color:"var(--t3)",marginTop:3,marginLeft:icon?"28px":"0"}}>{sub}</p>}
   </div>
 );
 
@@ -235,9 +407,9 @@ const SecHead = ({step,icon,title,sub}) => (
 // SEARCHABLE PLAYER PICKER
 // ─────────────────────────────────────────────
 const PlayerPick = ({label,value,onChange,disabled}) => {
-  const [q,setQ]     = useState("");
+  const [q,setQ]       = useState("");
   const [open,setOpen] = useState(false);
-  const ref          = useRef(null);
+  const ref            = useRef(null);
 
   useEffect(()=>{
     const h = e=>{ if(ref.current&&!ref.current.contains(e.target)) setOpen(false); };
@@ -247,33 +419,46 @@ const PlayerPick = ({label,value,onChange,disabled}) => {
 
   const filtered = ALL_PLAYERS.filter(p=>p.toLowerCase().includes(q.toLowerCase())).slice(0,50);
   const teamOf   = p => Object.entries(SQUADS).find(([,sq])=>sq.includes(p))?.[0];
+  const team = value ? teamOf(value) : null;
+  const tc = team ? TC[team] : null;
 
   return (
     <div ref={ref} style={{position:"relative"}}>
       {label&&<label style={lbl}>{label}</label>}
       <div onClick={()=>{ if(!disabled){setOpen(o=>!o);setQ("");} }}
-        style={{...inp,cursor:disabled?"not-allowed":"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",opacity:disabled?.5:1,userSelect:"none"}}>
-        <span style={{color:value?"var(--t)":"var(--t3)",fontSize:14,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{value||"Search player…"}</span>
-        {value&&<span style={{fontSize:10,color:"var(--t3)",marginLeft:6,flexShrink:0}}>{SHORT[teamOf(value)]||""}</span>}
+        style={{
+          ...inp,cursor:disabled?"not-allowed":"pointer",
+          display:"flex",alignItems:"center",justifyContent:"space-between",
+          opacity:disabled?.6:1,userSelect:"none",
+          borderColor: value ? (tc ? tc.bg+"88" : "var(--ac)") : "var(--bd)",
+          background: value && tc ? `${tc.bg}11` : "var(--sf2)",
+        }}>
+        <div style={{flex:1,overflow:"hidden",display:"flex",alignItems:"center",gap:8}}>
+          {value && tc && <span style={{width:8,height:8,borderRadius:"50%",background:tc.bg,flexShrink:0}}/>}
+          <span style={{color:value?"var(--t)":"var(--t3)",fontSize:14,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{value||"Search player…"}</span>
+          {value&&<span style={{fontSize:10,color:"var(--t3)",marginLeft:4,flexShrink:0,background:"var(--sf2)",padding:"2px 6px",borderRadius:6}}>{SHORT[teamOf(value)]||""}</span>}
+        </div>
         <span style={{color:"var(--t3)",fontSize:11,marginLeft:8,flexShrink:0}}>▾</span>
       </div>
       {open&&(
-        <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,zIndex:200,background:"var(--sf)",border:"1.5px solid var(--bd)",borderRadius:"var(--r)",boxShadow:"var(--sh-md)",overflow:"hidden"}}>
-          <div style={{padding:8,borderBottom:"1px solid var(--bd)"}}>
-            <input autoFocus value={q} onChange={e=>setQ(e.target.value)} placeholder="Type a name…" style={{...inp,padding:"8px 12px",fontSize:13}}/>
+        <div style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,zIndex:200,background:"var(--sf)",border:"1.5px solid var(--bd)",borderRadius:"var(--r)",boxShadow:"var(--sh-lg)",overflow:"hidden"}}>
+          <div style={{padding:10,borderBottom:"1px solid var(--bd)"}}>
+            <input autoFocus value={q} onChange={e=>setQ(e.target.value)} placeholder="Type a name…" style={{...inp,padding:"9px 13px",fontSize:13,background:"var(--bg)"}}/>
           </div>
           <div style={{maxHeight:220,overflowY:"auto"}}>
-            {filtered.length===0&&<div style={{padding:"12px 16px",color:"var(--t3)",fontSize:13}}>No players found</div>}
+            {filtered.length===0&&<div style={{padding:"14px 16px",color:"var(--t3)",fontSize:13}}>No players found</div>}
             {filtered.map(p=>{
-              const team=teamOf(p); const c=TC[team]||{bg:"#ccc"};
+              const pteam=teamOf(p); const c=TC[pteam]||{bg:"#888"};
               return (
                 <div key={p} onClick={()=>{onChange(p);setOpen(false);setQ("");}}
-                  style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",cursor:"pointer",background:value===p?"#FFF0E8":"transparent",borderLeft:value===p?"3px solid var(--ac)":"3px solid transparent"}}
-                  onMouseEnter={e=>e.currentTarget.style.background=value===p?"#FFF0E8":"#F5F2EB"}
-                  onMouseLeave={e=>e.currentTarget.style.background=value===p?"#FFF0E8":"transparent"}>
-                  <span style={{fontSize:14,fontWeight:value===p?600:400,color:"var(--t)"}}>{p}</span>
-                  <span style={{display:"inline-flex",alignItems:"center",gap:4,fontSize:10,color:"var(--t3)"}}>
-                    <span style={{width:6,height:6,borderRadius:"50%",background:c.bg}}/>{SHORT[team]||""}
+                  style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",cursor:"pointer",
+                    background:value===p?`${c.bg}22`:"transparent",
+                    borderLeft:value===p?`3px solid ${c.bg}`:"3px solid transparent"}}
+                  onMouseEnter={e=>e.currentTarget.style.background=value===p?`${c.bg}22`:"var(--sf2)"}
+                  onMouseLeave={e=>e.currentTarget.style.background=value===p?`${c.bg}22`:"transparent"}>
+                  <span style={{fontSize:14,fontWeight:value===p?700:400,color:"var(--t)"}}>{p}</span>
+                  <span style={{display:"inline-flex",alignItems:"center",gap:5,fontSize:10}}>
+                    <span style={{width:7,height:7,borderRadius:"50%",background:c.bg}}/><span style={{color:"var(--t3)"}}>{SHORT[pteam]||""}</span>
                   </span>
                 </div>
               );
@@ -286,31 +471,25 @@ const PlayerPick = ({label,value,onChange,disabled}) => {
 };
 
 // ─────────────────────────────────────────────
-// TOP-4 PICKER
+// TOP-4 PICKER — visual team grid
 // ─────────────────────────────────────────────
 const Top4 = ({value,onChange,excluded,disabled}) => {
   const toggle = t => {
     if (value.includes(t)) onChange(value.filter(x=>x!==t));
     else if (value.length<4) onChange([...value,t]);
   };
+  const available = TEAMS.filter(t=>!excluded.includes(t));
   return (
     <div>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
         <label style={lbl}>Top 4 Playoff Teams</label>
-        <Badge color={value.length===4?"green":"grey"}>{value.length}/4 picked</Badge>
+        <Badge color={value.length===4?"green":"gold"}>{value.length}/4 picked</Badge>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-        {TEAMS.filter(t=>!excluded.includes(t)).map(t=>{
-          const on=value.includes(t); const full=!on&&value.length>=4; const c=TC[t]||{bg:"#ccc"};
+      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
+        {available.map(t=>{
+          const on=value.includes(t); const full=!on&&value.length>=4;
           return (
-            <button key={t} type="button" disabled={disabled||full} onClick={()=>toggle(t)}
-              style={{display:"flex",alignItems:"center",gap:8,padding:"10px 12px",borderRadius:"var(--r-sm)",border:`1.5px solid ${on?"var(--t)":"var(--bd)"}`,background:on?"var(--t)":"var(--sf)",cursor:(disabled||full)?"not-allowed":"pointer",opacity:full?.35:1,transition:"all .15s",textAlign:"left"}}>
-              <span style={{width:9,height:9,borderRadius:"50%",background:c.bg,flexShrink:0}}/>
-              <span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:12,color:on?"#fff":"var(--t)",flex:1}}>
-                <span style={{opacity:.6,fontSize:10}}>{SHORT[t]} </span>{t.split(" ").slice(-1)[0]}
-              </span>
-              {on&&<span style={{color:"#fff",fontSize:14,marginLeft:"auto"}}>✓</span>}
-            </button>
+            <TeamCard key={t} team={t} selected={on} onClick={()=>toggle(t)} disabled={disabled||full} size="sm"/>
           );
         })}
       </div>
@@ -360,45 +539,83 @@ const AuthScreen = ({onLogin}) => {
   };
 
   return (
-    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:20,background:"linear-gradient(180deg,#F4F1EA 0%,#EDE9E0 100%)",position:"relative",overflow:"hidden"}}>
-      <div style={{position:"absolute",top:-100,right:-100,width:340,height:340,borderRadius:"50%",background:"radial-gradient(circle,#E8480C18,transparent 70%)",pointerEvents:"none"}}/>
-      <div style={{position:"absolute",bottom:-80,left:-80,width:260,height:260,borderRadius:"50%",background:"radial-gradient(circle,#F9CD1B18,transparent 70%)",pointerEvents:"none"}}/>
-      <div style={{width:"100%",maxWidth:380,position:"relative",zIndex:1}} className="fu">
-        {/* Logo */}
-        <div style={{textAlign:"center",marginBottom:26}}>
-          <div style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:66,height:66,borderRadius:18,background:"var(--ac)",fontSize:28,marginBottom:12,boxShadow:"0 8px 24px rgba(232,72,12,.3)"}}>🏏</div>
-          <h1 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:26,color:"var(--t)",lineHeight:1.1}}>IPL Prediction</h1>
-          <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:20,color:"var(--ac)",marginTop:2}}>League 2026</h2>
-          <p style={{fontSize:12,color:"var(--t3)",letterSpacing:"0.1em",textTransform:"uppercase",marginTop:8}}>Predict · Compete · Win</p>
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,position:"relative",overflow:"hidden",background:"var(--bg)"}}>
+
+      {/* Animated background blobs */}
+      <div style={{position:"absolute",top:-120,right:-80,width:400,height:400,borderRadius:"50%",background:"radial-gradient(circle,#FF4D0020,transparent 70%)",pointerEvents:"none",animation:"float 6s ease-in-out infinite"}}/>
+      <div style={{position:"absolute",bottom:-100,left:-100,width:360,height:360,borderRadius:"50%",background:"radial-gradient(circle,#FFD70018,transparent 70%)",pointerEvents:"none",animation:"float 8s ease-in-out infinite reverse"}}/>
+      <div style={{position:"absolute",top:"40%",left:-60,width:200,height:200,borderRadius:"50%",background:"radial-gradient(circle,#C8102E15,transparent 70%)",pointerEvents:"none"}}/>
+
+      {/* Team color strip */}
+      <div style={{position:"absolute",top:0,left:0,right:0}}>
+        {TEAMS.map((t,i)=>(
+          <div key={i} style={{position:"absolute",top:0,left:`${i*10}%`,width:"10%",height:4,background:TC[t].bg,opacity:0.8}}/>
+        ))}
+      </div>
+
+      <div style={{width:"100%",maxWidth:400,position:"relative",zIndex:1}} className="fu">
+
+        {/* Logo block */}
+        <div style={{textAlign:"center",marginBottom:32}}>
+          <div className="float" style={{
+            display:"inline-flex",alignItems:"center",justifyContent:"center",
+            width:80,height:80,borderRadius:22,
+            background:"linear-gradient(135deg,#FF4D00,#FF7A33)",
+            fontSize:36,marginBottom:16,
+            boxShadow:"0 12px 40px rgba(255,77,0,.5)",
+          }}>🏏</div>
+          <h1 style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:44,color:"var(--t)",lineHeight:1,letterSpacing:"0.05em"}}>IPL PREDICTION</h1>
+          <h2 style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:28,color:"var(--gold)",letterSpacing:"0.1em",marginTop:2}}>LEAGUE 2026</h2>
+          <p style={{fontSize:12,color:"var(--t3)",letterSpacing:"0.15em",textTransform:"uppercase",marginTop:10}}>⚡ Predict · Compete · Win ⚡</p>
+        </div>
+
+        {/* Team color pills */}
+        <div style={{display:"flex",gap:6,justifyContent:"center",flexWrap:"wrap",marginBottom:24}}>
+          {TEAMS.map(t=>(
+            <span key={t} style={{
+              background:TC[t].bg,color:TC[t].fg,
+              fontSize:10,fontFamily:"var(--fd)",letterSpacing:"0.08em",
+              padding:"3px 10px",borderRadius:100,fontWeight:400,
+            }}>{SHORT[t]}</span>
+          ))}
         </div>
 
         {/* How it works */}
-        <div style={{background:"var(--gold-bg)",border:"1.5px solid #F5D170",borderRadius:"var(--r)",padding:"13px 16px",marginBottom:14}}>
-          <p style={{fontSize:11,fontWeight:700,fontFamily:"var(--fd)",color:"var(--gold)",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.08em"}}>🎯 How it works</p>
-          {["1. Join a league using a code from your friend","2. Make your IPL 2026 predictions","3. Watch live scores on the leaderboard"].map((s,i)=>(
-            <p key={i} style={{fontSize:13,color:"var(--t2)",marginBottom:i<2?4:0}}>{s}</p>
+        <div style={{
+          background:"rgba(255,215,0,.07)",
+          border:"1px solid rgba(255,215,0,.2)",
+          borderRadius:"var(--r)",padding:"13px 16px",marginBottom:18,
+        }}>
+          <p style={{fontSize:10,fontWeight:800,color:"var(--gold)",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.1em"}}>🎯 How it works</p>
+          {["1. Join a league with your friends","2. Make your IPL 2026 predictions","3. Watch the live leaderboard!"].map((s,i)=>(
+            <p key={i} style={{fontSize:13,color:"var(--t2)",marginBottom:i<2?4:0,fontWeight:600}}>{s}</p>
           ))}
         </div>
 
-        {urlCode&&<div className="pop" style={{background:"var(--gr-bg)",border:"1.5px solid #88DDB0",borderRadius:"var(--r-sm)",padding:"10px 14px",marginBottom:12,fontSize:13,color:"var(--gr)",fontWeight:600,display:"flex",alignItems:"center",gap:8}}>🔗 You've been invited! Sign in to join.</div>}
+        {urlCode&&<div className="pop" style={{background:"rgba(0,201,107,.1)",border:"1px solid rgba(0,201,107,.3)",borderRadius:"var(--r-sm)",padding:"10px 14px",marginBottom:14,fontSize:13,color:"var(--gr)",fontWeight:700,display:"flex",alignItems:"center",gap:8}}>🔗 You've been invited! Sign in to join.</div>}
 
         {/* Mode toggle */}
-        <div style={{display:"flex",background:"var(--bg2)",borderRadius:"var(--r-sm)",padding:3,marginBottom:14}}>
+        <div style={{display:"flex",background:"var(--sf)",borderRadius:"var(--r-sm)",padding:4,marginBottom:16,border:"1.5px solid var(--bd)"}}>
           {[["login","Sign In"],["signup","Create Account"]].map(([m,l])=>(
-            <button key={m} onClick={()=>{setMode(m);setErr("");}} style={{flex:1,padding:"10px 0",borderRadius:8,border:"none",cursor:"pointer",fontFamily:"var(--fd)",fontWeight:700,fontSize:13,transition:"all .15s",background:mode===m?"var(--sf)":"transparent",color:mode===m?"var(--t)":"var(--t3)",boxShadow:mode===m?"0 1px 4px rgba(0,0,0,.1)":"none"}}>{l}</button>
+            <button key={m} onClick={()=>{setMode(m);setErr("");}}
+              style={{flex:1,padding:"11px 0",borderRadius:8,border:"none",cursor:"pointer",fontFamily:"var(--fb)",fontWeight:800,fontSize:13,transition:"all .15s",
+                background:mode===m?"linear-gradient(135deg,#FF4D00,#FF7A33)":"transparent",
+                color:mode===m?"#fff":"var(--t3)",
+                boxShadow:mode===m?"0 4px 12px rgba(255,77,0,.3)":"none",
+              }}>{l}</button>
           ))}
         </div>
 
-        <Card style={{boxShadow:"var(--sh-md)"}}>
+        <Card style={{boxShadow:"var(--sh-lg)"}}>
           <div style={{display:"flex",flexDirection:"column",gap:13}}>
             {mode==="signup"&&<Inp label="Your Name" value={form.name} onChange={set("name")} placeholder="e.g. Swapnil"/>}
             <Inp label="Username" value={form.username} onChange={set("username")} placeholder="your_username" autoCapitalize="none"/>
             <Inp label="Password" type="password" value={form.password} onChange={set("password")} placeholder="••••••••" onKeyDown={e=>e.key==="Enter"&&submit()}/>
-            {err&&<div style={{background:"var(--re-bg)",border:"1.5px solid #FFBBBB",borderRadius:"var(--r-sm)",padding:"10px 12px",fontSize:13,color:"var(--re)",display:"flex",gap:8"}}>⚠️ {err}</div>}
-            <Btn onClick={submit} disabled={busy} style={{padding:"14px 0",fontSize:15}}>{busy?"Please wait…":mode==="login"?"Sign In →":"Create Account →"}</Btn>
+            {err&&<div style={{background:"rgba(255,59,92,.1)",border:"1px solid rgba(255,59,92,.3)",borderRadius:"var(--r-sm)",padding:"10px 13px",fontSize:13,color:"var(--re)",display:"flex",gap:8,fontWeight:600}}>⚠️ {err}</div>}
+            <Btn onClick={submit} disabled={busy} style={{padding:"15px 0",fontSize:15}}>{busy?"Please wait…":mode==="login"?"Sign In →":"Create Account →"}</Btn>
           </div>
         </Card>
-        <p style={{textAlign:"center",fontSize:11,color:"var(--t3)",marginTop:12}}>🔒 Predictions lock 28 Mar · 3:30 PM IST</p>
+        <p style={{textAlign:"center",fontSize:11,color:"var(--t3)",marginTop:14}}>🔒 Predictions lock 28 Mar · 3:30 PM IST</p>
       </div>
     </div>
   );
@@ -451,26 +668,45 @@ const LeaguesScreen = ({user,onEnterLeague}) => {
 
   return (
     <div style={{maxWidth:520,margin:"0 auto",padding:"24px 16px"}} className="fu">
-      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:20}}>
-        <div>
-          <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:22,color:"var(--t)"}}>My Leagues</h2>
-          <p style={{fontSize:13,color:"var(--t3)",marginTop:3}}>Hi {user.name} 👋</p>
+
+      {/* Hero welcome */}
+      <div style={{
+        background:"linear-gradient(135deg,#1A1A30,#20203A)",
+        border:"1.5px solid var(--bd)",borderRadius:"var(--r)",
+        padding:"20px 20px 16px",marginBottom:16,
+        position:"relative",overflow:"hidden",
+      }}>
+        <div style={{position:"absolute",top:-30,right:-30,width:120,height:120,borderRadius:"50%",background:"radial-gradient(circle,#FF4D0015,transparent 70%)"}}/>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div>
+            <p style={{fontSize:11,color:"var(--t3)",textTransform:"uppercase",letterSpacing:"0.12em",fontWeight:800,marginBottom:4}}>Welcome back</p>
+            <h2 style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:28,color:"var(--t)",letterSpacing:"0.03em"}}>{user.name} 👋</h2>
+          </div>
+          <Avatar name={user.name} size={48}/>
         </div>
+        <div style={{display:"flex",gap:6,marginTop:12,flexWrap:"wrap"}}>
+          <Badge color="orange">🏏 IPL 2026</Badge>
+          <Badge color="gold">⏰ Locks 28 Mar</Badge>
+        </div>
+      </div>
+
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+        <h3 style={{fontFamily:"var(--fd)",fontSize:22,color:"var(--t)",letterSpacing:"0.04em"}}>My Leagues</h3>
         {view==="list"
           ? <Btn onClick={()=>{setView("join");setErr("");}} variant="secondary" style={{width:"auto",padding:"10px 16px",fontSize:13}}>🔗 Join League</Btn>
           : <Btn onClick={()=>{setView("list");setErr("");}} variant="ghost"     style={{width:"auto",padding:"10px 16px",fontSize:13}}>← Back</Btn>
         }
       </div>
 
-      {toast&&<div className="pop" style={{display:"flex",alignItems:"center",gap:10,background:"var(--gr-bg)",border:"1.5px solid #88DDB0",borderRadius:"var(--r)",padding:"14px 16px",marginBottom:12}}><span style={{fontSize:22}}>🎉</span><span style={{fontWeight:600,fontSize:14,color:"var(--gr)"}}>{toast}</span></div>}
-      {err&&<div style={{background:"var(--re-bg)",border:"1.5px solid #FFBBBB",borderRadius:"var(--r-sm)",padding:"11px 14px",marginBottom:12,fontSize:13,color:"var(--re)"}}>⚠️ {err}</div>}
+      {toast&&<div className="pop" style={{display:"flex",alignItems:"center",gap:10,background:"rgba(0,201,107,.1)",border:"1px solid rgba(0,201,107,.3)",borderRadius:"var(--r)",padding:"14px 16px",marginBottom:12}}><span style={{fontSize:22}}>🎉</span><span style={{fontWeight:700,fontSize:14,color:"var(--gr)"}}>{toast}</span></div>}
+      {err&&<div style={{background:"rgba(255,59,92,.1)",border:"1px solid rgba(255,59,92,.3)",borderRadius:"var(--r-sm)",padding:"11px 14px",marginBottom:12,fontSize:13,color:"var(--re)",fontWeight:600}}>⚠️ {err}</div>}
 
       {view==="join"&&(
-        <Card style={{marginBottom:14,boxShadow:"var(--sh-md)"}}>
+        <Card style={{marginBottom:14}} glow>
           <SecHead icon="🔗" title="Join a League" sub="Ask your league admin for their 6-character code"/>
           <div style={{display:"flex",flexDirection:"column",gap:13}}>
             <Inp label="League Code" value={joinCode} onChange={e=>setJoinCode(e.target.value.toUpperCase())} placeholder="e.g. RCB007" maxLength={6}
-              style={{letterSpacing:"0.25em",fontFamily:"monospace",fontSize:20,textAlign:"center",fontWeight:700}} onKeyDown={e=>e.key==="Enter"&&join()}/>
+              style={{letterSpacing:"0.3em",fontFamily:"var(--fd)",fontSize:24,textAlign:"center",fontWeight:400,background:"var(--bg)"}} onKeyDown={e=>e.key==="Enter"&&join()}/>
             <Btn onClick={join} disabled={busy||joinCode.length<4} style={{padding:"14px 0"}}>{busy?"Joining…":"Join League →"}</Btn>
           </div>
         </Card>
@@ -481,28 +717,33 @@ const LeaguesScreen = ({user,onEnterLeague}) => {
           <div style={{textAlign:"center",padding:"48px 0",color:"var(--t3)",fontSize:14}}>Loading your leagues…</div>
         ) : leagues.length===0 ? (
           <div style={{textAlign:"center",padding:"48px 16px"}}>
-            <div style={{fontSize:44,marginBottom:12}}>🏏</div>
-            <p style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:16,color:"var(--t)"}}>No league yet</p>
-            <p style={{fontSize:13,color:"var(--t3)",margin:"6px 0 20px"}}>Enter a code to start playing with friends 👇</p>
-            <Btn onClick={()=>setView("join")} style={{width:"auto",padding:"12px 24px",margin:"0 auto"}}>🔗 Enter League Code</Btn>
+            <div style={{fontSize:52,marginBottom:12}} className="float">🏟️</div>
+            <p style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:24,color:"var(--t)",letterSpacing:"0.04em"}}>No League Yet</p>
+            <p style={{fontSize:13,color:"var(--t3)",margin:"8px 0 22px",fontWeight:600}}>Enter a code to start playing with friends 👇</p>
+            <Btn onClick={()=>setView("join")} style={{width:"auto",padding:"13px 28px",margin:"0 auto"}}>🔗 Enter League Code</Btn>
           </div>
         ) : (
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            {leagues.map(l=>(
-              <button key={l.id} onClick={()=>onEnterLeague(l)}
-                style={{width:"100%",textAlign:"left",background:"var(--sf)",border:"1.5px solid var(--bd)",borderRadius:"var(--r)",padding:"16px 18px",cursor:"pointer",transition:"all .2s",display:"flex",alignItems:"center",justifyContent:"space-between"}}
-                onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--ac)";e.currentTarget.style.transform="translateY(-1px)";e.currentTarget.style.boxShadow="var(--sh-md)";}}
-                onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--bd)";e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none";}}>
-                <div>
-                  <p style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:15,color:"var(--t)"}}>{l.name}</p>
-                  <p style={{fontSize:12,color:"var(--t3)",marginTop:3}}>{l.member_count} member{l.member_count!==1?"s":""}</p>
-                </div>
-                <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
-                  <span style={{fontFamily:"monospace",fontWeight:700,fontSize:13,letterSpacing:"0.2em",color:"var(--ac)",background:"#FFF0E8",padding:"4px 10px",borderRadius:100}}>{l.code}</span>
-                  {l.created_by===user.id&&<Badge color="grey">Admin</Badge>}
-                </div>
-              </button>
-            ))}
+            {leagues.map(l=>{
+              const colorIndex = l.name.charCodeAt(0) % TEAMS.length;
+              const teamColor = TC[TEAMS[colorIndex]].bg;
+              return (
+                <button key={l.id} onClick={()=>onEnterLeague(l)}
+                  style={{width:"100%",textAlign:"left",background:"var(--sf)",border:"1.5px solid var(--bd)",borderRadius:"var(--r)",padding:"16px 18px",cursor:"pointer",transition:"all .2s",display:"flex",alignItems:"center",justifyContent:"space-between",position:"relative",overflow:"hidden"}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor=teamColor+"88";e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow=`0 8px 24px ${teamColor}22`;}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--bd)";e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none";}}>
+                  <div style={{position:"absolute",left:0,top:0,bottom:0,width:4,background:teamColor,borderRadius:"4px 0 0 4px"}}/>
+                  <div style={{paddingLeft:8}}>
+                    <p style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:18,color:"var(--t)",letterSpacing:"0.03em"}}>{l.name}</p>
+                    <p style={{fontSize:12,color:"var(--t3)",marginTop:3,fontWeight:600}}>{l.member_count} member{l.member_count!==1?"s":""}</p>
+                  </div>
+                  <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}>
+                    <span style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:15,letterSpacing:"0.25em",color:teamColor,background:`${teamColor}15`,padding:"4px 12px",borderRadius:100}}>{l.code}</span>
+                    {l.created_by===user.id&&<Badge color="gold">Admin</Badge>}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         )
       )}
@@ -519,6 +760,7 @@ const LeagueScreen = ({league,user,onBack}) => {
   const [loading,setLoading] = useState(true);
   const [copied,setCopied]   = useState(false);
   const medals = ["🥇","🥈","🥉"];
+  const medalColors = ["#FFD700","#C0C0C0","#CD7F32"];
 
   useEffect(()=>{
     (async()=>{
@@ -550,37 +792,41 @@ const LeagueScreen = ({league,user,onBack}) => {
 
   return (
     <div style={{maxWidth:520,margin:"0 auto",padding:"24px 16px"}} className="fu">
-      {/* Header */}
-      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:4}}>
-        <button onClick={onBack} style={{width:38,height:38,borderRadius:10,background:"var(--sf)",border:"1.5px solid var(--bd)",cursor:"pointer",fontSize:16,color:"var(--t2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>←</button>
-        <div>
-          <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:20,color:"var(--t)"}}>{league.name}</h2>
-          <p style={{fontSize:12,color:"var(--t3)",marginTop:1}}>🏆 Leaderboard</p>
-        </div>
-      </div>
 
-      {/* Invite row */}
-      <div style={{display:"flex",alignItems:"center",gap:10,paddingLeft:50,marginBottom:20,flexWrap:"wrap"}}>
-        <button onClick={copyLink} style={{display:"inline-flex",alignItems:"center",gap:7,background:"#FFF0E8",border:"1.5px solid #FFD0B8",borderRadius:100,padding:"6px 14px",cursor:"pointer"}}>
-          <span style={{fontFamily:"monospace",fontWeight:700,fontSize:13,letterSpacing:"0.2em",color:"var(--ac)"}}>{league.code}</span>
-          <span style={{fontSize:11,color:"var(--t3)",fontWeight:600}}>{copied?"✓ Invite link copied!":"📋 copy invite link"}</span>
-        </button>
-        <span style={{fontSize:12,color:"var(--t3)"}}>{members.length} player{members.length!==1?"s":""}</span>
+      {/* Header */}
+      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}>
+        <button onClick={onBack} style={{width:40,height:40,borderRadius:12,background:"var(--sf)",border:"1.5px solid var(--bd)",cursor:"pointer",fontSize:16,color:"var(--t2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .15s"}}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--ac)";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--bd)";}}>←</button>
+        <div style={{flex:1}}>
+          <h2 style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:24,color:"var(--t)",letterSpacing:"0.04em"}}>{league.name}</h2>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}>
+            <button onClick={copyLink} style={{display:"inline-flex",alignItems:"center",gap:6,background:"rgba(255,77,0,.1)",border:"1px solid rgba(255,77,0,.25)",borderRadius:100,padding:"4px 12px",cursor:"pointer"}}>
+              <span style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:14,letterSpacing:"0.2em",color:"var(--ac)"}}>{league.code}</span>
+              <span style={{fontSize:11,color:"var(--t3)",fontWeight:700}}>{copied?"✓ Copied!":"📋"}</span>
+            </button>
+            <span style={{fontSize:12,color:"var(--t3)",fontWeight:600}}>{members.length} players</span>
+          </div>
+        </div>
       </div>
 
       {/* My position banner */}
       {actuals&&me?.score!==null&&(
-        <div className="pop" style={{background:"linear-gradient(135deg,#FFF5EE,#FFEEE0)",border:"1.5px solid #FFD0B0",borderRadius:"var(--r)",padding:"14px 18px",marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <span style={{fontSize:28}}>{medals[myRank-1]||`#${myRank}`}</span>
+        <div className="pop" style={{
+          background:"linear-gradient(135deg,rgba(255,77,0,.12),rgba(255,122,51,.08))",
+          border:"1.5px solid rgba(255,77,0,.3)",
+          borderRadius:"var(--r)",padding:"16px 20px",marginBottom:14,
+          display:"flex",alignItems:"center",justifyContent:"space-between",
+        }}>
+          <div style={{display:"flex",alignItems:"center",gap:14}}>
+            <span style={{fontSize:36}}>{medals[myRank-1]||`#${myRank}`}</span>
             <div>
-              <p style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:14,color:"var(--t)"}}>You're #{myRank} of {members.length}</p>
-              <p style={{fontSize:12,color:"var(--t2)",marginTop:2}}>{ptsBehind?`🔥 ${ptsBehind} pts behind ${leader.name.split(" ")[0]}`:"🏆 You're leading!"}</p>
+              <p style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:18,color:"var(--t)",letterSpacing:"0.03em"}}>You're #{myRank} of {members.length}</p>
+              <p style={{fontSize:12,color:"var(--t2)",marginTop:3,fontWeight:600}}>{ptsBehind?`🔥 ${ptsBehind} pts behind ${leader.name.split(" ")[0]}`:"🏆 You're leading!"}</p>
             </div>
           </div>
           <div style={{textAlign:"right"}}>
-            <p style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:26,color:"var(--ac)"}}>{me.score}</p>
-            <p style={{fontSize:11,color:"var(--t3)"}}>/ {MAX_PTS} pts</p>
+            <p style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:34,color:"var(--ac)",lineHeight:1}}>{me.score}</p>
+            <p style={{fontSize:11,color:"var(--t3)",fontWeight:600}}>/ {MAX_PTS} pts</p>
           </div>
         </div>
       )}
@@ -590,43 +836,77 @@ const LeagueScreen = ({league,user,onBack}) => {
       ):(
         <>
           {!actuals&&(
-            <div style={{display:"flex",alignItems:"center",gap:12,background:"var(--gold-bg)",border:"1.5px solid #F5D170",borderRadius:"var(--r)",padding:"14px 16px",marginBottom:14}}>
-              <span style={{fontSize:22}}>⏳</span>
+            <div style={{display:"flex",alignItems:"center",gap:12,background:"rgba(255,215,0,.08)",border:"1px solid rgba(255,215,0,.2)",borderRadius:"var(--r)",padding:"14px 16px",marginBottom:14}}>
+              <span style={{fontSize:24}}>⏳</span>
               <div>
-                <p style={{fontWeight:700,fontSize:13,color:"var(--gold)"}}>Tournament not started yet</p>
-                <p style={{fontSize:12,color:"#9A7A00",marginTop:2}}>Scores appear once the admin enters results</p>
+                <p style={{fontWeight:800,fontSize:13,color:"var(--gold)"}}>Tournament not started yet</p>
+                <p style={{fontSize:12,color:"var(--t3)",marginTop:2,fontWeight:600}}>Scores appear once the admin enters results</p>
               </div>
             </div>
           )}
+
+          {/* Top 3 podium if results are in */}
+          {actuals && members.length >= 3 && members[0].score !== null && (
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1.2fr 1fr",gap:8,marginBottom:14,alignItems:"flex-end"}}>
+              {[members[1],members[0],members[2]].map((m,idx)=>{
+                const rank = idx===1?1:idx===0?2:3;
+                const mc = medalColors[rank-1];
+                if (!m) return <div key={idx}/>;
+                return (
+                  <div key={m.id} style={{
+                    background:`linear-gradient(180deg,${mc}18,${mc}08)`,
+                    border:`1.5px solid ${mc}44`,
+                    borderRadius:"var(--r)",
+                    padding:"14px 10px 12px",textAlign:"center",
+                    boxShadow:`0 4px 20px ${mc}22`,
+                  }}>
+                    <div style={{fontSize:rank===1?32:24,marginBottom:6}}>{medals[rank-1]}</div>
+                    <Avatar name={m.name} size={rank===1?44:36} />
+                    <p style={{fontWeight:800,fontSize:12,color:"var(--t)",marginTop:8,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{m.name.split(" ")[0]}</p>
+                    {m.score!==null&&<p style={{fontFamily:"var(--fd)",fontSize:rank===1?24:18,color:mc,marginTop:4}}>{m.score}</p>}
+                    {m.pred?.winner&&<div style={{marginTop:6,display:"flex",justifyContent:"center"}}><TeamChip team={m.pred.winner}/></div>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {members.map((m,i)=>{
               const isMe=m.id===user.id;
               const pct=m.score!==null?Math.round((m.score/MAX_PTS)*100):0;
+              const mc = i < 3 && actuals ? medalColors[i] : null;
               return (
-                <div key={m.id} style={{background:isMe?"#FFF5EE":"var(--sf)",border:`1.5px solid ${isMe?"#FFD0B0":i<3&&actuals?"var(--bd2)":"var(--bd)"}`,borderRadius:"var(--r)",padding:"14px 16px",boxShadow:i<3&&actuals?"var(--sh)":"none"}}>
+                <div key={m.id} style={{
+                  background:isMe?"rgba(255,77,0,.07)":"var(--sf)",
+                  border:`1.5px solid ${isMe?"rgba(255,77,0,.3)":mc?`${mc}33`:"var(--bd)"}`,
+                  borderRadius:"var(--r)",padding:"13px 16px",
+                  boxShadow: mc ? `0 2px 12px ${mc}18` : "none",
+                  transition:"all .2s",
+                }}>
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
-                    <div style={{width:34,textAlign:"center",flexShrink:0,fontSize:i<3&&actuals?22:13,fontFamily:"var(--fd)",fontWeight:700,color:"var(--t3)"}}>
+                    <div style={{width:36,textAlign:"center",flexShrink:0,fontSize:i<3&&actuals?22:13,fontFamily:"var(--fb)",fontWeight:800,color:mc||"var(--t3)"}}>
                       {actuals&&i<3?medals[i]:`#${i+1}`}
                     </div>
                     <Avatar name={m.name}/>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-                        <span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:14,color:isMe?"var(--ac)":"var(--t)"}}>{m.name}</span>
+                        <span style={{fontFamily:"var(--fb)",fontWeight:800,fontSize:14,color:isMe?"var(--ac)":"var(--t)"}}>{m.name}</span>
                         {isMe&&<Badge color="orange">You</Badge>}
                         {!m.hasPred&&<Badge color="red">No pick yet</Badge>}
                       </div>
                       {m.pred?.winner&&<div style={{marginTop:5}}><TeamChip team={m.pred.winner}/></div>}
                       {actuals&&m.score!==null&&(
-                        <div style={{marginTop:8,height:4,background:"var(--bg2)",borderRadius:100,overflow:"hidden"}}>
-                          <div style={{height:"100%",borderRadius:100,background:"linear-gradient(90deg,var(--ac),#FF6B35)",width:`${pct}%`,transition:"width .8s cubic-bezier(.4,0,.2,1)"}}/>
+                        <div style={{marginTop:8,height:5,background:"var(--bg)",borderRadius:100,overflow:"hidden"}}>
+                          <div style={{height:"100%",borderRadius:100,background:`linear-gradient(90deg,var(--ac),#FF9A33)`,width:`${pct}%`,transition:"width 1s cubic-bezier(.4,0,.2,1)"}}/>
                         </div>
                       )}
                     </div>
                     <div style={{textAlign:"right",flexShrink:0}}>
                       {actuals&&m.score!==null?(
                         <>
-                          <p style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:22,color:isMe?"var(--ac)":"var(--t)"}}>{m.score}</p>
-                          <p style={{fontSize:11,color:"var(--t3)"}}>/{MAX_PTS}</p>
+                          <p style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:26,color:isMe?"var(--ac)":mc||"var(--t)",lineHeight:1}}>{m.score}</p>
+                          <p style={{fontSize:11,color:"var(--t3)",fontWeight:600}}>/{MAX_PTS}</p>
                         </>
                       ):<span style={{color:"var(--bd2)",fontSize:18}}>—</span>}
                     </div>
@@ -635,14 +915,16 @@ const LeagueScreen = ({league,user,onBack}) => {
               );
             })}
           </div>
+
           {actuals&&(
             <Card style={{marginTop:14}}>
               <SecHead icon="📊" title="Tournament Results"/>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                 {[["🏆 Champion",actuals.winner],["🥈 Runner-Up",actuals.finalist2],["🍊 Orange Cap",actuals.top_scorer],["💜 Purple Cap",actuals.top_wicket_taker],["💥 Most Sixes",actuals.max_sixes],["🏏 Most Fours",actuals.max_fours]].filter(([,v])=>v).map(([k,v])=>(
-                  <div key={k} style={{background:"var(--bg2)",borderRadius:"var(--r-sm)",padding:"10px 12px"}}>
-                    <p style={{fontSize:11,color:"var(--t3)"}}>{k}</p>
-                    <p style={{fontSize:13,fontWeight:700,color:"var(--t)",marginTop:3}}>{v}</p>
+                  <div key={k} style={{background:"var(--sf2)",borderRadius:"var(--r-sm)",padding:"10px 12px",border:"1px solid var(--bd)"}}>
+                    <p style={{fontSize:11,color:"var(--t3)",fontWeight:700}}>{k}</p>
+                    <p style={{fontSize:13,fontWeight:800,color:"var(--t)",marginTop:3}}>{v}</p>
+                    {TEAMS.includes(v)&&<div style={{marginTop:6}}><TeamChip team={v}/></div>}
                   </div>
                 ))}
               </div>
@@ -655,7 +937,7 @@ const LeagueScreen = ({league,user,onBack}) => {
 };
 
 // ─────────────────────────────────────────────
-// MY PICKS SCREEN  (3-step flow)
+// MY PICKS SCREEN
 // ─────────────────────────────────────────────
 const PicksScreen = ({user}) => {
   const locked = isLocked();
@@ -688,7 +970,7 @@ const PicksScreen = ({user}) => {
         await sb(`predictions?user_id=eq.${user.id}`,{method:"PATCH",body:{...pred,updated_at:new Date().toISOString()}});
       } else {
         await sb("predictions",{method:"POST",body:{...pred,user_id:user.id}});
-        setConfetti(true); setTimeout(()=>setConfetti(false),3400);
+        setConfetti(true); setTimeout(()=>setConfetti(false),3500);
       }
       setSaved(true); setStatus("saved"); setTimeout(()=>setStatus(null),4000);
     } catch(e){setStatus("error:"+e.message);}
@@ -706,32 +988,32 @@ const PicksScreen = ({user}) => {
       <Confetti active={confetti}/>
 
       <div style={{marginBottom:18}}>
-        <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:22,color:"var(--t)"}}>My Picks</h2>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginTop:6,flexWrap:"wrap"}}>
+        <h2 style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:28,color:"var(--t)",letterSpacing:"0.04em"}}>My Picks 🎯</h2>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginTop:8,flexWrap:"wrap"}}>
           {locked?<Badge color="red">🔒 Locked</Badge>:<Badge color="orange">⏰ Locks 28 Mar · 3:30 PM IST</Badge>}
           {saved&&!locked&&<Badge color="green">✓ Saved</Badge>}
         </div>
       </div>
 
       {locked&&saved&&(
-        <div style={{display:"flex",alignItems:"center",gap:12,background:"var(--gr-bg)",border:"1.5px solid #88DDB0",borderRadius:"var(--r)",padding:"14px 16px",marginBottom:14}}>
-          <span style={{fontSize:22}}>🎉</span>
+        <div style={{display:"flex",alignItems:"center",gap:12,background:"rgba(0,201,107,.08)",border:"1px solid rgba(0,201,107,.25)",borderRadius:"var(--r)",padding:"14px 16px",marginBottom:14}}>
+          <span style={{fontSize:24}}>🎉</span>
           <div>
-            <p style={{fontWeight:700,fontSize:13,color:"var(--gr)"}}>Your picks are locked in!</p>
-            <p style={{fontSize:12,color:"#2A8A5A",marginTop:2}}>Check the leaderboard once the tournament starts</p>
+            <p style={{fontWeight:800,fontSize:13,color:"var(--gr)"}}>Your picks are locked in!</p>
+            <p style={{fontSize:12,color:"var(--t3)",marginTop:2,fontWeight:600}}>Check the leaderboard once the tournament starts</p>
           </div>
         </div>
       )}
 
-      {/* Progress */}
+      {/* Progress bar */}
       {!locked&&(
         <div style={{marginBottom:18}}>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
-            <span style={{fontSize:12,color:"var(--t3)",fontWeight:600}}>Progress</span>
-            <span style={{fontSize:12,fontWeight:700,color:complete?"var(--gr)":"var(--t2)"}}>{done}/7 complete</span>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+            <span style={{fontSize:12,color:"var(--t3)",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}>Progress</span>
+            <span style={{fontSize:12,fontWeight:800,color:complete?"var(--gr)":"var(--t2)"}}>{done}/7 complete</span>
           </div>
-          <div style={{height:6,background:"var(--bg2)",borderRadius:100,overflow:"hidden"}}>
-            <div style={{height:"100%",borderRadius:100,background:complete?"var(--gr)":"var(--ac)",width:`${(done/7)*100}%`,transition:"width .4s ease"}}/>
+          <div style={{height:8,background:"var(--sf)",borderRadius:100,overflow:"hidden",border:"1px solid var(--bd)"}}>
+            <div style={{height:"100%",borderRadius:100,background:complete?"linear-gradient(90deg,#00C96B,#00E07A)":"linear-gradient(90deg,#FF4D00,#FF7A33)",width:`${(done/7)*100}%`,transition:"width .4s ease",boxShadow:complete?"0 0 8px rgba(0,201,107,.5)":"0 0 8px rgba(255,77,0,.5)"}}/>
           </div>
         </div>
       )}
@@ -741,24 +1023,49 @@ const PicksScreen = ({user}) => {
         <div style={{display:"flex",gap:8,marginBottom:18}}>
           {[["1","Tournament","🏆"],["2","Top 4","🏅"],["3","Players","🎖️"]].map(([n,l,ic])=>(
             <button key={n} onClick={()=>setStep(Number(n))}
-              style={{flex:1,padding:"10px 6px",borderRadius:"var(--r-sm)",border:`1.5px solid ${step===Number(n)?"var(--t)":"var(--bd)"}`,background:step===Number(n)?"var(--t)":"var(--sf)",color:step===Number(n)?"#fff":"var(--t3)",fontFamily:"var(--fd)",fontWeight:700,fontSize:11,cursor:"pointer",transition:"all .15s",textAlign:"center"}}>
-              <div style={{fontSize:14,marginBottom:2}}>{ic}</div>
-              <div style={{fontSize:9,opacity:.8,marginBottom:1}}>STEP {n}</div>
+              style={{flex:1,padding:"12px 6px",borderRadius:"var(--r-sm)",
+                border:`1.5px solid ${step===Number(n)?"var(--ac)":"var(--bd)"}`,
+                background:step===Number(n)?"linear-gradient(135deg,rgba(255,77,0,.15),rgba(255,77,0,.05))":"var(--sf)",
+                color:step===Number(n)?"var(--ac)":"var(--t3)",
+                fontFamily:"var(--fb)",fontWeight:800,fontSize:11,cursor:"pointer",transition:"all .15s",textAlign:"center",
+                boxShadow:step===Number(n)?"0 0 12px rgba(255,77,0,.2)":"none",
+              }}>
+              <div style={{fontSize:16,marginBottom:2}}>{ic}</div>
+              <div style={{fontSize:9,opacity:.7,marginBottom:1,letterSpacing:"0.1em"}}>STEP {n}</div>
               {l}
             </button>
           ))}
         </div>
       )}
 
-      {/* STEP 1 */}
+      {/* STEP 1 — visual team picker */}
       {(step===1||locked)&&(
         <Card style={{marginBottom:10}}>
           <SecHead step={locked?null:1} icon="🏆" title="Tournament Podium" sub="Who wins IPL 2026?"/>
-          <div style={{display:"flex",flexDirection:"column",gap:14}}>
-            <Sel label="IPL 2026 Champion"    value={pred.winner}    onChange={v=>upd("winner",v)}    options={TEAMS}                         disabled={locked}/>
-            <Sel label="Runner-Up (Finalist)" value={pred.finalist2} onChange={v=>upd("finalist2",v)} options={TEAMS.filter(t=>t!==pred.winner)} disabled={locked}/>
+
+          <div style={{marginBottom:16}}>
+            <label style={{...lbl,marginBottom:10}}>🥇 IPL 2026 Champion</label>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
+              {TEAMS.map(t=>(
+                <TeamCard key={t} team={t} selected={pred.winner===t}
+                  onClick={()=>{ upd("winner",t); if(pred.finalist2===t) upd("finalist2",""); }}
+                  disabled={locked} size="sm"/>
+              ))}
+            </div>
           </div>
-          {!locked&&step===1&&<Btn onClick={()=>setStep(2)} disabled={!canNext1} style={{marginTop:14,padding:"13px 0"}}>Next: Pick Top 4 →</Btn>}
+
+          <div>
+            <label style={{...lbl,marginBottom:10}}>🥈 Runner-Up (Finalist)</label>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
+              {TEAMS.filter(t=>t!==pred.winner).map(t=>(
+                <TeamCard key={t} team={t} selected={pred.finalist2===t}
+                  onClick={()=>upd("finalist2",t)}
+                  disabled={locked} size="sm"/>
+              ))}
+            </div>
+          </div>
+
+          {!locked&&step===1&&<Btn onClick={()=>setStep(2)} disabled={!canNext1} style={{marginTop:16,padding:"13px 0"}}>Next: Pick Top 4 →</Btn>}
         </Card>
       )}
 
@@ -769,7 +1076,7 @@ const PicksScreen = ({user}) => {
           <Top4 value={pred.top4} onChange={v=>upd("top4",v)} excluded={exclTop4} disabled={locked}/>
           {!locked&&step===2&&(
             <div style={{display:"flex",gap:8,marginTop:14}}>
-              <Btn onClick={()=>setStep(1)} variant="ghost"   style={{width:"auto",padding:"13px 20px"}}>← Back</Btn>
+              <Btn onClick={()=>setStep(1)} variant="ghost" style={{width:"auto",padding:"13px 20px"}}>← Back</Btn>
               <Btn onClick={()=>setStep(3)} disabled={!canNext2} style={{flex:1,padding:"13px 0"}}>Next: Player Awards →</Btn>
             </div>
           )}
@@ -790,31 +1097,31 @@ const PicksScreen = ({user}) => {
         </Card>
       )}
 
-      {/* Points */}
+      {/* Points card */}
       <Card style={{marginBottom:14}}>
         <SecHead icon="💰" title="Points on Offer"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
           {[["🏆 Champion","20"],["🥈 Runner-Up","10"],["Each Top-4","5"],["🍊 Orange Cap","15"],["💜 Purple Cap","15"],["💥 Sixes","10"],["🏏 Fours","10"]].map(([k,v])=>(
-            <div key={k} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"var(--bg2)",borderRadius:"var(--r-sm)",padding:"8px 10px"}}>
-              <span style={{fontSize:12,color:"var(--t2)"}}>{k}</span>
-              <span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:13,color:"var(--ac)"}}>{v} pts</span>
+            <div key={k} style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"var(--sf2)",borderRadius:"var(--r-sm)",padding:"9px 12px",border:"1px solid var(--bd)"}}>
+              <span style={{fontSize:12,color:"var(--t2)",fontWeight:600}}>{k}</span>
+              <span style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:16,color:"var(--gold)"}}>{v} pts</span>
             </div>
           ))}
         </div>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",borderTop:"1.5px solid var(--bd)",marginTop:10,paddingTop:10}}>
-          <span style={{fontWeight:700,color:"var(--t2)"}}>Maximum possible</span>
-          <span style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:17,color:"var(--t)"}}>{MAX_PTS} pts</span>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",borderTop:"1.5px solid var(--bd)",marginTop:12,paddingTop:12}}>
+          <span style={{fontWeight:800,color:"var(--t2)"}}>Maximum possible</span>
+          <span style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:22,color:"var(--gold)"}}>{MAX_PTS} pts</span>
         </div>
       </Card>
 
       {!locked&&(
-        <Btn onClick={save} disabled={!complete||status==="saving"} style={{padding:"15px 0",fontSize:15,opacity:complete?1:.4}}>
-          {status==="saving"?"Saving…":saved?"✅ Update My Picks":"Save My Picks →"}
+        <Btn onClick={save} disabled={!complete||status==="saving"} variant={complete?"gold":"primary"} style={{padding:"16px 0",fontSize:16,opacity:complete?1:.5}}>
+          {status==="saving"?"Saving…":saved?"✅ Update My Picks":"🎯 Save My Picks"}
         </Btn>
       )}
 
-      {status==="saved"&&<div className="pop" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,background:"var(--gr-bg)",border:"1.5px solid #88DDB0",borderRadius:"var(--r-sm)",padding:"13px 16px",marginTop:10,fontSize:14,fontWeight:600,color:"var(--gr)"}}>🎉 Picks saved! Good luck!</div>}
-      {status?.startsWith("error:")&&<div style={{background:"var(--re-bg)",border:"1.5px solid #FFBBBB",borderRadius:"var(--r-sm)",padding:"12px 16px",marginTop:10,fontSize:13,color:"var(--re)"}}>❌ {status.replace("error:","")}</div>}
+      {status==="saved"&&<div className="pop" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,background:"rgba(0,201,107,.1)",border:"1px solid rgba(0,201,107,.25)",borderRadius:"var(--r-sm)",padding:"13px 16px",marginTop:10,fontSize:14,fontWeight:700,color:"var(--gr)"}}>🎉 Picks saved! Good luck!</div>}
+      {status?.startsWith("error:")&&<div style={{background:"rgba(255,59,92,.1)",border:"1px solid rgba(255,59,92,.3)",borderRadius:"var(--r-sm)",padding:"12px 16px",marginTop:10,fontSize:13,color:"var(--re)",fontWeight:600}}>❌ {status.replace("error:","")}</div>}
     </div>
   );
 };
@@ -869,9 +1176,9 @@ const AdminScreen = () => {
 
   if(!unlocked) return (
     <div style={{maxWidth:360,margin:"0 auto",padding:"60px 16px",textAlign:"center"}} className="fu">
-      <div style={{fontSize:52,marginBottom:12}}>🔐</div>
-      <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:22,marginBottom:8}}>Admin Panel</h2>
-      <p style={{color:"var(--t3)",fontSize:13,marginBottom:24}}>Enter results as the IPL progresses</p>
+      <div style={{fontSize:56,marginBottom:14}} className="float">🔐</div>
+      <h2 style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:28,marginBottom:6,letterSpacing:"0.05em"}}>Admin Panel</h2>
+      <p style={{color:"var(--t3)",fontSize:13,marginBottom:24,fontWeight:600}}>Enter results as the IPL progresses</p>
       <Card>
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
           <Inp label="Admin Password" type="password" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="••••••••" onKeyDown={e=>e.key==="Enter"&&unlock()}/>
@@ -886,11 +1193,10 @@ const AdminScreen = () => {
   return (
     <div style={{maxWidth:520,margin:"0 auto",padding:"24px 16px"}} className="fu">
       <div style={{marginBottom:20}}>
-        <h2 style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:22,color:"var(--t)"}}>Admin Panel</h2>
-        <p style={{fontSize:13,color:"var(--t3)",marginTop:3}}>Manage leagues & enter results</p>
+        <h2 style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:28,color:"var(--t)",letterSpacing:"0.05em"}}>Admin Panel ⚙️</h2>
+        <p style={{fontSize:13,color:"var(--t3)",marginTop:3,fontWeight:600}}>Manage leagues & enter results</p>
       </div>
 
-      {/* Create League */}
       <Card style={{marginBottom:12}}>
         <SecHead icon="✨" title="Create a League"/>
         <div style={{display:"flex",gap:8}}>
@@ -899,14 +1205,13 @@ const AdminScreen = () => {
           <Btn onClick={createLeague} disabled={!leagueName.trim()} style={{width:"auto",padding:"0 18px",whiteSpace:"nowrap",flexShrink:0}}>Create</Btn>
         </div>
         {leagueResult&&(
-          <div className="pop" style={{marginTop:12,background:"var(--gr-bg)",border:"1.5px solid #88DDB0",borderRadius:"var(--r-sm)",padding:"12px 14px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <span style={{fontWeight:600,fontSize:13,color:"var(--gr)"}}>✅ "{leagueResult.name}" created!</span>
-            <span style={{fontFamily:"monospace",fontWeight:700,fontSize:15,letterSpacing:"0.2em",color:"var(--ac)",background:"#FFF0E8",padding:"4px 12px",borderRadius:100}}>{leagueResult.code}</span>
+          <div className="pop" style={{marginTop:12,background:"rgba(0,201,107,.08)",border:"1px solid rgba(0,201,107,.25)",borderRadius:"var(--r-sm)",padding:"12px 14px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span style={{fontWeight:700,fontSize:13,color:"var(--gr)"}}>✅ "{leagueResult.name}" created!</span>
+            <span style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:18,letterSpacing:"0.2em",color:"var(--ac)",background:"rgba(255,77,0,.1)",padding:"4px 14px",borderRadius:100}}>{leagueResult.code}</span>
           </div>
         )}
       </Card>
 
-      {/* Results */}
       <Card style={{marginBottom:12}}>
         <SecHead icon="🏆" title="Tournament Results"/>
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -931,12 +1236,12 @@ const AdminScreen = () => {
       <Card>
         <SecHead icon="👥" title={`All Participants (${participants.length})`}/>
         {participants.map((p,i)=>(
-          <div key={p.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderBottom:i<participants.length-1?"1px solid var(--bd)":"none"}}>
+          <div key={p.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 0",borderBottom:i<participants.length-1?"1px solid var(--bd)":"none"}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <Avatar name={p.name} size={32}/>
+              <Avatar name={p.name} size={34}/>
               <div>
-                <p style={{fontWeight:700,fontSize:14,color:"var(--t)"}}>{p.name}</p>
-                <p style={{fontSize:11,color:"var(--t3)"}}>@{p.username}</p>
+                <p style={{fontWeight:800,fontSize:14,color:"var(--t)"}}>{p.name}</p>
+                <p style={{fontSize:11,color:"var(--t3)",fontWeight:600}}>@{p.username}</p>
               </div>
             </div>
             {p.pred?.winner?<TeamChip team={p.pred.winner}/>:<Badge color="red">No pick</Badge>}
@@ -962,7 +1267,7 @@ export default function App() {
 
   if(!user) return <><GS/><AuthScreen onLogin={login}/></>;
 
-  const enterLeague  = l=>{ setActiveLeague(l); setTab("league-detail"); };
+  const enterLeague   = l=>{ setActiveLeague(l); setTab("league-detail"); };
   const backToLeagues = ()=>{ setActiveLeague(null); setTab("leagues"); };
 
   const navItems = [
@@ -974,21 +1279,28 @@ export default function App() {
   return (
     <>
       <GS/>
-      <div style={{minHeight:"100vh",background:"linear-gradient(180deg,#F4F1EA 0%,#EDE9E0 100%)"}}>
+      <div style={{minHeight:"100vh",background:"var(--bg)"}}>
+
+        {/* Subtle top gradient accent */}
+        <div style={{position:"fixed",top:0,left:0,right:0,height:3,background:"linear-gradient(90deg,#FF4D00,#FFD700,#C8102E,#3A225D,#004BA0,#F7500E,#EA1A85)",zIndex:100}}/>
 
         {/* Header */}
-        <header style={{position:"sticky",top:0,zIndex:50,background:"rgba(244,241,234,.94)",backdropFilter:"blur(12px)",borderBottom:"1.5px solid var(--bd)"}}>
-          <div style={{maxWidth:520,margin:"0 auto",padding:"0 16px",height:54,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <header style={{position:"sticky",top:3,zIndex:50,background:"rgba(13,13,26,.92)",backdropFilter:"blur(16px)",borderBottom:"1.5px solid var(--bd)"}}>
+          <div style={{maxWidth:520,margin:"0 auto",padding:"0 16px",height:56,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <button onClick={backToLeagues} style={{display:"flex",alignItems:"center",gap:10,background:"none",border:"none",cursor:"pointer",padding:0}}>
-              <div style={{width:32,height:32,borderRadius:9,background:"var(--ac)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>🏏</div>
-              <span style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:15,color:"var(--t)"}}>IPL Prediction League</span>
+              <div style={{width:34,height:34,borderRadius:10,background:"linear-gradient(135deg,#FF4D00,#FF7A33)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,boxShadow:"0 4px 12px rgba(255,77,0,.4)"}}>🏏</div>
+              <div>
+                <span style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:16,color:"var(--t)",letterSpacing:"0.05em"}}>IPL PREDICTION</span>
+                <span style={{fontFamily:"var(--fd)",fontWeight:400,fontSize:11,color:"var(--gold)",letterSpacing:"0.1em",display:"block",lineHeight:1,marginTop:1}}>LEAGUE 2026</span>
+              </div>
             </button>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
-              <Avatar name={user.name} size={28}/>
-              <span style={{fontSize:13,color:"var(--t2)",fontWeight:600,maxWidth:80,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{user.name}</span>
-              <button onClick={logout} style={{background:"none",border:"1.5px solid var(--bd)",borderRadius:8,padding:"5px 10px",fontSize:12,fontWeight:600,color:"var(--t3)",cursor:"pointer",fontFamily:"var(--fb)"}}>Out</button>
+              <Avatar name={user.name} size={30}/>
+              <span style={{fontSize:13,color:"var(--t2)",fontWeight:700,maxWidth:80,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{user.name}</span>
+              <button onClick={logout} style={{background:"rgba(255,59,92,.1)",border:"1px solid rgba(255,59,92,.25)",borderRadius:8,padding:"5px 11px",fontSize:12,fontWeight:800,color:"var(--re)",cursor:"pointer"}}>Out</button>
             </div>
           </div>
+          <TeamTicker/>
         </header>
 
         {/* Content */}
@@ -1000,15 +1312,16 @@ export default function App() {
         </main>
 
         {/* Bottom nav */}
-        <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:50,background:"rgba(244,241,234,.96)",backdropFilter:"blur(12px)",borderTop:"1.5px solid var(--bd)"}}>
+        <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:50,background:"rgba(13,13,26,.96)",backdropFilter:"blur(16px)",borderTop:"1.5px solid var(--bd)"}}>
           <div style={{maxWidth:520,margin:"0 auto",display:"flex"}}>
             {navItems.map(t=>{
               const active=tab===t.id||(t.id==="leagues"&&tab==="league-detail");
               return (
                 <button key={t.id} onClick={()=>{setActiveLeague(null);setTab(t.id);}}
-                  style={{flex:1,padding:"13px 0 10px",display:"flex",flexDirection:"column",alignItems:"center",gap:3,background:"none",border:"none",cursor:"pointer",transition:"all .15s",borderTop:`2.5px solid ${active?"var(--ac)":"transparent"}`,marginTop:"-1.5px"}}>
+                  style={{flex:1,padding:"13px 0 10px",display:"flex",flexDirection:"column",alignItems:"center",gap:3,background:"none",border:"none",cursor:"pointer",transition:"all .15s",
+                    borderTop:`2.5px solid ${active?"var(--ac)":"transparent"}`,marginTop:"-1.5px"}}>
                   <span style={{fontSize:20,lineHeight:1}}>{t.icon}</span>
-                  <span style={{fontSize:10,fontFamily:"var(--fd)",fontWeight:700,letterSpacing:"0.04em",textTransform:"uppercase",color:active?"var(--ac)":"var(--t3)"}}>{t.label}</span>
+                  <span style={{fontSize:10,fontFamily:"var(--fb)",fontWeight:800,letterSpacing:"0.06em",textTransform:"uppercase",color:active?"var(--ac)":"var(--t3)"}}>{t.label}</span>
                 </button>
               );
             })}
