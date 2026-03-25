@@ -3,9 +3,9 @@ import { useState, useEffect, useCallback } from "react";
 // ─────────────────────────────────────────────
 // SUPABASE CONFIG  ← replace before deploying
 // ─────────────────────────────────────────────
-const SB_URL  = "YOUR_SUPABASE_URL";
-const SB_KEY  = "YOUR_SUPABASE_ANON_KEY";
-const ADMIN_PWD = "ipl2026admin"; // change this!
+const SB_URL  = "https://rpzpnbhaqpfejolgjggu.supabase.co";
+const SB_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwenBuYmhhcXBmZWpvbGdqZ2d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTcyODQsImV4cCI6MjA4OTk3MzI4NH0.tDRO6axPkvI4udJJz2cJCOcH0WQFlu4sOl7U-h50s30";
+const ADMIN_PWD = "RCBIPLChampion@2026"; // change this!
 
 // ─────────────────────────────────────────────
 // IPL 2026 DATA
