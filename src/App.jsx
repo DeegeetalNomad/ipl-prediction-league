@@ -5,7 +5,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 // ─────────────────────────────────────────────
 const SB_URL    = "https://rpzpnbhaqpfejolgjggu.supabase.co";
 const SB_KEY    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwenBuYmhhcXBmZWpvbGdqZ2d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTcyODQsImV4cCI6MjA4OTk3MzI4NH0.tDRO6axPkvI4udJJz2cJCOcH0WQFlu4sOl7U-h50s30";
-const ADMIN_PWD = "ipl2026admin";
+
+// Secure Admin Hash (No plain-text passwords here!)
+const ADMIN_HASH = "8a25c1b67e2311d948332130ab7eb3ecb99de2fa5a7e6c4b2eb3f50dd5112f45";
 
 // ─────────────────────────────────────────────
 // IPL 2026 DATA
@@ -47,12 +49,14 @@ const SQUADS = {
   "Punjab Kings":["Shreyas Iyer","Nehal Wadhera","Vishnu Vinod","Harnoor Pannu","Prabhsimran Singh","Shashank Singh","Marcus Stoinis","Harpreet Brar","Marco Jansen","Azmatullah Omarzai","Priyansh Arya","Musheer Khan","Mitch Owen","Cooper Connolly","Ben Dwarshuis","Arshdeep Singh","Yuzvendra Chahal","Vyshak Vijaykumar","Yash Thakur","Xavier Bartlett","Lockie Ferguson"],
 };
 const ALL_PLAYERS = [...new Set(Object.values(SQUADS).flat())].sort();
-const LOCK_DATE   = new Date("2026-03-28T10:00:00Z"); // 3:30 PM IST
+
+// EXACTLY 7:00 PM IST (13:30 UTC)
+const LOCK_DATE   = new Date("2026-03-28T13:30:00Z"); 
 const isLocked    = () => new Date() >= LOCK_DATE;
 
 // ── SCORING ──
-const TPOINTS = { winner:20, finalist2:10, top4_each:5, top_scorer:15, top_wicket_taker:15, max_sixes:10, max_fours:10 };
-const MAX_PTS = 95;
+const TPOINTS = { winner:20, finalist2:10, top4_each:5, player_of_tournament:15, top_scorer:15, top_wicket_taker:15, max_sixes:10, max_fours:10 };
+const MAX_PTS = 110;
 const DPOINTS = { winner:10, top_batter:8, top_bowler:8, potm:10 };
 
 const ROASTS = [
@@ -107,6 +111,7 @@ const calcTScore = (pred, act) => {
   if (pred.winner === act.winner) s += TPOINTS.winner;
   if (pred.finalist2 && (pred.finalist2 === act.finalist2 || pred.finalist2 === act.winner)) s += TPOINTS.finalist2;
   (pred.top4 || []).forEach(t => { if ((act.top4 || []).includes(t)) s += TPOINTS.top4_each; });
+  if (pred.player_of_tournament === act.player_of_tournament) s += TPOINTS.player_of_tournament;
   if (pred.top_scorer === act.top_scorer) s += TPOINTS.top_scorer;
   if (pred.top_wicket_taker === act.top_wicket_taker) s += TPOINTS.top_wicket_taker;
   if (pred.max_sixes === act.max_sixes) s += TPOINTS.max_sixes;
@@ -267,18 +272,18 @@ const TeamChip = ({ team, large }) => {
   );
 };
 
-// Revamped Visual Team Card for Mobile Clarity
+// Revamped Visual Team Card for Mobile Clarity (Fixed Overlap)
 const TeamCard = ({ team, selected, onClick, disabled, small }) => {
   const c = TC[team];
   return (
     <button onClick={onClick} disabled={disabled}
-      style={{ border:`2px solid ${selected ? c.bg : "var(--bd)"}`, borderRadius: small ? 16 : 24, background: selected ? `${c.bg}22` : "var(--sf2)", cursor: disabled ? "not-allowed" : "pointer", padding: small ? "12px 6px" : "20px 10px", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:8, transition:"all .2s cubic-bezier(0.34,1.56,0.64,1)", boxShadow: selected ? `0 0 0 2px ${c.bg}66,0 10px 25px ${c.bg}44` : "var(--sh)", opacity: disabled && !selected ? 0.35 : 1, transform: selected ? "scale(1.03)" : "scale(1)", position:"relative" }}
+      style={{ border:`2px solid ${selected ? c.bg : "var(--bd)"}`, borderRadius: small ? 14 : 24, background: selected ? `${c.bg}22` : "var(--sf2)", cursor: disabled ? "not-allowed" : "pointer", padding: small ? "8px 4px" : "20px 10px", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap: small ? 4 : 8, transition:"all .2s cubic-bezier(0.34,1.56,0.64,1)", boxShadow: selected ? `0 0 0 2px ${c.bg}66,0 10px 25px ${c.bg}44` : "var(--sh)", opacity: disabled && !selected ? 0.35 : 1, transform: selected ? "scale(1.03)" : "scale(1)", position:"relative" }}
       onMouseEnter={e => { if (!disabled && !selected) { e.currentTarget.style.borderColor = c.bg + "88"; } }}
       onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = "var(--bd)"; } }}>
-      {selected && <div className="pop" style={{ position:"absolute", top:-8, right:-8, width:24, height:24, borderRadius:"50%", background:"var(--green)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, color:"#fff", fontWeight:900, boxShadow:"0 2px 8px rgba(16,185,129,0.5)" }}>✓</div>}
+      {selected && <div className="pop" style={{ position:"absolute", top:-6, right:-6, width:22, height:22, borderRadius:"50%", background:"var(--green)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, color:"#fff", fontWeight:900, boxShadow:"0 2px 8px rgba(16,185,129,0.5)" }}>✓</div>}
       
-      <div style={{ width: small ? 54 : 72, height: small ? 54 : 72, borderRadius: small ? 12 : 16, background: c.bg, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: selected ? `0 4px 15px ${c.bg}88` : "none", transition: "all 0.2s" }}>
-        <span style={{ fontFamily:"var(--fd)", fontSize: small ? 24 : 34, color: c.fg, letterSpacing: "1px" }}>{SHORT[team]}</span>
+      <div style={{ width: small ? 42 : 72, height: small ? 42 : 72, borderRadius: small ? 10 : 16, background: c.bg, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: selected ? `0 4px 15px ${c.bg}88` : "none", transition: "all 0.2s" }}>
+        <span style={{ fontFamily:"var(--fd)", fontSize: small ? 18 : 34, color: c.fg, letterSpacing: "1px" }}>{SHORT[team]}</span>
       </div>
       
       {!small && <span style={{ fontSize:12, color:"var(--t2)", fontWeight:800, textAlign:"center", textTransform:"uppercase", letterSpacing:"0.05em", marginTop:4 }}>{team.split(" ").slice(-1)[0]}</span>}
@@ -299,7 +304,7 @@ const SecHead = ({ icon, title, sub, right }) => (
   </div>
 );
 
-// Top-4 picker
+// Top-4 picker (Grid Fixed for Mobile)
 const Top4Picker = ({ value, onChange, disabled }) => {
   const toggle = t => {
     if (value.includes(t)) onChange(value.filter(x => x !== t));
@@ -311,7 +316,7 @@ const Top4Picker = ({ value, onChange, disabled }) => {
         <label style={lblS}>Top 4 Playoff Teams</label>
         <Pill color={value.length === 4 ? "green" : "gold"}>{value.length}/4 picked</Pill>
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:10 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(5, minmax(0, 1fr))", gap:6 }}>
         {TEAMS.map(t => {
           const on = value.includes(t);
           const full = !on && value.length >= 4;
@@ -322,7 +327,7 @@ const Top4Picker = ({ value, onChange, disabled }) => {
   );
 };
 
-// Searchable player picker (Bigger Fonts for Mobile)
+// Searchable player picker
 const PlayerPick = ({ label, value, onChange, disabled, labelStyle }) => {
   const [q, setQ]     = useState("");
   const [open, setOpen] = useState(false);
@@ -399,6 +404,13 @@ const AuthScreen = ({ onLogin }) => {
       let user;
       if (mode === "signup") {
         if (!form.name.trim() || !form.username.trim() || !form.password.trim()) throw new Error("Please fill all fields.");
+        
+        // Password Validation Regex: At least 8 chars, 1 uppercase, 1 lowercase, 1 number
+        const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/;
+        if (!pwdRegex.test(form.password)) {
+          throw new Error("Password must be at least 8 characters, with 1 uppercase, 1 lowercase, and 1 number.");
+        }
+
         const ex = await sb(`users?username=eq.${form.username.toLowerCase()}&select=id`);
         if (ex?.length) throw new Error("User ID already taken. Please choose another.");
         
@@ -466,9 +478,21 @@ const TodayScreen = ({ user }) => {
     setLoading(true);
     try {
       const ms = await sb("daily_matches?select=*&order=match_date.asc").catch(() => []);
-      setMatches(ms || []);
-      if ((ms || []).length) {
-        const ids = (ms || []).map(m => m.id);
+      
+      // Filter matches to a 48-hour rolling window
+      const now = Date.now();
+      const visibleMatches = (ms || []).filter(m => {
+        const t = new Date(m.match_date).getTime();
+        // Keep completed matches visible for 48 hours after they happen
+        if (m.status === 'completed') return (now - t) < 48 * 60 * 60 * 1000;
+        // Show upcoming matches starting within the next 48 hours
+        return t < now + 48 * 60 * 60 * 1000;
+      });
+
+      setMatches(visibleMatches);
+
+      if (visibleMatches.length) {
+        const ids = visibleMatches.map(m => m.id);
         const preds = await sb(`daily_predictions?user_id=eq.${user.id}&match_id=in.(${ids.join(",")})&select=*`).catch(() => []);
         const pm = {}; (preds || []).forEach(p => { pm[p.match_id] = p; });
         setMyPreds(pm);
@@ -505,7 +529,7 @@ const TodayScreen = ({ user }) => {
           <h2 className="glow-text" style={{ fontFamily:"var(--fd)", fontSize:46, lineHeight:1, color:"#fff" }}>
             Matchday <span style={{ color:"var(--ac)" }}>Live</span>
           </h2>
-          <p style={{ color:"var(--t3)", fontWeight:800, fontSize:14, marginTop:6 }}>Pick match winners for bonus points</p>
+          <p style={{ color:"var(--t3)", fontWeight:800, fontSize:14, marginTop:6 }}>Matches in the next 48 hours</p>
         </div>
         <div style={{ textAlign:"right" }}>
           <p style={{ fontSize:12, color:"var(--t3)", fontWeight:900, textTransform:"uppercase", letterSpacing:"0.1em" }}>My Daily Pts</p>
@@ -542,9 +566,13 @@ const TodayScreen = ({ user }) => {
 const MatchCard = ({ match, myPred, onSave, saving }) => {
   const t1 = TC[match.team1] || { bg:"#333", fg:"#fff" };
   const t2 = TC[match.team2] || { bg:"#333", fg:"#fff" };
-  const isCompleted = match.status === "completed";
-  const isLive      = match.status === "live";
-  const canPredict  = !isCompleted && !isLive;
+  
+  const mTime         = new Date(match.match_date).getTime();
+  // Lock match exactly 5 minutes before start
+  const isMatchLocked = Date.now() >= (mTime - 5 * 60 * 1000);
+  const isCompleted   = match.status === "completed";
+  const isLive        = match.status === "live";
+  const canPredict    = !isCompleted && !isLive && !isMatchLocked;
 
   const [pred, setPred] = useState({
     predicted_winner: myPred?.predicted_winner || "",
@@ -564,9 +592,10 @@ const MatchCard = ({ match, myPred, onSave, saving }) => {
           <span style={{ fontSize:120, position:"absolute", opacity:0.15, fontFamily:"var(--fd)", color:t1.fg, transform:"rotate(-10deg) scale(1.5)" }}>{SHORT[match.team1]}</span>
           <span style={{ fontFamily:"var(--fd)", fontSize:46, color:t1.fg, zIndex:10, textShadow:"0 4px 10px rgba(0,0,0,0.5)" }}>{SHORT[match.team1]}</span>
         </div>
-        <div style={{ position:"absolute", left:"50%", top:60, transform:"translate(-50%,-50%)", width:56, height:56, borderRadius:"50%", background:"var(--navy)", border:"4px solid var(--sf)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:20, boxShadow:"0 4px 15px rgba(0,0,0,0.6)" }}>
-          {isLive      ? <span className="live-dot" style={{ fontFamily:"var(--fd)", fontSize:16, color:"var(--ac)" }}>LIVE</span>
-          : isCompleted ? <span style={{ fontFamily:"var(--fd)", fontSize:16, color:"var(--green)" }}>DONE</span>
+        <div style={{ position:"absolute", left:"50%", top:60, transform:"translate(-50%,-50%)", width:60, height:60, borderRadius:"50%", background:"var(--navy)", border:"4px solid var(--sf)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:20, boxShadow:"0 4px 15px rgba(0,0,0,0.6)" }}>
+          {isLive         ? <span className="live-dot" style={{ fontFamily:"var(--fd)", fontSize:16, color:"var(--ac)" }}>LIVE</span>
+          : isCompleted   ? <span style={{ fontFamily:"var(--fd)", fontSize:16, color:"var(--green)" }}>DONE</span>
+          : isMatchLocked ? <span style={{ fontFamily:"var(--fd)", fontSize:14, color:"var(--t3)" }}>LOCKED</span>
           : <span style={{ fontFamily:"var(--fd)", fontSize:22, color:"#fff" }}>VS</span>}
         </div>
         <div style={{ flex:1, background:t2.bg, display:"flex", alignItems:"center", justifyContent:"center", position:"relative", overflow:"hidden" }}>
@@ -611,6 +640,12 @@ const MatchCard = ({ match, myPred, onSave, saving }) => {
             {canPredict && <button onClick={() => setExpanded(true)} style={{ fontSize:14, fontWeight:900, color:"var(--ac)", background:"rgba(249,115,22,0.15)", padding:"8px 16px", borderRadius:8, border:"2px solid rgba(249,115,22,0.4)", cursor:"pointer", textTransform:"uppercase" }}>Edit</button>}
           </div>
         )}
+        
+        {isMatchLocked && !isCompleted && !isLive && myPred?.predicted_winner && (
+          <div style={{ marginTop: 12, textAlign:"center", fontSize: 13, color: "var(--t3)", fontWeight: 800 }}>
+            🔒 Picks locked (match starts soon)
+          </div>
+        )}
 
         {canPredict && expanded && (
           <div className="fu" style={{ display:"flex", flexDirection:"column", gap:20 }}>
@@ -648,7 +683,7 @@ const MatchCard = ({ match, myPred, onSave, saving }) => {
 // ─────────────────────────────────────────────
 const PicksScreen = ({ user }) => {
   const locked = isLocked();
-  const empty  = { winner:"", finalist2:"", top4:[], top_scorer:"", top_wicket_taker:"", max_sixes:"", max_fours:"" };
+  const empty  = { winner:"", finalist2:"", top4:[], player_of_tournament:"", top_scorer:"", top_wicket_taker:"", max_sixes:"", max_fours:"" };
   const [pred,     setPred]     = useState(empty);
   const [saved,    setSaved]    = useState(false);
   const [step,     setStep]     = useState(1);
@@ -665,9 +700,9 @@ const PicksScreen = ({ user }) => {
   }, [user.id]);
 
   const upd = (k, v) => setPred(p => ({ ...p, [k]: v }));
-  const fields   = [pred.winner, pred.finalist2, pred.top4.length === 4, pred.top_scorer, pred.top_wicket_taker, pred.max_sixes, pred.max_fours];
+  const fields   = [pred.winner, pred.finalist2, pred.top4.length === 4, pred.player_of_tournament, pred.top_scorer, pred.top_wicket_taker, pred.max_sixes, pred.max_fours];
   const done     = fields.filter(Boolean).length;
-  const complete = done === 7;
+  const complete = done === 8;
 
   const save = async () => {
     if (!complete) return;
@@ -695,7 +730,7 @@ const PicksScreen = ({ user }) => {
             Tournament <span style={{ color:"var(--gold)" }}>Picks</span>
           </h2>
           <p style={{ color:"var(--t3)", fontWeight:900, fontSize:14, marginTop:8, textTransform:"uppercase", letterSpacing:"0.05em" }}>
-            {locked ? "🔒 Picks Locked" : "⏰ Locks Mar 28 · 3:30 PM IST"}
+            {locked ? "🔒 Picks Locked" : "⏰ Locks Mar 28 · 7:00 PM IST"}
           </p>
         </div>
         {/* Circular progress */}
@@ -703,9 +738,9 @@ const PicksScreen = ({ user }) => {
           <div style={{ position:"relative", width:64, height:64, display:"flex", alignItems:"center", justifyContent:"center" }}>
             <svg style={{ width:"100%", height:"100%", transform:"rotate(-90deg)" }} viewBox="0 0 36 36">
               <path strokeDasharray="100,100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="4" />
-              <path strokeDasharray={`${(done / 7) * 100},100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={complete ? "#10b981" : "#f97316"} strokeWidth="4" style={{ transition:"stroke-dasharray 0.5s ease" }} />
+              <path strokeDasharray={`${(done / 8) * 100},100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={complete ? "#10b981" : "#f97316"} strokeWidth="4" style={{ transition:"stroke-dasharray 0.5s ease" }} />
             </svg>
-            <span style={{ position:"absolute", fontFamily:"var(--fd)", fontSize:24, color:"#fff" }}>{done}/7</span>
+            <span style={{ position:"absolute", fontFamily:"var(--fd)", fontSize:24, color:"#fff" }}>{done}/8</span>
           </div>
         )}
       </div>
@@ -723,7 +758,7 @@ const PicksScreen = ({ user }) => {
       {/* Enlarged Step tabs */}
       {!locked && (
         <div style={{ display:"flex", gap:10, marginBottom:28, background:"rgba(0,0,0,0.4)", border:"2px solid var(--bd)", borderRadius:"var(--r-sm)", padding:8 }}>
-          {[["1","🏆 Podium", pred.winner && pred.finalist2],["2","🏅 Top 4", pred.top4.length===4],["3","🎖️ Players", pred.top_scorer && pred.top_wicket_taker && pred.max_sixes && pred.max_fours]].map(([n, l, isDone]) => (
+          {[["1","🏆 Podium", pred.winner && pred.finalist2],["2","🏅 Top 4", pred.top4.length===4],["3","🎖️ Players", pred.player_of_tournament && pred.top_scorer && pred.top_wicket_taker && pred.max_sixes && pred.max_fours]].map(([n, l, isDone]) => (
             <button key={n} onClick={() => setStep(Number(n))}
               style={{ flex:1, padding:"12px 6px", borderRadius:12, border:"none", cursor:"pointer", fontFamily:"var(--fb)", fontWeight:900, fontSize:14, transition:"all .2s", textAlign:"center", background: step===Number(n) ? "var(--navy)" : "transparent", color: step===Number(n) ? "#fff" : isDone ? "var(--green)" : "var(--t3)", boxShadow: step===Number(n) ? "var(--sh)" : "none" }}>
               <div style={{ fontSize:22, marginBottom:6 }}>{isDone ? "✅" : l.split(" ")[0]}</div>
@@ -739,7 +774,7 @@ const PicksScreen = ({ user }) => {
           <SecHead icon="🏆" title="The Finals" sub="Predict IPL Champion & Runner-up" />
           <div style={{ marginBottom:28 }}>
             <label style={{ ...lblS, marginBottom:16, fontSize:16, color:"#fff" }}>🥇 Champion (20 pts)</label>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:10 }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(5, minmax(0, 1fr))", gap:6 }}>
               {TEAMS.map(t => (
                 <TeamCard key={t} team={t} selected={pred.winner===t} onClick={() => { upd("winner",t); if(pred.finalist2===t) upd("finalist2",""); }} disabled={locked} small />
               ))}
@@ -748,7 +783,7 @@ const PicksScreen = ({ user }) => {
           {pred.winner && (
             <div className="fu">
               <label style={{ ...lblS, marginBottom:16, fontSize:16, color:"#fff" }}>🥈 Runner-Up (10 pts)</label>
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:10 }}>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(5, minmax(0, 1fr))", gap:6 }}>
                 {TEAMS.filter(t => t !== pred.winner).map(t => (
                   <TeamCard key={t} team={t} selected={pred.finalist2===t} onClick={() => upd("finalist2",t)} disabled={locked} small />
                 ))}
@@ -778,6 +813,7 @@ const PicksScreen = ({ user }) => {
         <Card style={{ marginBottom:20 }} accent="var(--green)">
           <SecHead icon="🎖️" title="Player Awards" sub="Search across all 250+ IPL players" />
           <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+            <PlayerPick label="🌟 Player of the Tournament (15 pts)" labelStyle={{fontSize: 20, color: '#fcd34d', fontWeight: 900}} value={pred.player_of_tournament} onChange={v => upd("player_of_tournament",v)} disabled={locked} />
             <PlayerPick label="🍊 Orange Cap (15 pts)"        labelStyle={{fontSize: 20, color: '#f97316', fontWeight: 900}} value={pred.top_scorer}       onChange={v => upd("top_scorer",v)}       disabled={locked} />
             <PlayerPick label="💜 Purple Cap (15 pts)"        labelStyle={{fontSize: 20, color: '#a855f7', fontWeight: 900}} value={pred.top_wicket_taker} onChange={v => upd("top_wicket_taker",v)} disabled={locked} />
             <PlayerPick label="💥 Most Sixes (10 pts)"         labelStyle={{fontSize: 20, color: '#f59e0b', fontWeight: 900}} value={pred.max_sixes}        onChange={v => upd("max_sixes",v)}        disabled={locked} />
@@ -816,6 +852,10 @@ const LeaderboardScreen = ({ user }) => {
   const [players,  setPlayers]  = useState([]);
   const [actuals,  setActuals]  = useState(null);
   const [loading,  setLoading]  = useState(true);
+
+  // Security Check: To prevent influencing users, we only show other players' picks 
+  // if the master tournament lock has passed.
+  const isTournamentLocked = isLocked();
 
   useEffect(() => {
     (async () => {
@@ -924,7 +964,14 @@ const LeaderboardScreen = ({ user }) => {
                     <span style={{ fontWeight:900, fontSize:18, color: isMe ? "var(--ac)" : "#fff", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.name}</span>
                     {isMe && <Pill color="orange">You</Pill>}
                   </div>
-                  {p.pred?.winner ? <div style={{ marginTop:8 }}><TeamChip team={p.pred.winner} /></div> : <div style={{ marginTop:8 }}><Pill color="red">No Pick Yet</Pill></div>}
+                  
+                  {/* Hide other users' picks until tournament is locked */}
+                  {isMe || isTournamentLocked ? (
+                    p.pred?.winner ? <div style={{ marginTop:8 }}><TeamChip team={p.pred.winner} /></div> : <div style={{ marginTop:8 }}><Pill color="red">No Pick</Pill></div>
+                  ) : (
+                    <div style={{ marginTop:8 }}><Pill color="green">{p.pred ? "Picks Hidden 🔒" : "Pending..."}</Pill></div>
+                  )}
+                  
                   <div style={{ marginTop:8, display:"flex", gap:16 }}>
                     <span style={{ fontSize:14, color:"var(--t3)", fontWeight:800 }}>🏆 <b style={{ color:"var(--t2)" }}>{p.tScore ?? "-"}</b></span>
                     <span style={{ fontSize:14, color:"var(--t3)", fontWeight:800 }}>🏏 <b style={{ color:"var(--t2)" }}>{p.dScore}</b></span>
@@ -949,7 +996,7 @@ const LeaderboardScreen = ({ user }) => {
 const AdminScreen = () => {
   const [unlocked,    setUnlocked]    = useState(false);
   const [pwd,         setPwd]         = useState("");
-  const [act,         setAct]         = useState({ winner:"", finalist2:"", top4:[], top_scorer:"", top_wicket_taker:"", max_sixes:"", max_fours:"" });
+  const [act,         setAct]         = useState({ winner:"", finalist2:"", top4:[], player_of_tournament:"", top_scorer:"", top_wicket_taker:"", max_sixes:"", max_fours:"" });
   const [saved,       setSaved]       = useState(false);
   const [participants,setParticipants]= useState([]);
   const [loading,     setLoading]     = useState(false);
@@ -957,7 +1004,12 @@ const AdminScreen = () => {
   const [newMatch,    setNewMatch]    = useState({ team1:"", team2:"", venue:"", match_date:"" });
   const [matchMsg,    setMatchMsg]    = useState("");
 
-  const unlock = () => { if (pwd === ADMIN_PWD) setUnlocked(true); else alert("Wrong password"); };
+  const unlock = async () => { 
+    const hashedInput = await hashPassword(pwd);
+    if (hashedInput === ADMIN_HASH) setUnlocked(true); 
+    else alert("Wrong password"); 
+  };
+  
   const upd    = (k, v) => setAct(a => ({ ...a, [k]: v }));
 
   const loadData = async () => {
@@ -1062,6 +1114,7 @@ const AdminScreen = () => {
       <Card style={{ marginBottom:16 }} accent="var(--green)">
         <SecHead icon="🎖️" title="Player Awards" />
         <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+          <PlayerPick label="Player of Tournament" value={act.player_of_tournament} onChange={v => upd("player_of_tournament",v)} />
           <PlayerPick label="Orange Cap"   value={act.top_scorer}       onChange={v => upd("top_scorer",v)} />
           <PlayerPick label="Purple Cap"   value={act.top_wicket_taker} onChange={v => upd("top_wicket_taker",v)} />
           <PlayerPick label="Most Sixes"   value={act.max_sixes}        onChange={v => upd("max_sixes",v)} />
@@ -1151,7 +1204,7 @@ export default function App() {
       </div>
 
       <div style={{ minHeight:"100vh", display:"flex", flexDirection:"column", position:"relative", zIndex:10 }}>
-        {/* Header (Team Ticker Removed) */}
+        {/* Header */}
         <header style={{ position:"sticky", top:0, zIndex:50, background:"rgba(15,23,42,0.9)", backdropFilter:"blur(16px)", WebkitBackdropFilter:"blur(16px)", borderBottom:"1px solid var(--bd)", boxShadow:"var(--sh)" }}>
           <div style={{ maxWidth:520, margin:"0 auto", padding:"0 16px", height:70, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <div style={{ display:"flex", alignItems:"center", gap:14 }}>
