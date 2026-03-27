@@ -668,7 +668,20 @@ const MatchCard = ({ match, myPred, onSave, saving }) => {
               <Sel label="🎯 Top Bowler (8 pts)" value={pred.predicted_bowler} onChange={v => upd("predicted_bowler", v)} options={matchPlayers} />
               <Sel label="🌟 Player of the Match (10 pts)" value={pred.predicted_potm} onChange={v => upd("predicted_potm", v)} options={matchPlayers} />
             </div>
-            <Btn onClick={() => { onSave(pred); setExpanded(false); }} disabled={saving || !pred.predicted_winner} variant="primary" style={{ marginTop: 8 }}>
+            
+            <Btn 
+              onClick={() => { 
+                if (!pred.predicted_winner) {
+                  alert("⚠️ Please tap a team above to select the Match Winner before locking your prediction!");
+                  return;
+                }
+                onSave(pred); 
+                setExpanded(false); 
+              }} 
+              disabled={saving} 
+              variant={pred.predicted_winner ? "primary" : "light"} 
+              style={{ marginTop: 8 }}
+            >
               {saving ? "Consulting Umpires…" : "Lock In Prediction 🔒"}
             </Btn>
           </div>
@@ -853,10 +866,6 @@ const LeaderboardScreen = ({ user }) => {
   const [actuals,  setActuals]  = useState(null);
   const [loading,  setLoading]  = useState(true);
 
-  // Security Check: To prevent influencing users, we only show other players' picks 
-  // if the master tournament lock has passed.
-  const isTournamentLocked = isLocked();
-
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -948,7 +957,7 @@ const LeaderboardScreen = ({ user }) => {
         </div>
       )}
 
-      {/* Full list */}
+      {/* Full list - Cleaned up to NEVER show picks! */}
       <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
         {players.map((p, i) => {
           const isMe = p.id === user.id;
@@ -964,13 +973,6 @@ const LeaderboardScreen = ({ user }) => {
                     <span style={{ fontWeight:900, fontSize:18, color: isMe ? "var(--ac)" : "#fff", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.name}</span>
                     {isMe && <Pill color="orange">You</Pill>}
                   </div>
-                  
-                  {/* Hide other users' picks until tournament is locked */}
-                  {isMe || isTournamentLocked ? (
-                    p.pred?.winner ? <div style={{ marginTop:8 }}><TeamChip team={p.pred.winner} /></div> : <div style={{ marginTop:8 }}><Pill color="red">No Pick</Pill></div>
-                  ) : (
-                    <div style={{ marginTop:8 }}><Pill color="green">{p.pred ? "Picks Hidden 🔒" : "Pending..."}</Pill></div>
-                  )}
                   
                   <div style={{ marginTop:8, display:"flex", gap:16 }}>
                     <span style={{ fontSize:14, color:"var(--t3)", fontWeight:800 }}>🏆 <b style={{ color:"var(--t2)" }}>{p.tScore ?? "-"}</b></span>
