@@ -1284,13 +1284,15 @@ const AdminMatchResult = ({ match, onSave }) => {
     </Card>
   );
 };
-
+//
 // ─────────────────────────────────────────────
 // ROOT APP
 // ─────────────────────────────────────────────
 export default function App() {
   const [user, setUser] = useState(() => { try { return JSON.parse(localStorage.getItem("ipl_user")); } catch { return null; } });
-  const [tab,  setTab]  = useState("picks"); // default to Picks
+  
+  // 1. CHANGED: Default tab is now "today" (Matchday Live)
+  const [tab,  setTab]  = useState("today"); 
 
   const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 
@@ -1308,10 +1310,11 @@ export default function App() {
     </>
   );
 
+  // 2. CHANGED: Reordered the navigation tabs!
   const navItems = [
-    { id:"picks", icon:"🏆", label:"Picks" },
     { id:"today", icon:"🏏", label:"Live" },
     { id:"board", icon:"📊", label:"Ranks" },
+    { id:"picks", icon:"🏆", label:"Picks" },
     ...(isAdminRoute ? [{ id:"admin", icon:"⚙️", label:"Admin" }] : []),
   ];
 
