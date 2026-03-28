@@ -36,18 +36,136 @@ const TC = {
   "Gujarat Titans":               { bg:"#1C2B4A", fg:"#8AC0DE" },
   "Punjab Kings":                 { bg:"#ED1B24", fg:"#FFFFFF" },
 };
+
 const SQUADS = {
-  "Chennai Super Kings":["Ruturaj Gaikwad","MS Dhoni","Sanju Samson","Dewald Brevis","Ayush Mhatre","Kartik Sharma","Sarfaraz Khan","Urvil Patel","Anshul Kamboj","Jamie Overton","Ramakrishna Ghosh","Prashant Veer","Matthew Short","Aman Khan","Zak Foulkes","Shivam Dube","Khaleel Ahmed","Noor Ahmad","Mukesh Choudhary","Nathan Ellis","Shreyas Gopal","Gurjapneet Singh","Akeal Hosein","Matt Henry","Rahul Chahar"],
-  "Mumbai Indians":["Rohit Sharma","Suryakumar Yadav","Robin Minz","Sherfane Rutherford","Ryan Rickelton","Quinton de Kock","Danish Malewar","Tilak Varma","Hardik Pandya","Naman Dhir","Mitchell Santner","Raj Angad Bawa","Atharva Ankolekar","Mayank Rawat","Corbin Bosch","Will Jacks","Shardul Thakur","Jasprit Bumrah","Trent Boult","Deepak Chahar","Mayank Markande","Ashwani Kumar","Mohammad Izhar","Raghu Sharma"],
-  "Royal Challengers Bengaluru":["Virat Kohli","Phil Salt","Devdutt Padikkal","Rajat Patidar","Jitesh Sharma","Jordan Cox","Krunal Pandya","Tim David","Romario Shepherd","Jacob Bethell","Venkatesh Iyer","Satvik Deswal","Mangesh Yadav","Vicky Ostwal","Vihaan Malhotra","Kanishk Chouhan","Bhuvneshwar Kumar","Josh Hazlewood","Yash Dayal","Nuwan Thushara","Suyash Sharma","Rasikh Dar","Jacob Duffy","Abhinandan Singh"],
-  "Kolkata Knight Riders":["Ajinkya Rahane","Angkrish Raghuvanshi","Manish Pandey","Rinku Singh","Rovman Powell","Finn Allen","Tim Seifert","Tejasvi Singh","Rahul Tripathi","Cameron Green","Anukul Roy","Sarthak Ranjan","Daksh Kamra","Rachin Ravindra","Ramandeep Singh","Vaibhav Arora","Matheesha Pathirana","Kartik Tyagi","Prashant Solanki","Akash Deep","Harshit Rana","Umran Malik","Sunil Narine","Varun Chakravarthy"],
-  "Sunrisers Hyderabad":["Ishan Kishan","Aniket Verma","Smaran Ravichandran","Heinrich Klaasen","Travis Head","Harshal Patel","Kamindu Mendis","Harsh Dubey","Brydon Carse","Liam Livingstone","Jack Edwards","Abhishek Sharma","Nitish Kumar Reddy","Pat Cummins","Zeeshan Ansari","Jaydev Unadkat","Eshan Malinga","Sakib Hussain","Onkar Tarmale","Shivam Mavi"],
-  "Delhi Capitals":["KL Rahul","Karun Nair","David Miller","Ben Duckett","Pathum Nissanka","Prithvi Shaw","Abishek Porel","Tristan Stubbs","Axar Patel","Sameer Rizvi","Ashutosh Sharma","Vipraj Nigam","Ajay Mandal","Tripurana Vijay","Madhav Tiwari","Nitish Rana","Mitchell Starc","T. Natarajan","Mukesh Kumar","Dushmantha Chameera","Lungi Ngidi","Kyle Jamieson","Kuldeep Yadav"],
-  "Lucknow Super Giants":["Rishabh Pant","Aiden Markram","Himmat Singh","Matthew Breetzke","Akshat Raghuwanshi","Josh Inglis","Nicholas Pooran","Mitchell Marsh","Abdul Samad","Shahbaz Ahmed","Arshin Kulkarni","Wanindu Hasaranga","Ayush Badoni","Mohammad Shami","Avesh Khan","M. Siddharth","Digvesh Singh","Akash Singh","Arjun Tendulkar","Anrich Nortje","Mayank Yadav","Mohsin Khan"],
-  "Rajasthan Royals":["Riyan Parag","Shubham Dubey","Vaibhav Suryavanshi","Donovan Ferreira","Lhuan-dre Pretorius","Shimron Hetmyer","Yashasvi Jaiswal","Dhruv Jurel","Ravindra Jadeja","Sam Curran","Yudhvir Singh Charak","Jofra Archer","Tushar Deshpande","Kwena Maphaka","Ravi Bishnoi","Sushant Mishra","Yash Raj Punia","Adam Milne","Kuldeep Sen","Sandeep Sharma","Nandre Burger"],
-  "Gujarat Titans":["Shubman Gill","Jos Buttler","Kumar Kushagra","Anuj Rawat","Tom Banton","Glenn Phillips","Nishant Sindhu","Washington Sundar","Sai Sudharsan","Shahrukh Khan","Jason Holder","Jayant Yadav","Sai Kishore","Kagiso Rabada","Mohammed Siraj","Prasidh Krishna","Manav Suthar","Gurnoor Singh Brar","Ishant Sharma","Luke Wood","Rahul Tewatia","Rashid Khan"],
-  "Punjab Kings":["Shreyas Iyer","Nehal Wadhera","Vishnu Vinod","Harnoor Pannu","Prabhsimran Singh","Shashank Singh","Marcus Stoinis","Harpreet Brar","Marco Jansen","Azmatullah Omarzai","Priyansh Arya","Musheer Khan","Mitch Owen","Cooper Connolly","Ben Dwarshuis","Arshdeep Singh","Yuzvendra Chahal","Vyshak Vijaykumar","Yash Thakur","Xavier Bartlett","Lockie Ferguson"],
+
+  // ✅ CSK: Nathan Ellis OUT (injury) → Spencer Johnson IN
+  "Chennai Super Kings": [
+    "Ruturaj Gaikwad","MS Dhoni","Sanju Samson","Dewald Brevis",
+    "Ayush Mhatre","Kartik Sharma","Sarfaraz Khan","Urvil Patel",
+    "Shivam Dube","Jamie Overton","Ramakrishna Ghosh","Prashant Veer",
+    "Matthew Short","Aman Khan","Zak Foulkes","Khaleel Ahmed",
+    "Noor Ahmad","Mukesh Choudhary","Shreyas Gopal","Gurjapneet Singh",
+    "Akeal Hosein","Matt Henry","Rahul Chahar","Anshul Kamboj",
+    "Spencer Johnson",  // ← replaces Nathan Ellis (hamstring)
+  ],
+
+  // ✅ MI: AM Ghazanfar ADDED (was missing from original list)
+  "Mumbai Indians": [
+    "Rohit Sharma","Suryakumar Yadav","Robin Minz","Sherfane Rutherford",
+    "Ryan Rickelton","Quinton de Kock","Danish Malewar","Tilak Varma",
+    "Hardik Pandya","Naman Dhir","Mitchell Santner","Raj Angad Bawa",
+    "Atharva Ankolekar","Mayank Rawat","Corbin Bosch","Will Jacks",
+    "Shardul Thakur","Jasprit Bumrah","Trent Boult","Deepak Chahar",
+    "Mayank Markande","Ashwani Kumar","Mohammad Izhar","Raghu Sharma",
+    "AM Ghazanfar",  // ← was missing, now added
+  ],
+
+  // ✅ RCB: Yash Dayal OUT (personal), Nuwan Thushara OUT (SLC NOC denied),
+  //         Venkatesh Iyer + Jacob Duffy + Swapnil Singh IN
+  //         Hazlewood IN squad but injured — kept as he may play later
+  "Royal Challengers Bengaluru": [
+    "Virat Kohli","Phil Salt","Devdutt Padikkal","Rajat Patidar",
+    "Jitesh Sharma","Jordan Cox","Krunal Pandya","Tim David",
+    "Romario Shepherd","Jacob Bethell","Venkatesh Iyer","Satvik Deswal",
+    "Mangesh Yadav","Vicky Ostwal","Vihaan Malhotra","Kanishk Chouhan",
+    "Bhuvneshwar Kumar","Josh Hazlewood","Suyash Sharma","Rasikh Dar",
+    "Jacob Duffy","Abhinandan Singh","Swapnil Singh",
+    // REMOVED: Yash Dayal (personal reasons, out for season)
+    // REMOVED: Nuwan Thushara (SLC denied NOC, failed fitness test)
+  ],
+
+  // ✅ KKR: Akash Deep OUT, Harshit Rana OUT, Mustafizur Rahman OUT (BCCI order)
+  //         Blessing Muzarabani + Saurabh Dubey IN
+  //         Tejasvi Dahiya (correct name, was Tejasvi Singh in original)
+  "Kolkata Knight Riders": [
+    "Ajinkya Rahane","Angkrish Raghuvanshi","Manish Pandey","Rinku Singh",
+    "Rovman Powell","Finn Allen","Tim Seifert","Tejasvi Dahiya",
+    "Rahul Tripathi","Cameron Green","Anukul Roy","Sarthak Ranjan",
+    "Daksh Kamra","Rachin Ravindra","Ramandeep Singh","Vaibhav Arora",
+    "Matheesha Pathirana","Kartik Tyagi","Prashant Solanki","Umran Malik",
+    "Sunil Narine","Varun Chakravarthy",
+    "Blessing Muzarabani","Saurabh Dubey",  // ← replacements
+    // REMOVED: Akash Deep (injury), Harshit Rana (injury), Mustafizur Rahman (BCCI)
+  ],
+
+  // ✅ SRH: Pat Cummins OUT initial games (injury), Jack Edwards OUT (foot)
+  //         David Payne IN (replacement for Edwards)
+  //         Salil Arora, Shivang Kumar, Krains Fuletra, Praful Hinge IN
+  "Sunrisers Hyderabad": [
+    "Ishan Kishan","Aniket Verma","Ravichandran Smaran","Heinrich Klaasen",
+    "Travis Head","Harshal Patel","Kamindu Mendis","Harsh Dubey",
+    "Brydon Carse","Liam Livingstone","Abhishek Sharma","Nitish Kumar Reddy",
+    "Shivam Mavi","Jaydev Unadkat","Zeeshan Ansari","Sakib Hussain",
+    "Onkar Tarmale","Eshan Malinga","David Payne","Salil Arora",
+    "Shivang Kumar","Amit Kumar","Praful Hinge",
+    // REMOVED: Pat Cummins (injury, missing initial games)
+    // REMOVED: Jack Edwards (foot injury, out for season)
+  ],
+
+  // ✅ DC: Ben Duckett PULLED OUT, Mitchell Starc (awaiting CA NOC, unavailable initially)
+  //        Sahil Parakh + Auqib Nabi + Tripurana Vijay confirmed in squad
+  "Delhi Capitals": [
+    "KL Rahul","Karun Nair","David Miller","Pathum Nissanka",
+    "Prithvi Shaw","Abishek Porel","Tristan Stubbs","Axar Patel",
+    "Sameer Rizvi","Ashutosh Sharma","Vipraj Nigam","Ajay Mandal",
+    "Tripurana Vijay","Madhav Tiwari","Nitish Rana","Mitchell Starc",
+    "T. Natarajan","Mukesh Kumar","Dushmantha Chameera","Lungi Ngidi",
+    "Kyle Jamieson","Kuldeep Yadav","Sahil Parakh","Auqib Nabi",
+    // REMOVED: Ben Duckett (pulled out)
+  ],
+
+  // ✅ LSG: Josh Inglis missing first phase, Wanindu Hasaranga awaiting NOC
+  //         Mukul Choudhary, Prince Yadav, Digvesh Rathi, Naman Tiwari IN
+  "Lucknow Super Giants": [
+    "Rishabh Pant","Aiden Markram","Himmat Singh","Matthew Breetzke",
+    "Akshat Raghuwanshi","Nicholas Pooran","Mitchell Marsh","Abdul Samad",
+    "Shahbaz Ahmed","Arshin Kulkarni","Ayush Badoni","Mohammad Shami",
+    "Avesh Khan","M. Siddharth","Digvesh Rathi","Akash Singh",
+    "Arjun Tendulkar","Anrich Nortje","Mayank Yadav","Mohsin Khan",
+    "Mukul Choudhary","Prince Yadav","Naman Tiwari",
+    // NOTE: Josh Inglis (missing first phase), Wanindu Hasaranga (awaiting NOC)
+    // kept out as unavailable for selection
+  ],
+
+  // ✅ RR: Sam Curran OUT (injury) → Dasun Shanaka IN
+  //        Aman Rao, Ravi Singh, Brijesh Sharma, Vignesh Puthur, Yudhvir Singh confirmed
+  "Rajasthan Royals": [
+    "Riyan Parag","Shubham Dubey","Vaibhav Suryavanshi","Donovan Ferreira",
+    "Lhuan-dre Pretorius","Shimron Hetmyer","Yashasvi Jaiswal","Dhruv Jurel",
+    "Ravindra Jadeja","Yudhvir Singh Charak","Jofra Archer","Tushar Deshpande",
+    "Kwena Maphaka","Ravi Bishnoi","Sushant Mishra","Yash Raj Punia",
+    "Adam Milne","Kuldeep Sen","Sandeep Sharma","Nandre Burger",
+    "Dasun Shanaka","Aman Rao","Ravi Singh","Brijesh Sharma","Vignesh Puthur",
+    // REMOVED: Sam Curran (injury, replaced by Shanaka)
+  ],
+
+  // ✅ GT: Prithviraj Yarra OUT → Kulwant Khejroliya IN
+  //        Arshad Khan, Ashok Sharma confirmed
+  "Gujarat Titans": [
+    "Shubman Gill","Jos Buttler","Kumar Kushagra","Anuj Rawat",
+    "Tom Banton","Glenn Phillips","Nishant Sindhu","Washington Sundar",
+    "Sai Sudharsan","Shahrukh Khan","Jason Holder","Jayant Yadav",
+    "Sai Kishore","Kagiso Rabada","Mohammed Siraj","Prasidh Krishna",
+    "Manav Suthar","Gurnoor Singh Brar","Ishant Sharma","Luke Wood",
+    "Rahul Tewatia","Rashid Khan","Arshad Khan","Ashok Sharma",
+    "Kulwant Khejroliya",  // ← replaces Prithviraj Yarra (injury)
+  ],
+
+  // ✅ PBKS: Lockie Ferguson missing initial games (personal)
+  //          Suryansh Shedge, Pyla Avinash, Praveen Dubey, Vishal Nishad IN
+  "Punjab Kings": [
+    "Shreyas Iyer","Nehal Wadhera","Vishnu Vinod","Harnoor Pannu",
+    "Prabhsimran Singh","Shashank Singh","Marcus Stoinis","Harpreet Brar",
+    "Marco Jansen","Azmatullah Omarzai","Priyansh Arya","Musheer Khan",
+    "Mitch Owen","Cooper Connolly","Ben Dwarshuis","Arshdeep Singh",
+    "Yuzvendra Chahal","Vijaykumar Vyshak","Yash Thakur","Xavier Bartlett",
+    "Lockie Ferguson","Suryansh Shedge","Pyla Avinash",
+    "Praveen Dubey","Vishal Nishad",
+  ],
 };
+
+
 const ALL_PLAYERS = [...new Set(Object.values(SQUADS).flat())].sort();
 
 // EXACTLY 7:00 PM IST (13:30 UTC)
