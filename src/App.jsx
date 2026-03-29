@@ -181,6 +181,7 @@ const GS = () => (
     @keyframes slideUpFade{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
     @keyframes popIn{0%{opacity:0;transform:scale(0.9)}50%{transform:scale(1.05)}100%{opacity:1;transform:scale(1)}}
     @keyframes pulseLive{0%,100%{opacity:1;box-shadow:0 0 10px var(--ac)}50%{opacity:0.5;box-shadow:none}}
+    @keyframes pulseWarning{0%,100%{box-shadow:0 0 10px rgba(244,63,94,0.3)}50%{box-shadow:0 0 20px rgba(244,63,94,0.6)}}
     .fu{animation:slideUpFade 0.4s cubic-bezier(0.16,1,0.3,1) forwards;}
     .pop{animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;}
     .live-dot{animation:pulseLive 1.5s ease infinite;}
@@ -486,9 +487,9 @@ const TodayScreen = ({ user }) => {
         const t = new Date(m.match_date).getTime();
         // Keep completed match for 12 hours
         if (m.status === 'completed') return (now - t) < 12 * 60 * 60 * 1000;
-        // CHANGED: 24 hour look-ahead (was 48)
+        // 24 hour look-ahead
         return t < now + 24 * 60 * 60 * 1000;
-      }).slice(0, 3); // Max 3 matches shown
+      }).slice(0, 2); // Max 2 matches shown
 
       setMatches(visibleMatches);
 
@@ -532,32 +533,70 @@ const TodayScreen = ({ user }) => {
 
   const currentMatch = matches[activeIdx] || matches[0];
 
+  // Count matches still needing a prediction
+  const unpredictedCount = matches.filter(m => {
+    const mTime = new Date(m.match_date).getTime();
+    const locked = Date.now() >= (mTime - 5 * 60 * 1000);
+    return !myPreds[m.id]?.predicted_winner && m.status !== "completed" && !locked;
+  }).length;
+
   return (
-    <div style={{ maxWidth:520, margin:"0 auto", padding:"24px 16px" }} className="fu">
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:24 }}>
+    <div style={{ maxWidth:520, margin:"0 auto", padding:"20px 16px" }} className="fu">
+
+      {/* ── URGENT ACTION BANNER ── */}
+      {unpredictedCount > 0 && (
+        <div style={{
+          background:"linear-gradient(135deg,rgba(244,63,94,0.3),rgba(249,115,22,0.3))",
+          border:"2px solid #f43f5e",
+          borderRadius:"var(--r)",
+          padding:"16px 20px",
+          marginBottom:18,
+          animation:"pulseWarning 2s infinite",
+          display:"flex", alignItems:"center", gap:14,
+        }}>
+          <span style={{ fontSize:36, flexShrink:0 }}>🚨</span>
+          <div>
+            <p style={{ fontFamily:"var(--fd)", fontSize:20, color:"#f43f5e", letterSpacing:"0.05em", lineHeight:1 }}>
+              {unpredictedCount === 1 ? "PREDICTION NEEDED!" : `${unpredictedCount} PREDICTIONS NEEDED!`}
+            </p>
+            <p style={{ fontSize:13, color:"#fff", marginTop:5, fontWeight:800, lineHeight:1.4 }}>
+              {unpredictedCount === 1
+                ? "Scroll down and lock in your pick before the match starts! ⬇️"
+                : `You're missing picks for ${unpredictedCount} matches below! ⬇️`}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── HEADER ── */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
         <div>
-          <h2 className="glow-text" style={{ fontFamily:"var(--fd)", fontSize:46, lineHeight:1, color:"#fff" }}>
+          <h2 className="glow-text" style={{ fontFamily:"var(--fd)", fontSize:40, lineHeight:1, color:"#fff" }}>
             Matchday <span style={{ color:"var(--ac)" }}>Live</span>
           </h2>
-          <p style={{ color:"var(--t3)", fontWeight:800, fontSize:14, marginTop:6 }}>Matches in the next 24 hours</p>
+          <p style={{ color:"var(--t3)", fontWeight:800, fontSize:12, marginTop:5 }}>Next 24h · max 2 matches</p>
         </div>
-        <div style={{ textAlign:"right", flexShrink: 0 }}>
-          <p style={{ fontSize:12, color:"var(--t3)", fontWeight:900, textTransform:"uppercase", letterSpacing:"0.1em" }}>My Daily Pts</p>
-          <p className="glow-text" style={{ fontFamily:"var(--fd)", fontSize:38, color:"var(--gold)", lineHeight:1 }}>{totalDaily}</p>
-        </div>
+        {totalDaily > 0 && (
+          <div style={{ textAlign:"right", flexShrink:0, background:"rgba(245,158,11,0.15)", border:"2px solid rgba(245,158,11,0.4)", borderRadius:12, padding:"10px 14px" }}>
+            <p style={{ fontSize:10, color:"var(--gold)", fontWeight:900, textTransform:"uppercase", letterSpacing:"0.1em" }}>Today's Pts</p>
+            <p className="glow-text" style={{ fontFamily:"var(--fd)", fontSize:32, color:"var(--gold)", lineHeight:1 }}>{totalDaily}</p>
+          </div>
+        )}
       </div>
 
-      {toast && <div className="pop" style={{ background: toast.includes("❌") ? "rgba(244,63,94,0.2)" : "rgba(16,185,129,0.2)", border:`2px solid ${toast.includes("❌") ? "rgba(244,63,94,0.4)" : "rgba(16,185,129,0.4)"}`, borderRadius:"var(--r-sm)", padding:"16px", marginBottom:20, fontSize:16, fontWeight:900, color: toast.includes("❌") ? "var(--red)" : "var(--green)" }}>{toast}</div>}
+      {toast && <div className="pop" style={{ background: toast.includes("❌") ? "rgba(244,63,94,0.2)" : "rgba(16,185,129,0.2)", border:`2px solid ${toast.includes("❌") ? "rgba(244,63,94,0.4)" : "rgba(16,185,129,0.4)"}`, borderRadius:"var(--r-sm)", padding:"16px", marginBottom:18, fontSize:15, fontWeight:900, color: toast.includes("❌") ? "var(--red)" : "var(--green)" }}>{toast}</div>}
 
       {matches.length === 0 ? (
-        <div style={{ textAlign:"center", padding:"80px 16px" }}>
-          <div style={{ fontSize:72, marginBottom:20, opacity:0.8 }}>🏟️</div>
-          <p style={{ fontFamily:"var(--fd)", fontSize:32, color:"#fff" }}>No Matches Scheduled</p>
-          <p style={{ fontSize:16, color:"var(--t3)", marginTop:12, fontWeight:700, marginBottom:32 }}>Check back on match days for live predictions!</p>
+        <div style={{ textAlign:"center", padding:"60px 16px" }}>
+          <div style={{ fontSize:64, marginBottom:16, opacity:0.7 }}>🏟️</div>
+          <p style={{ fontFamily:"var(--fd)", fontSize:28, color:"#fff" }}>No Matches Right Now</p>
+          <p style={{ fontSize:14, color:"var(--t3)", marginTop:10, fontWeight:700, marginBottom:28, lineHeight:1.5 }}>
+            Matches appear here 24 hours before they start.<br/>Check back soon!
+          </p>
           <Card accent="var(--gold)" style={{ textAlign:"left" }}>
-            <p style={{ fontSize:14, fontWeight:900, color:"var(--gold)", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:16 }}>💰 Daily Points Per Match</p>
+            <p style={{ fontSize:13, fontWeight:900, color:"var(--gold)", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:14 }}>💰 Points Per Match</p>
             {[["Match Winner","10 pts"],["Top Batter","8 pts"],["Top Bowler","8 pts"],["Player of Match","10 pts"]].map(([k, v]) => (
-              <div key={k} style={{ display:"flex", justifyContent:"space-between", fontSize:16, color:"var(--t2)", marginBottom:12, fontWeight:800 }}>
+              <div key={k} style={{ display:"flex", justifyContent:"space-between", fontSize:15, color:"var(--t2)", marginBottom:10, fontWeight:800 }}>
                 <span>{k}</span><span style={{ fontWeight:900, color:"var(--gold)" }}>{v}</span>
               </div>
             ))}
@@ -565,29 +604,32 @@ const TodayScreen = ({ user }) => {
         </div>
       ) : (
         <div style={{ display:"flex", flexDirection:"column" }}>
-          
+
+          {/* Match selector tabs — only when 2 matches */}
           {matches.length > 1 && (
-            <div className="hide-scrollbar" style={{ display:"flex", overflowX:"auto", gap:10, paddingBottom:8, marginBottom:20 }}>
+            <div style={{ display:"flex", gap:10, marginBottom:16 }}>
               {matches.map((m, idx) => {
                 const active = activeIdx === idx;
+                const hasPred = !!myPreds[m.id]?.predicted_winner;
+                const mTime = new Date(m.match_date).getTime();
+                const isMatchLocked = Date.now() >= (mTime - 5 * 60 * 1000);
+                const needsPick = !hasPred && m.status !== "completed" && !isMatchLocked;
                 return (
-                  <button
-                    key={m.id}
-                    onClick={() => setActiveIdx(idx)}
-                    style={{
-                      flexShrink:0,
-                      background: active ? "var(--ac)" : "rgba(0,0,0,0.4)",
-                      border: `2px solid ${active ? "var(--ac)" : "var(--bd)"}`,
-                      borderRadius: 100,
-                      padding: "10px 20px",
-                      fontFamily: "var(--fd)",
-                      fontSize: 22,
-                      color: active ? "#fff" : "var(--t3)",
-                      transition: "all 0.2s",
-                      boxShadow: active ? "0 4px 15px rgba(249,115,22,0.4)" : "none"
-                    }}
-                  >
-                    {SHORT[m.team1]} <span style={{fontSize:14, color:active?"rgba(255,255,255,0.7)":"var(--t3)", margin:"0 4px"}}>vs</span> {SHORT[m.team2]}
+                  <button key={m.id} onClick={() => setActiveIdx(idx)} style={{
+                    flex:1,
+                    background: active ? "linear-gradient(135deg,#f97316,#e11d48)" : needsPick ? "rgba(244,63,94,0.15)" : "rgba(0,0,0,0.4)",
+                    border:`2px solid ${active ? "transparent" : needsPick ? "#f43f5e" : "var(--bd)"}`,
+                    borderRadius:14, padding:"12px 8px",
+                    fontFamily:"var(--fd)", fontSize:18,
+                    color: active ? "#fff" : needsPick ? "#f43f5e" : "var(--t3)",
+                    cursor:"pointer", transition:"all 0.2s",
+                    boxShadow: active ? "0 4px 15px rgba(249,115,22,0.5)" : "none",
+                    display:"flex", flexDirection:"column", alignItems:"center", gap:4,
+                  }}>
+                    <span style={{ fontSize:11, fontWeight:900, fontFamily:"var(--fb)", textTransform:"uppercase", letterSpacing:"0.06em" }}>
+                      {needsPick ? "⚠️ Pick Needed" : hasPred ? "✅ Done" : "View Result"}
+                    </span>
+                    <span>{SHORT[m.team1]} vs {SHORT[m.team2]}</span>
                   </button>
                 );
               })}
@@ -595,11 +637,11 @@ const TodayScreen = ({ user }) => {
           )}
 
           {currentMatch && (
-            <MatchCard 
-              match={currentMatch} 
-              myPred={myPreds[currentMatch.id]} 
-              onSave={d => savePred(currentMatch.id, d)} 
-              saving={saving === currentMatch.id} 
+            <MatchCard
+              match={currentMatch}
+              myPred={myPreds[currentMatch.id]}
+              onSave={d => savePred(currentMatch.id, d)}
+              saving={saving === currentMatch.id}
             />
           )}
 
@@ -963,12 +1005,12 @@ const LeaderboardScreen = ({ user }) => {
 
   return (
     <div style={{ maxWidth:520, margin:"0 auto", padding:"24px 16px" }} className="fu">
-      <div style={{ textAlign:"center", marginBottom:36 }}>
+      <div style={{ textAlign:"center", marginBottom:28 }}>
         <h2 className="glow-text" style={{ fontFamily:"var(--fd)", fontSize:52, lineHeight:1, color:"#fff" }}>
           Global <span style={{ color:"var(--ac)" }}>Rankings</span>
         </h2>
         <p style={{ color:"var(--t3)", fontWeight:900, textTransform:"uppercase", letterSpacing:"0.1em", fontSize:14, marginTop:8 }}>
-          {actuals ? "Live Standings" : "Tournament not started yet"}
+          {players.length} players · Daily + Tournament pts
         </p>
       </div>
 
@@ -1014,47 +1056,53 @@ const LeaderboardScreen = ({ user }) => {
         </div>
       )}
 
-      {!actuals && (
-        <div className="pop" style={{ display:"flex", gap:20, alignItems:"center", background:"rgba(245,158,11,0.15)", border:"2px solid rgba(245,158,11,0.4)", borderRadius:"var(--r)", padding:24, marginBottom:32 }}>
-          <span style={{ fontSize:42 }}>⏳</span>
-          <div>
-            <p style={{ fontWeight:900, fontSize:18, color:"var(--gold)" }}>Scores pending</p>
-            <p style={{ fontSize:15, color:"var(--t2)", fontWeight:700, marginTop:6 }}>Admin enters results after milestones. Daily match points calculate live.</p>
-          </div>
-        </div>
-      )}
-
       {/* Full list */}
-      <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+      <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
         {players.map((p, i) => {
           const isMe = p.id === user.id;
-          const pct  = p.total ? Math.max(5, Math.round((p.total / (MAX_PTS + 36)) * 100)) : 0;
+          // Assign a vibrant accent colour per rank position
+          const rankColors = ["#f59e0b","#94a3b8","#f97316","#10b981","#818cf8","#ec4899","#06b6d4","#84cc16","#f43f5e","#a78bfa"];
+          const rankColor = rankColors[i] || "var(--t3)";
+          const pct = p.total ? Math.max(5, Math.round((p.total / (MAX_PTS + 36)) * 100)) : 0;
           return (
-            <div key={p.id} className="fu" style={{ animationDelay:`${i*0.04}s`, position:"relative", overflow:"hidden", borderRadius:"var(--r)", border: isMe ? "2px solid var(--ac)" : "2px solid var(--bd)", background: isMe ? "rgba(249,115,22,0.15)" : "var(--sf)", backdropFilter:"blur(12px)", transform: isMe ? "scale(1.02)" : "scale(1)", boxShadow: isMe ? "0 10px 30px rgba(249,115,22,0.3)" : "var(--sh)" }}>
-              {actuals && <div style={{ position:"absolute", inset:0, zIndex:0, height:"100%", background:"linear-gradient(to right,rgba(249,115,22,0.2),rgba(225,29,72,0.2))", width:`${pct}%`, transition:"width 1.5s cubic-bezier(0.16,1,0.3,1)" }} />}
-              <div style={{ position:"relative", zIndex:1, padding:20, display:"flex", alignItems:"center", gap:16 }}>
-                <div style={{ fontFamily:"var(--fd)", fontSize:32, color: i<3 ? "var(--gold)" : "var(--t3)", width:42, textAlign:"center" }}>#{i+1}</div>
-                <Avatar name={p.name} size={48} />
+            <div key={p.id} className="fu" style={{
+              animationDelay:`${i*0.04}s`,
+              position:"relative", overflow:"hidden",
+              borderRadius:"var(--r)",
+              border: isMe ? "2px solid var(--ac)" : `2px solid ${rankColor}33`,
+              background: isMe ? "rgba(249,115,22,0.15)" : "var(--sf)",
+              backdropFilter:"blur(12px)",
+              transform: isMe ? "scale(1.02)" : "scale(1)",
+              boxShadow: isMe ? "0 10px 30px rgba(249,115,22,0.3)" : `0 4px 16px rgba(0,0,0,0.3)`,
+            }}>
+              {/* Score bar background */}
+              {p.total > 0 && <div style={{ position:"absolute", inset:0, zIndex:0, height:"100%", background:`linear-gradient(to right,${rankColor}22,transparent)`, width:`${pct}%`, transition:"width 1.5s cubic-bezier(0.16,1,0.3,1)" }} />}
+              <div style={{ position:"relative", zIndex:1, padding:"16px 18px", display:"flex", alignItems:"center", gap:14 }}>
+                {/* Rank */}
+                <div style={{ fontFamily:"var(--fd)", fontSize:28, color: rankColor, width:38, textAlign:"center", flexShrink:0, textShadow:`0 0 12px ${rankColor}88` }}>
+                  {i < 3 ? ["🥇","🥈","🥉"][i] : `#${i+1}`}
+                </div>
+                {/* Avatar */}
+                <div style={{ width:44, height:44, borderRadius:"50%", background:`linear-gradient(135deg,${rankColor},${rankColor}66)`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, color:"#000", fontFamily:"var(--fd)", fontSize:18, fontWeight:800, border:`2px solid ${rankColor}66`, boxShadow:`0 0 12px ${rankColor}44` }}>
+                  {initials(p.name)}
+                </div>
+                {/* Name + breakdown */}
                 <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                    <span style={{ fontWeight:900, fontSize:18, color: isMe ? "var(--ac)" : "#fff", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.name}</span>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                    <span style={{ fontWeight:900, fontSize:16, color: isMe ? "var(--ac)" : "#fff", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.name}</span>
                     {isMe && <Pill color="orange">You</Pill>}
                   </div>
-                  
-                  {isMe || isTournamentLocked ? (
-                    p.pred?.winner ? <div style={{ marginTop:8 }}><TeamChip team={p.pred.winner} /></div> : <div style={{ marginTop:8 }}><Pill color="red">No Pick</Pill></div>
-                  ) : (
-                    <div style={{ marginTop:8 }}><Pill color="green">{p.pred ? "Picks Hidden 🔒" : "Pending..."}</Pill></div>
-                  )}
-                  
-                  <div style={{ marginTop:8, display:"flex", gap:16 }}>
-                    <span style={{ fontSize:14, color:"var(--t3)", fontWeight:800 }}>🏆 <b style={{ color:"var(--t2)" }}>{p.tScore ?? "-"}</b></span>
-                    <span style={{ fontSize:14, color:"var(--t3)", fontWeight:800 }}>🏏 <b style={{ color:"var(--t2)" }}>{p.dScore}</b></span>
+                  <div style={{ marginTop:6, display:"flex", gap:12 }}>
+                    <span style={{ fontSize:12, color:"var(--t3)", fontWeight:800 }}>🏆 <b style={{ color:"var(--t2)" }}>{p.tScore ?? "—"}</b></span>
+                    <span style={{ fontSize:12, color:"var(--t3)", fontWeight:800 }}>🏏 <b style={{ color:"var(--t2)" }}>{p.dScore || 0}</b></span>
                   </div>
                 </div>
-                <div style={{ textAlign:"right" }}>
-                  <p style={{ fontFamily:"var(--fd)", fontSize:46, color: actuals ? "#fff" : "var(--t3)", lineHeight:1 }}>{actuals ? p.total : "-"}</p>
-                  {actuals && <p style={{ fontSize:12, color:"var(--t3)", fontWeight:900, textTransform:"uppercase", letterSpacing:"0.1em", marginTop:4 }}>PTS</p>}
+                {/* Total score */}
+                <div style={{ textAlign:"right", flexShrink:0 }}>
+                  <p style={{ fontFamily:"var(--fd)", fontSize:42, color: p.total > 0 ? rankColor : "var(--t3)", lineHeight:1, textShadow: p.total > 0 ? `0 0 20px ${rankColor}66` : "none" }}>
+                    {p.total || "—"}
+                  </p>
+                  {p.total > 0 && <p style={{ fontSize:11, color:"var(--t3)", fontWeight:900, textTransform:"uppercase", letterSpacing:"0.1em" }}>pts</p>}
                 </div>
               </div>
             </div>
