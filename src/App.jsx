@@ -487,10 +487,9 @@ const TodayScreen = ({ user }) => {
         const t = new Date(m.match_date).getTime();
         // Keep completed match for 12 hours
         if (m.status === 'completed') return (now - t) < 12 * 60 * 60 * 1000;
-        // 24 hour look-ahead
-        return t < now + 24 * 60 * 60 * 1000;
+        // Show upcoming chronological matches (ignore strict 24hr cutoff)
+        return t > now - 12 * 60 * 60 * 1000;
       }).slice(0, 2); // Max 2 matches shown
-
       setMatches(visibleMatches);
 
       if (visibleMatches.length) {

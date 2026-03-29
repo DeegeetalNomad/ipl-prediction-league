@@ -1,0 +1,81 @@
+ID,Team 1,Team 2,Match Date,Status
+7d3351a6-518b-4542-a3e7-62513f09f8ca,Royal Challengers Bengaluru,Sunrisers Hyderabad,2026-03-28T14:00:00+00:00,completed
+6e797090-8d10-45b3-9e6f-ef0d6bbffd4e,Mumbai Indians,Kolkata Knight Riders,2026-03-29T14:00:00+00:00,upcoming
+f4e35abf-641a-4405-ba3b-2fb6e263f41a,Punjab Kings,Gujarat Titans,2026-03-30T10:00:00+00:00,upcoming
+a0a062e0-04e7-4944-bcec-57eca60e1031,Rajasthan Royals,Chennai Super Kings,2026-03-30T14:00:00+00:00,upcoming
+f6972a2e-da8b-4095-92a7-e7da8a5c25fa,Mumbai Indians,Kolkata Knight Riders,2026-03-30T14:00:00+00:00,upcoming
+94f85748-bf52-4fd9-a0d1-7f2ddce552fc,Punjab Kings,Gujarat Titans,2026-03-31T14:00:00+00:00,upcoming
+4ef1ad99-16fc-45d0-a490-37c7cedc0049,Delhi Capitals,Lucknow Super Giants,2026-03-31T14:00:00+00:00,upcoming
+a9dcc5dc-4694-466d-b47b-93959700735b,Sunrisers Hyderabad,Rajasthan Royals,2026-04-01T14:00:00+00:00,upcoming
+7595a711-c6e5-42f8-9d9b-b9f8b445fce9,Chennai Super Kings,Royal Challengers Bengaluru,2026-04-02T14:00:00+00:00,upcoming
+009035a0-066f-4448-9b6c-de642fdb1a27,Gujarat Titans,Mumbai Indians,2026-04-03T14:00:00+00:00,upcoming
+d3db08c2-f71c-4338-8a66-04319ca91ac5,Kolkata Knight Riders,Delhi Capitals,2026-04-04T10:00:00+00:00,upcoming
+0305c6d8-754a-4aec-847b-66131edb89a4,Lucknow Super Giants,Punjab Kings,2026-04-04T14:00:00+00:00,upcoming
+770fd63f-cbc6-40e0-baa3-ed6309a05ab9,Royal Challengers Bengaluru,Rajasthan Royals,2026-04-05T14:00:00+00:00,upcoming
+908dcbae-2c5d-46fc-9512-b27600d7a23d,Mumbai Indians,Chennai Super Kings,2026-04-06T10:00:00+00:00,upcoming
+8f928bff-2a47-4238-9ee8-5226807abbc7,Sunrisers Hyderabad,Gujarat Titans,2026-04-06T14:00:00+00:00,upcoming
+195d2793-8d33-447d-bb22-14f6f3a367a4,Delhi Capitals,Punjab Kings,2026-04-07T14:00:00+00:00,upcoming
+61f612a3-e5ab-489d-b2a2-694a4676d951,Kolkata Knight Riders,Lucknow Super Giants,2026-04-08T14:00:00+00:00,upcoming
+4d9794ce-e286-4a95-8d24-e438989881a2,Rajasthan Royals,Mumbai Indians,2026-04-09T14:00:00+00:00,upcoming
+e9a20025-b3ab-4059-bccb-26121b52de1e,Chennai Super Kings,Delhi Capitals,2026-04-10T14:00:00+00:00,upcoming
+bb0c148c-8dd7-464a-87b3-52cb95f2956a,Punjab Kings,Royal Challengers Bengaluru,2026-04-11T10:00:00+00:00,upcoming
+f48f8b9f-af63-4ec9-b3b8-ccbdde3ff915,Gujarat Titans,Kolkata Knight Riders,2026-04-11T14:00:00+00:00,upcoming
+0697095c-d527-4417-ba8a-4d499e92e8a1,Lucknow Super Giants,Sunrisers Hyderabad,2026-04-12T14:00:00+00:00,upcoming
+91332cd9-5b41-421d-b420-85dd59f826a4,Rajasthan Royals,Delhi Capitals,2026-04-13T10:00:00+00:00,upcoming
+4e8a5391-0acc-471b-9757-17ebff36fcd9,Mumbai Indians,Punjab Kings,2026-04-13T14:00:00+00:00,upcoming
+bbe2dcc9-73b1-478e-96ba-b74917aca708,Royal Challengers Bengaluru,Chennai Super Kings,2026-04-14T14:00:00+00:00,upcoming
+63a2d022-9337-4682-b3a3-5566fad8ef21,Kolkata Knight Riders,Rajasthan Royals,2026-04-15T14:00:00+00:00,upcoming
+fdee9139-d4af-4305-821f-e143a31b6657,Sunrisers Hyderabad,Delhi Capitals,2026-04-16T14:00:00+00:00,upcoming
+8166fc01-0904-4177-afac-fe27d73e6e51,Gujarat Titans,Lucknow Super Giants,2026-04-17T14:00:00+00:00,upcoming
+5a2efc6e-d917-4a0d-aea9-cbbf3590fe4b,Chennai Super Kings,Punjab Kings,2026-04-18T10:00:00+00:00,upcoming
+f8938bfd-f5ce-4739-9152-87f755ffd4e5,Mumbai Indians,Royal Challengers Bengaluru,2026-04-18T14:00:00+00:00,upcoming
+0dfecbb2-cf8d-4c6a-a69e-32dbdca15c03,Delhi Capitals,Kolkata Knight Riders,2026-04-19T14:00:00+00:00,upcoming
+6a7b3c2c-b0af-49f4-8d5e-98199c0acd94,Lucknow Super Giants,Rajasthan Royals,2026-04-20T10:00:00+00:00,upcoming
+055fc66c-0c95-413f-a91e-2c663b7dedca,Sunrisers Hyderabad,Chennai Super Kings,2026-04-20T14:00:00+00:00,upcoming
+afc51a12-721d-488c-95ba-b252b55e78be,Punjab Kings,Kolkata Knight Riders,2026-04-21T14:00:00+00:00,upcoming
+ed06a4a7-8875-4dbd-ab8c-038446d17091,Gujarat Titans,Royal Challengers Bengaluru,2026-04-22T14:00:00+00:00,upcoming
+f4f1396b-c64f-44d6-a239-b71041e5af78,Rajasthan Royals,Lucknow Super Giants,2026-04-23T14:00:00+00:00,upcoming
+862b70ab-075b-49c7-8cad-0dfc2ebfcaee,Mumbai Indians,Sunrisers Hyderabad,2026-04-24T14:00:00+00:00,upcoming
+07cd40e8-4644-4eca-b662-a4b0cad28ad5,Delhi Capitals,Royal Challengers Bengaluru,2026-04-25T10:00:00+00:00,upcoming
+223a7a8c-08ad-4358-8eb5-cdad4270def4,Chennai Super Kings,Gujarat Titans,2026-04-25T14:00:00+00:00,upcoming
+41868b97-442a-437b-b68d-0384766d18d8,Kolkata Knight Riders,Punjab Kings,2026-04-26T14:00:00+00:00,upcoming
+0cbea5b9-c9b7-49ed-82a9-3281db23ba3b,Lucknow Super Giants,Mumbai Indians,2026-04-27T10:00:00+00:00,upcoming
+6e9a0d62-c3aa-4362-a451-7733bb4872db,Royal Challengers Bengaluru,Delhi Capitals,2026-04-27T14:00:00+00:00,upcoming
+b6e13510-19cb-46a9-8abc-159e8c98f5c8,Rajasthan Royals,Gujarat Titans,2026-04-28T14:00:00+00:00,upcoming
+3b7089e4-f5fa-418d-bb2b-b6b45142c127,Sunrisers Hyderabad,Kolkata Knight Riders,2026-04-29T14:00:00+00:00,upcoming
+b695b0fa-171b-4b26-8f64-da63f2c0aec4,Punjab Kings,Chennai Super Kings,2026-04-30T14:00:00+00:00,upcoming
+77d1310a-acf4-4cc5-884c-0352ef154324,Mumbai Indians,Delhi Capitals,2026-05-01T14:00:00+00:00,upcoming
+66a5a384-e2fb-4964-aec5-40d4b6e90781,Gujarat Titans,Sunrisers Hyderabad,2026-05-02T10:00:00+00:00,upcoming
+da4f7547-d0a1-4c7b-a95c-8b67dd166cfe,Lucknow Super Giants,Royal Challengers Bengaluru,2026-05-02T14:00:00+00:00,upcoming
+df5646a4-796b-4f3c-9da3-ce622697ec1b,Kolkata Knight Riders,Chennai Super Kings,2026-05-03T14:00:00+00:00,upcoming
+ca75066e-bf5b-4cc7-b755-494efd0d1bab,Rajasthan Royals,Punjab Kings,2026-05-04T10:00:00+00:00,upcoming
+cf5641cf-eebf-4a85-a144-9aaccc7aac47,Delhi Capitals,Mumbai Indians,2026-05-04T14:00:00+00:00,upcoming
+4352e146-7709-4fc2-9e81-1ba7c96a37a1,Royal Challengers Bengaluru,Kolkata Knight Riders,2026-05-05T14:00:00+00:00,upcoming
+cf253baf-7bbb-4feb-b48c-a2bca6245894,Sunrisers Hyderabad,Lucknow Super Giants,2026-05-06T14:00:00+00:00,upcoming
+dd198c66-7dd2-4f1b-8eca-ddaebd1644f1,Chennai Super Kings,Rajasthan Royals,2026-05-07T14:00:00+00:00,upcoming
+8273352d-624d-4361-a820-8fb7aafa7289,Punjab Kings,Mumbai Indians,2026-05-08T14:00:00+00:00,upcoming
+502a0bc0-ac51-453c-94b2-1ba9b207e935,Gujarat Titans,Delhi Capitals,2026-05-09T10:00:00+00:00,upcoming
+a79befb4-2dcc-46e6-89cf-9130e291a72f,Kolkata Knight Riders,Royal Challengers Bengaluru,2026-05-09T14:00:00+00:00,upcoming
+2a9f6b16-d062-41c2-91d6-8f7bfdb24e7c,Lucknow Super Giants,Chennai Super Kings,2026-05-10T14:00:00+00:00,upcoming
+6d4ddab2-d006-4a68-bffe-ba0bc1c221c9,Rajasthan Royals,Sunrisers Hyderabad,2026-05-11T10:00:00+00:00,upcoming
+4716eebb-e28e-467b-b0ae-17eb234ba94f,Mumbai Indians,Gujarat Titans,2026-05-11T14:00:00+00:00,upcoming
+7adc8239-12bd-4dda-a7a9-63ad89f1e316,Delhi Capitals,Chennai Super Kings,2026-05-12T14:00:00+00:00,upcoming
+2238ae7b-d4b9-4bf1-81af-8bb4df72edea,Punjab Kings,Lucknow Super Giants,2026-05-13T14:00:00+00:00,upcoming
+ad1d5b72-893b-41b1-a246-ab91daabee20,Royal Challengers Bengaluru,Gujarat Titans,2026-05-14T14:00:00+00:00,upcoming
+e0195c11-2259-4dbb-9e24-6f401bffa122,Kolkata Knight Riders,Sunrisers Hyderabad,2026-05-15T14:00:00+00:00,upcoming
+05e8679c-91ce-4c8f-a946-61f271f8ddd7,Chennai Super Kings,Lucknow Super Giants,2026-05-16T10:00:00+00:00,upcoming
+91454a93-7987-43b5-8623-f00be4e33962,Rajasthan Royals,Mumbai Indians,2026-05-16T14:00:00+00:00,upcoming
+773639cb-fa1c-4ad4-927e-76505bfd9555,Delhi Capitals,Gujarat Titans,2026-05-17T14:00:00+00:00,upcoming
+4ae7d59a-63bc-4109-a53d-3fe1ca624f3f,Punjab Kings,Sunrisers Hyderabad,2026-05-18T10:00:00+00:00,upcoming
+badb1f77-ec90-4ee0-b364-3c886bcc427f,Mumbai Indians,Rajasthan Royals,2026-05-18T14:00:00+00:00,upcoming
+74540898-eb8e-4aec-a93b-861e208aabfb,Lucknow Super Giants,Kolkata Knight Riders,2026-05-19T14:00:00+00:00,upcoming
+67c2c484-efae-4e12-bd75-0e2426a21ac3,Royal Challengers Bengaluru,Punjab Kings,2026-05-20T14:00:00+00:00,upcoming
+f33eb2b8-9427-428b-aa61-736d8be68465,Gujarat Titans,Chennai Super Kings,2026-05-21T14:00:00+00:00,upcoming
+3da7274a-16b4-4f6b-b573-7ad9ae2dfc7c,Sunrisers Hyderabad,Mumbai Indians,2026-05-22T14:00:00+00:00,upcoming
+0e1fcc3f-ea31-4e59-a186-c04984694f96,Kolkata Knight Riders,Rajasthan Royals,2026-05-23T10:00:00+00:00,upcoming
+0271b897-60c1-42b7-bef7-7c8c658132a5,Delhi Capitals,Lucknow Super Giants,2026-05-23T14:00:00+00:00,upcoming
+d26687d6-f72d-4daa-8e61-5f1e61cedfd5,Chennai Super Kings,Mumbai Indians,2026-05-24T14:00:00+00:00,upcoming
+9f1ac413-c5e4-43cf-add8-06aef420a155,TBD (1st),TBD (2nd),2026-05-27T14:00:00+00:00,upcoming
+ecdca42a-58d7-48c5-9407-0042fa3bf005,TBD (3rd),TBD (4th),2026-05-28T14:00:00+00:00,upcoming
+51118063-c734-4751-bf5c-64dcb1f15a05,TBD,TBD,2026-05-30T14:00:00+00:00,upcoming
+68e7ca49-21a4-4b31-a9e5-058d0715b342,TBD (Final),TBD (Final),2026-05-31T14:00:00+00:00,upcoming
