@@ -1,0 +1,12 @@
+[build]
+  command   = "npm run build"
+  publish   = "dist"
+
+[functions]
+  directory = "netlify/functions"
+
+# ── Scheduled function: runs daily at 18:00 UTC = 11:30 PM IST ──
+# This is just after the late match ends (7:30 PM IST start + ~3.5h = ~11 PM IST)
+# Cron format: minute hour day month weekday
+[functions."sync-results"]
+  schedule = "0 18 * * *"

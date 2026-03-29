@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 const SB_URL    = "https://rpzpnbhaqpfejolgjggu.supabase.co";
 const SB_KEY    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwenBuYmhhcXBmZWpvbGdqZ2d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTcyODQsImV4cCI6MjA4OTk3MzI4NH0.tDRO6axPkvI4udJJz2cJCOcH0WQFlu4sOl7U-h50s30";
 
-// Secure Admin Hash (No plain-text passwords here!)
+// Secure Admin Hash
 const ADMIN_HASH = "8a25c1b67e2311d948332130ab7eb3ecb99de2fa5a7e6c4b2eb3f50dd5112f45";
 
 // ─────────────────────────────────────────────
@@ -36,136 +36,18 @@ const TC = {
   "Gujarat Titans":               { bg:"#1C2B4A", fg:"#8AC0DE" },
   "Punjab Kings":                 { bg:"#ED1B24", fg:"#FFFFFF" },
 };
-
 const SQUADS = {
-
-  // ✅ CSK: Nathan Ellis OUT (injury) → Spencer Johnson IN
-  "Chennai Super Kings": [
-    "Ruturaj Gaikwad","MS Dhoni","Sanju Samson","Dewald Brevis",
-    "Ayush Mhatre","Kartik Sharma","Sarfaraz Khan","Urvil Patel",
-    "Shivam Dube","Jamie Overton","Ramakrishna Ghosh","Prashant Veer",
-    "Matthew Short","Aman Khan","Zak Foulkes","Khaleel Ahmed",
-    "Noor Ahmad","Mukesh Choudhary","Shreyas Gopal","Gurjapneet Singh",
-    "Akeal Hosein","Matt Henry","Rahul Chahar","Anshul Kamboj",
-    "Spencer Johnson",  // ← replaces Nathan Ellis (hamstring)
-  ],
-
-  // ✅ MI: AM Ghazanfar ADDED (was missing from original list)
-  "Mumbai Indians": [
-    "Rohit Sharma","Suryakumar Yadav","Robin Minz","Sherfane Rutherford",
-    "Ryan Rickelton","Quinton de Kock","Danish Malewar","Tilak Varma",
-    "Hardik Pandya","Naman Dhir","Mitchell Santner","Raj Angad Bawa",
-    "Atharva Ankolekar","Mayank Rawat","Corbin Bosch","Will Jacks",
-    "Shardul Thakur","Jasprit Bumrah","Trent Boult","Deepak Chahar",
-    "Mayank Markande","Ashwani Kumar","Mohammad Izhar","Raghu Sharma",
-    "AM Ghazanfar",  // ← was missing, now added
-  ],
-
-  // ✅ RCB: Yash Dayal OUT (personal), Nuwan Thushara OUT (SLC NOC denied),
-  //         Venkatesh Iyer + Jacob Duffy + Swapnil Singh IN
-  //         Hazlewood IN squad but injured — kept as he may play later
-  "Royal Challengers Bengaluru": [
-    "Virat Kohli","Phil Salt","Devdutt Padikkal","Rajat Patidar",
-    "Jitesh Sharma","Jordan Cox","Krunal Pandya","Tim David",
-    "Romario Shepherd","Jacob Bethell","Venkatesh Iyer","Satvik Deswal",
-    "Mangesh Yadav","Vicky Ostwal","Vihaan Malhotra","Kanishk Chouhan",
-    "Bhuvneshwar Kumar","Josh Hazlewood","Suyash Sharma","Rasikh Dar",
-    "Jacob Duffy","Abhinandan Singh","Swapnil Singh",
-    // REMOVED: Yash Dayal (personal reasons, out for season)
-    // REMOVED: Nuwan Thushara (SLC denied NOC, failed fitness test)
-  ],
-
-  // ✅ KKR: Akash Deep OUT, Harshit Rana OUT, Mustafizur Rahman OUT (BCCI order)
-  //         Blessing Muzarabani + Saurabh Dubey IN
-  //         Tejasvi Dahiya (correct name, was Tejasvi Singh in original)
-  "Kolkata Knight Riders": [
-    "Ajinkya Rahane","Angkrish Raghuvanshi","Manish Pandey","Rinku Singh",
-    "Rovman Powell","Finn Allen","Tim Seifert","Tejasvi Dahiya",
-    "Rahul Tripathi","Cameron Green","Anukul Roy","Sarthak Ranjan",
-    "Daksh Kamra","Rachin Ravindra","Ramandeep Singh","Vaibhav Arora",
-    "Matheesha Pathirana","Kartik Tyagi","Prashant Solanki","Umran Malik",
-    "Sunil Narine","Varun Chakravarthy",
-    "Blessing Muzarabani","Saurabh Dubey",  // ← replacements
-    // REMOVED: Akash Deep (injury), Harshit Rana (injury), Mustafizur Rahman (BCCI)
-  ],
-
-  // ✅ SRH: Pat Cummins OUT initial games (injury), Jack Edwards OUT (foot)
-  //         David Payne IN (replacement for Edwards)
-  //         Salil Arora, Shivang Kumar, Krains Fuletra, Praful Hinge IN
-  "Sunrisers Hyderabad": [
-    "Ishan Kishan","Aniket Verma","Ravichandran Smaran","Heinrich Klaasen",
-    "Travis Head","Harshal Patel","Kamindu Mendis","Harsh Dubey",
-    "Brydon Carse","Liam Livingstone","Abhishek Sharma","Nitish Kumar Reddy",
-    "Shivam Mavi","Jaydev Unadkat","Zeeshan Ansari","Sakib Hussain",
-    "Onkar Tarmale","Eshan Malinga","David Payne","Salil Arora",
-    "Shivang Kumar","Amit Kumar","Praful Hinge",
-    // REMOVED: Pat Cummins (injury, missing initial games)
-    // REMOVED: Jack Edwards (foot injury, out for season)
-  ],
-
-  // ✅ DC: Ben Duckett PULLED OUT, Mitchell Starc (awaiting CA NOC, unavailable initially)
-  //        Sahil Parakh + Auqib Nabi + Tripurana Vijay confirmed in squad
-  "Delhi Capitals": [
-    "KL Rahul","Karun Nair","David Miller","Pathum Nissanka",
-    "Prithvi Shaw","Abishek Porel","Tristan Stubbs","Axar Patel",
-    "Sameer Rizvi","Ashutosh Sharma","Vipraj Nigam","Ajay Mandal",
-    "Tripurana Vijay","Madhav Tiwari","Nitish Rana","Mitchell Starc",
-    "T. Natarajan","Mukesh Kumar","Dushmantha Chameera","Lungi Ngidi",
-    "Kyle Jamieson","Kuldeep Yadav","Sahil Parakh","Auqib Nabi",
-    // REMOVED: Ben Duckett (pulled out)
-  ],
-
-  // ✅ LSG: Josh Inglis missing first phase, Wanindu Hasaranga awaiting NOC
-  //         Mukul Choudhary, Prince Yadav, Digvesh Rathi, Naman Tiwari IN
-  "Lucknow Super Giants": [
-    "Rishabh Pant","Aiden Markram","Himmat Singh","Matthew Breetzke",
-    "Akshat Raghuwanshi","Nicholas Pooran","Mitchell Marsh","Abdul Samad",
-    "Shahbaz Ahmed","Arshin Kulkarni","Ayush Badoni","Mohammad Shami",
-    "Avesh Khan","M. Siddharth","Digvesh Rathi","Akash Singh",
-    "Arjun Tendulkar","Anrich Nortje","Mayank Yadav","Mohsin Khan",
-    "Mukul Choudhary","Prince Yadav","Naman Tiwari",
-    // NOTE: Josh Inglis (missing first phase), Wanindu Hasaranga (awaiting NOC)
-    // kept out as unavailable for selection
-  ],
-
-  // ✅ RR: Sam Curran OUT (injury) → Dasun Shanaka IN
-  //        Aman Rao, Ravi Singh, Brijesh Sharma, Vignesh Puthur, Yudhvir Singh confirmed
-  "Rajasthan Royals": [
-    "Riyan Parag","Shubham Dubey","Vaibhav Suryavanshi","Donovan Ferreira",
-    "Lhuan-dre Pretorius","Shimron Hetmyer","Yashasvi Jaiswal","Dhruv Jurel",
-    "Ravindra Jadeja","Yudhvir Singh Charak","Jofra Archer","Tushar Deshpande",
-    "Kwena Maphaka","Ravi Bishnoi","Sushant Mishra","Yash Raj Punia",
-    "Adam Milne","Kuldeep Sen","Sandeep Sharma","Nandre Burger",
-    "Dasun Shanaka","Aman Rao","Ravi Singh","Brijesh Sharma","Vignesh Puthur",
-    // REMOVED: Sam Curran (injury, replaced by Shanaka)
-  ],
-
-  // ✅ GT: Prithviraj Yarra OUT → Kulwant Khejroliya IN
-  //        Arshad Khan, Ashok Sharma confirmed
-  "Gujarat Titans": [
-    "Shubman Gill","Jos Buttler","Kumar Kushagra","Anuj Rawat",
-    "Tom Banton","Glenn Phillips","Nishant Sindhu","Washington Sundar",
-    "Sai Sudharsan","Shahrukh Khan","Jason Holder","Jayant Yadav",
-    "Sai Kishore","Kagiso Rabada","Mohammed Siraj","Prasidh Krishna",
-    "Manav Suthar","Gurnoor Singh Brar","Ishant Sharma","Luke Wood",
-    "Rahul Tewatia","Rashid Khan","Arshad Khan","Ashok Sharma",
-    "Kulwant Khejroliya",  // ← replaces Prithviraj Yarra (injury)
-  ],
-
-  // ✅ PBKS: Lockie Ferguson missing initial games (personal)
-  //          Suryansh Shedge, Pyla Avinash, Praveen Dubey, Vishal Nishad IN
-  "Punjab Kings": [
-    "Shreyas Iyer","Nehal Wadhera","Vishnu Vinod","Harnoor Pannu",
-    "Prabhsimran Singh","Shashank Singh","Marcus Stoinis","Harpreet Brar",
-    "Marco Jansen","Azmatullah Omarzai","Priyansh Arya","Musheer Khan",
-    "Mitch Owen","Cooper Connolly","Ben Dwarshuis","Arshdeep Singh",
-    "Yuzvendra Chahal","Vijaykumar Vyshak","Yash Thakur","Xavier Bartlett",
-    "Lockie Ferguson","Suryansh Shedge","Pyla Avinash",
-    "Praveen Dubey","Vishal Nishad",
-  ],
+  "Chennai Super Kings":["Ruturaj Gaikwad","MS Dhoni","Sanju Samson","Dewald Brevis","Ayush Mhatre","Kartik Sharma","Sarfaraz Khan","Urvil Patel","Anshul Kamboj","Jamie Overton","Ramakrishna Ghosh","Prashant Veer","Matthew Short","Aman Khan","Zak Foulkes","Shivam Dube","Khaleel Ahmed","Noor Ahmad","Mukesh Choudhary","Nathan Ellis","Shreyas Gopal","Gurjapneet Singh","Akeal Hosein","Matt Henry","Rahul Chahar"],
+  "Mumbai Indians":["Rohit Sharma","Suryakumar Yadav","Robin Minz","Sherfane Rutherford","Ryan Rickelton","Quinton de Kock","Danish Malewar","Tilak Varma","Hardik Pandya","Naman Dhir","Mitchell Santner","Raj Angad Bawa","Atharva Ankolekar","Mayank Rawat","Corbin Bosch","Will Jacks","Shardul Thakur","Jasprit Bumrah","Trent Boult","Deepak Chahar","Mayank Markande","Ashwani Kumar","Mohammad Izhar","Raghu Sharma"],
+  "Royal Challengers Bengaluru":["Virat Kohli","Phil Salt","Devdutt Padikkal","Rajat Patidar","Jitesh Sharma","Jordan Cox","Krunal Pandya","Tim David","Romario Shepherd","Jacob Bethell","Venkatesh Iyer","Satvik Deswal","Mangesh Yadav","Vicky Ostwal","Vihaan Malhotra","Kanishk Chouhan","Bhuvneshwar Kumar","Josh Hazlewood","Yash Dayal","Nuwan Thushara","Suyash Sharma","Rasikh Dar","Jacob Duffy","Abhinandan Singh"],
+  "Kolkata Knight Riders":["Ajinkya Rahane","Angkrish Raghuvanshi","Manish Pandey","Rinku Singh","Rovman Powell","Finn Allen","Tim Seifert","Tejasvi Singh","Rahul Tripathi","Cameron Green","Anukul Roy","Sarthak Ranjan","Daksh Kamra","Rachin Ravindra","Ramandeep Singh","Vaibhav Arora","Matheesha Pathirana","Kartik Tyagi","Prashant Solanki","Akash Deep","Harshit Rana","Umran Malik","Sunil Narine","Varun Chakravarthy"],
+  "Sunrisers Hyderabad":["Ishan Kishan","Aniket Verma","Smaran Ravichandran","Heinrich Klaasen","Travis Head","Harshal Patel","Kamindu Mendis","Harsh Dubey","Brydon Carse","Liam Livingstone","Jack Edwards","Abhishek Sharma","Nitish Kumar Reddy","Pat Cummins","Zeeshan Ansari","Jaydev Unadkat","Eshan Malinga","Sakib Hussain","Onkar Tarmale","Shivam Mavi"],
+  "Delhi Capitals":["KL Rahul","Karun Nair","David Miller","Ben Duckett","Pathum Nissanka","Prithvi Shaw","Abishek Porel","Tristan Stubbs","Axar Patel","Sameer Rizvi","Ashutosh Sharma","Vipraj Nigam","Ajay Mandal","Tripurana Vijay","Madhav Tiwari","Nitish Rana","Mitchell Starc","T. Natarajan","Mukesh Kumar","Dushmantha Chameera","Lungi Ngidi","Kyle Jamieson","Kuldeep Yadav"],
+  "Lucknow Super Giants":["Rishabh Pant","Aiden Markram","Himmat Singh","Matthew Breetzke","Akshat Raghuwanshi","Josh Inglis","Nicholas Pooran","Mitchell Marsh","Abdul Samad","Shahbaz Ahmed","Arshin Kulkarni","Wanindu Hasaranga","Ayush Badoni","Mohammad Shami","Avesh Khan","M. Siddharth","Digvesh Singh","Akash Singh","Arjun Tendulkar","Anrich Nortje","Mayank Yadav","Mohsin Khan"],
+  "Rajasthan Royals":["Riyan Parag","Shubham Dubey","Vaibhav Suryavanshi","Donovan Ferreira","Lhuan-dre Pretorius","Shimron Hetmyer","Yashasvi Jaiswal","Dhruv Jurel","Ravindra Jadeja","Sam Curran","Yudhvir Singh Charak","Jofra Archer","Tushar Deshpande","Kwena Maphaka","Ravi Bishnoi","Sushant Mishra","Yash Raj Punia","Adam Milne","Kuldeep Sen","Sandeep Sharma","Nandre Burger"],
+  "Gujarat Titans":["Shubman Gill","Jos Buttler","Kumar Kushagra","Anuj Rawat","Tom Banton","Glenn Phillips","Nishant Sindhu","Washington Sundar","Sai Sudharsan","Shahrukh Khan","Jason Holder","Jayant Yadav","Sai Kishore","Kagiso Rabada","Mohammed Siraj","Prasidh Krishna","Manav Suthar","Gurnoor Singh Brar","Ishant Sharma","Luke Wood","Rahul Tewatia","Rashid Khan"],
+  "Punjab Kings":["Shreyas Iyer","Nehal Wadhera","Vishnu Vinod","Harnoor Pannu","Prabhsimran Singh","Shashank Singh","Marcus Stoinis","Harpreet Brar","Marco Jansen","Azmatullah Omarzai","Priyansh Arya","Musheer Khan","Mitch Owen","Cooper Connolly","Ben Dwarshuis","Arshdeep Singh","Yuzvendra Chahal","Vyshak Vijaykumar","Yash Thakur","Xavier Bartlett","Lockie Ferguson"],
 };
-
-
 const ALL_PLAYERS = [...new Set(Object.values(SQUADS).flat())].sort();
 
 // EXACTLY 7:00 PM IST (13:30 UTC)
@@ -274,7 +156,7 @@ const Confetti = ({ active }) => {
 };
 
 // ─────────────────────────────────────────────
-// GLOBAL STYLES (Improved Mobile Contrast & Sizes)
+// GLOBAL STYLES
 // ─────────────────────────────────────────────
 const GS = () => (
   <style>{`
@@ -304,6 +186,8 @@ const GS = () => (
     .live-dot{animation:pulseLive 1.5s ease infinite;}
     .glow-text{text-shadow:0 0 15px currentColor;}
     ::-webkit-scrollbar{width:0px;}
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     select{
       appearance:none;-webkit-appearance:none;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
@@ -390,7 +274,6 @@ const TeamChip = ({ team, large }) => {
   );
 };
 
-// Revamped Visual Team Card for Mobile Clarity (Fixed Overlap)
 const TeamCard = ({ team, selected, onClick, disabled, small }) => {
   const c = TC[team];
   return (
@@ -422,7 +305,7 @@ const SecHead = ({ icon, title, sub, right }) => (
   </div>
 );
 
-// Top-4 picker (Grid Fixed for Mobile)
+// Top-4 picker
 const Top4Picker = ({ value, onChange, disabled }) => {
   const toggle = t => {
     if (value.includes(t)) onChange(value.filter(x => x !== t));
@@ -523,7 +406,6 @@ const AuthScreen = ({ onLogin }) => {
       if (mode === "signup") {
         if (!form.name.trim() || !form.username.trim() || !form.password.trim()) throw new Error("Please fill all fields.");
         
-        // Password Validation Regex: At least 8 chars, 1 uppercase, 1 lowercase, 1 number
         const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/;
         if (!pwdRegex.test(form.password)) {
           throw new Error("Password must be at least 8 characters, with 1 uppercase, 1 lowercase, and 1 number.");
@@ -591,21 +473,22 @@ const TodayScreen = ({ user }) => {
   const [loading,  setLoading]  = useState(true);
   const [toast,    setToast]    = useState("");
   const [saving,   setSaving]   = useState(null);
+  
+  const [activeIdx, setActiveIdx] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const ms = await sb("daily_matches?select=*&order=match_date.asc").catch(() => []);
       
-      // Filter matches to a 48-hour rolling window
       const now = Date.now();
       const visibleMatches = (ms || []).filter(m => {
         const t = new Date(m.match_date).getTime();
-        // Keep completed matches visible for 48 hours after they happen
-        if (m.status === 'completed') return (now - t) < 48 * 60 * 60 * 1000;
-        // Show upcoming matches starting within the next 48 hours
-        return t < now + 48 * 60 * 60 * 1000;
-      });
+        // Keep completed match for 12 hours
+        if (m.status === 'completed') return (now - t) < 12 * 60 * 60 * 1000;
+        // CHANGED: 24 hour look-ahead (was 48)
+        return t < now + 24 * 60 * 60 * 1000;
+      }).slice(0, 3); // Max 3 matches shown
 
       setMatches(visibleMatches);
 
@@ -632,13 +515,22 @@ const TodayScreen = ({ user }) => {
       }
       setMyPreds(p => ({ ...p, [matchId]: { ...(p[matchId] || {}), match_id: matchId, ...data } }));
       setToast("✅ Prediction locked!"); setTimeout(() => setToast(""), 2500);
-    } catch (e) { setToast("❌ " + e.message); setTimeout(() => setToast(""), 3000); }
+    } catch (e) { 
+      if (e.message.includes("foreign key constraint")) {
+        setToast("❌ Session error. Please click EXIT at top right and sign in again.");
+      } else {
+        setToast("❌ " + e.message); 
+      }
+      setTimeout(() => setToast(""), 3000); 
+    }
     setSaving(null);
   };
 
   const totalDaily = Object.values(myPreds).reduce((s, p) => s + (p.points_earned || 0), 0);
 
   if (loading) return <LoadingScreen />;
+
+  const currentMatch = matches[activeIdx] || matches[0];
 
   return (
     <div style={{ maxWidth:520, margin:"0 auto", padding:"24px 16px" }} className="fu">
@@ -647,15 +539,15 @@ const TodayScreen = ({ user }) => {
           <h2 className="glow-text" style={{ fontFamily:"var(--fd)", fontSize:46, lineHeight:1, color:"#fff" }}>
             Matchday <span style={{ color:"var(--ac)" }}>Live</span>
           </h2>
-          <p style={{ color:"var(--t3)", fontWeight:800, fontSize:14, marginTop:6 }}>Matches in the next 48 hours</p>
+          <p style={{ color:"var(--t3)", fontWeight:800, fontSize:14, marginTop:6 }}>Matches in the next 24 hours</p>
         </div>
-        <div style={{ textAlign:"right" }}>
+        <div style={{ textAlign:"right", flexShrink: 0 }}>
           <p style={{ fontSize:12, color:"var(--t3)", fontWeight:900, textTransform:"uppercase", letterSpacing:"0.1em" }}>My Daily Pts</p>
           <p className="glow-text" style={{ fontFamily:"var(--fd)", fontSize:38, color:"var(--gold)", lineHeight:1 }}>{totalDaily}</p>
         </div>
       </div>
 
-      {toast && <div className="pop" style={{ background:"rgba(16,185,129,0.2)", border:"2px solid rgba(16,185,129,0.4)", borderRadius:"var(--r-sm)", padding:"16px", marginBottom:20, fontSize:16, fontWeight:900, color:"var(--green)" }}>{toast}</div>}
+      {toast && <div className="pop" style={{ background: toast.includes("❌") ? "rgba(244,63,94,0.2)" : "rgba(16,185,129,0.2)", border:`2px solid ${toast.includes("❌") ? "rgba(244,63,94,0.4)" : "rgba(16,185,129,0.4)"}`, borderRadius:"var(--r-sm)", padding:"16px", marginBottom:20, fontSize:16, fontWeight:900, color: toast.includes("❌") ? "var(--red)" : "var(--green)" }}>{toast}</div>}
 
       {matches.length === 0 ? (
         <div style={{ textAlign:"center", padding:"80px 16px" }}>
@@ -672,8 +564,45 @@ const TodayScreen = ({ user }) => {
           </Card>
         </div>
       ) : (
-        <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
-          {matches.map(m => <MatchCard key={m.id} match={m} myPred={myPreds[m.id]} onSave={d => savePred(m.id, d)} saving={saving === m.id} />)}
+        <div style={{ display:"flex", flexDirection:"column" }}>
+          
+          {matches.length > 1 && (
+            <div className="hide-scrollbar" style={{ display:"flex", overflowX:"auto", gap:10, paddingBottom:8, marginBottom:20 }}>
+              {matches.map((m, idx) => {
+                const active = activeIdx === idx;
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => setActiveIdx(idx)}
+                    style={{
+                      flexShrink:0,
+                      background: active ? "var(--ac)" : "rgba(0,0,0,0.4)",
+                      border: `2px solid ${active ? "var(--ac)" : "var(--bd)"}`,
+                      borderRadius: 100,
+                      padding: "10px 20px",
+                      fontFamily: "var(--fd)",
+                      fontSize: 22,
+                      color: active ? "#fff" : "var(--t3)",
+                      transition: "all 0.2s",
+                      boxShadow: active ? "0 4px 15px rgba(249,115,22,0.4)" : "none"
+                    }}
+                  >
+                    {SHORT[m.team1]} <span style={{fontSize:14, color:active?"rgba(255,255,255,0.7)":"var(--t3)", margin:"0 4px"}}>vs</span> {SHORT[m.team2]}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {currentMatch && (
+            <MatchCard 
+              match={currentMatch} 
+              myPred={myPreds[currentMatch.id]} 
+              onSave={d => savePred(currentMatch.id, d)} 
+              saving={saving === currentMatch.id} 
+            />
+          )}
+
         </div>
       )}
     </div>
@@ -686,7 +615,6 @@ const MatchCard = ({ match, myPred, onSave, saving }) => {
   const t2 = TC[match.team2] || { bg:"#333", fg:"#fff" };
   
   const mTime         = new Date(match.match_date).getTime();
-  // Lock match exactly 5 minutes before start
   const isMatchLocked = Date.now() >= (mTime - 5 * 60 * 1000);
   const isCompleted   = match.status === "completed";
   const isLive        = match.status === "live";
@@ -698,12 +626,23 @@ const MatchCard = ({ match, myPred, onSave, saving }) => {
     predicted_bowler: myPred?.predicted_bowler || "",
     predicted_potm:   myPred?.predicted_potm   || "",
   });
+  
+  useEffect(() => {
+    setPred({
+      predicted_winner: myPred?.predicted_winner || "",
+      predicted_batter: myPred?.predicted_batter || "",
+      predicted_bowler: myPred?.predicted_bowler || "",
+      predicted_potm:   myPred?.predicted_potm   || "",
+    });
+    setExpanded(!myPred?.predicted_winner && (!isCompleted && !isLive && !(Date.now() >= (new Date(match.match_date).getTime() - 5 * 60 * 1000))));
+  }, [match.id, myPred, isCompleted, isLive]);
+
   const [expanded, setExpanded] = useState(!myPred?.predicted_winner && canPredict);
   const upd = (k, v) => setPred(p => ({ ...p, [k]: v }));
   const matchPlayers = [...(SQUADS[match.team1] || []), ...(SQUADS[match.team2] || [])].sort();
 
   return (
-    <div style={{ borderRadius:24, overflow:"hidden", boxShadow:"var(--sh-lg)", background:"var(--sf)", border:`2px solid ${isLive ? "var(--ac)" : isCompleted ? "var(--green)" : "var(--bd)"}`, backdropFilter:"blur(12px)" }}>
+    <div className="fu" style={{ borderRadius:24, overflow:"hidden", boxShadow:"var(--sh-lg)", background:"var(--sf)", border:`2px solid ${isLive ? "var(--ac)" : isCompleted ? "var(--green)" : "var(--bd)"}`, backdropFilter:"blur(12px)" }}>
       {/* Team header */}
       <div style={{ display:"flex", height:120 }}>
         <div style={{ flex:1, background:t1.bg, display:"flex", alignItems:"center", justifyContent:"center", position:"relative", overflow:"hidden" }}>
@@ -730,7 +669,7 @@ const MatchCard = ({ match, myPred, onSave, saving }) => {
 
       <div style={{ padding:24 }}>
         {isCompleted && match.actual_winner && (
-          <div style={{ background:"rgba(16,185,129,0.15)", border:"2px solid rgba(16,185,129,0.3)", borderRadius:"var(--r-sm)", padding:"20px", marginBottom:20 }}>
+          <div className="fu" style={{ background:"rgba(16,185,129,0.15)", border:"2px solid rgba(16,185,129,0.3)", borderRadius:"var(--r-sm)", padding:"20px", marginBottom:20 }}>
             <p style={{ fontSize:13, fontWeight:900, color:"var(--green)", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:14 }}>Official Result</p>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
               {[["🏆 Winner", match.actual_winner],["🏏 Batter", match.actual_top_batter],["🎯 Bowler", match.actual_top_bowler],["🌟 POTM", match.actual_potm]].filter(([, v]) => v).map(([k, v]) => (
@@ -750,7 +689,7 @@ const MatchCard = ({ match, myPred, onSave, saving }) => {
         )}
 
         {myPred?.predicted_winner && !expanded && (
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background:"var(--sf2)", borderRadius:"var(--r-sm)", padding:"16px 20px", border:"2px solid var(--bd)" }}>
+          <div className="fu" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background:"var(--sf2)", borderRadius:"var(--r-sm)", padding:"16px 20px", border:"2px solid var(--bd)" }}>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
               <span style={{ fontSize:14, color:"var(--t3)", fontWeight:900, textTransform:"uppercase" }}>Your Pick:</span>
               <TeamChip team={pred.predicted_winner} large />
@@ -760,7 +699,7 @@ const MatchCard = ({ match, myPred, onSave, saving }) => {
         )}
         
         {isMatchLocked && !isCompleted && !isLive && myPred?.predicted_winner && (
-          <div style={{ marginTop: 12, textAlign:"center", fontSize: 13, color: "var(--t3)", fontWeight: 800 }}>
+          <div className="fu" style={{ marginTop: 12, textAlign:"center", fontSize: 13, color: "var(--t3)", fontWeight: 800 }}>
             🔒 Picks locked (match starts soon)
           </div>
         )}
@@ -846,7 +785,13 @@ const PicksScreen = ({ user }) => {
         setConfetti(true); setTimeout(() => setConfetti(false), 4000);
       }
       setSaved(true); setStatus("saved"); setTimeout(() => setStatus(null), 3000);
-    } catch (e) { setStatus("error:" + e.message); }
+    } catch (e) { 
+      if (e.message.includes("foreign key constraint")) {
+        setStatus("error: Session invalid. Please click EXIT at top right and sign in again.");
+      } else {
+        setStatus("error:" + e.message); 
+      }
+    }
   };
 
   if (loading) return <LoadingScreen />;
@@ -984,6 +929,10 @@ const LeaderboardScreen = ({ user }) => {
   const [actuals,  setActuals]  = useState(null);
   const [loading,  setLoading]  = useState(true);
 
+  // Security Check: To prevent influencing users, we only show other players' picks 
+  // if the master tournament lock has passed.
+  const isTournamentLocked = isLocked();
+
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -1075,7 +1024,7 @@ const LeaderboardScreen = ({ user }) => {
         </div>
       )}
 
-      {/* Full list - Cleaned up to NEVER show picks! */}
+      {/* Full list */}
       <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
         {players.map((p, i) => {
           const isMe = p.id === user.id;
@@ -1091,6 +1040,12 @@ const LeaderboardScreen = ({ user }) => {
                     <span style={{ fontWeight:900, fontSize:18, color: isMe ? "var(--ac)" : "#fff", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{p.name}</span>
                     {isMe && <Pill color="orange">You</Pill>}
                   </div>
+                  
+                  {isMe || isTournamentLocked ? (
+                    p.pred?.winner ? <div style={{ marginTop:8 }}><TeamChip team={p.pred.winner} /></div> : <div style={{ marginTop:8 }}><Pill color="red">No Pick</Pill></div>
+                  ) : (
+                    <div style={{ marginTop:8 }}><Pill color="green">{p.pred ? "Picks Hidden 🔒" : "Pending..."}</Pill></div>
+                  )}
                   
                   <div style={{ marginTop:8, display:"flex", gap:16 }}>
                     <span style={{ fontSize:14, color:"var(--t3)", fontWeight:800 }}>🏆 <b style={{ color:"var(--t2)" }}>{p.tScore ?? "-"}</b></span>
@@ -1284,14 +1239,14 @@ const AdminMatchResult = ({ match, onSave }) => {
     </Card>
   );
 };
-//
+
 // ─────────────────────────────────────────────
 // ROOT APP
 // ─────────────────────────────────────────────
 export default function App() {
   const [user, setUser] = useState(() => { try { return JSON.parse(localStorage.getItem("ipl_user")); } catch { return null; } });
   
-  // 1. CHANGED: Default tab is now "today" (Matchday Live)
+  // DEFAULT TAB SET TO TODAY / LIVE
   const [tab,  setTab]  = useState("today"); 
 
   const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
@@ -1310,7 +1265,7 @@ export default function App() {
     </>
   );
 
-  // 2. CHANGED: Reordered the navigation tabs!
+  // REORDERED NAV TABS
   const navItems = [
     { id:"today", icon:"🏏", label:"Live" },
     { id:"board", icon:"📊", label:"Ranks" },
