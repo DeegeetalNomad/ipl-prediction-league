@@ -7,7 +7,7 @@ const SB_URL    = "https://rpzpnbhaqpfejolgjggu.supabase.co";
 const SB_KEY    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwenBuYmhhcXBmZWpvbGdqZ2d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTcyODQsImV4cCI6MjA4OTk3MzI4NH0.tDRO6axPkvI4udJJz2cJCOcH0WQFlu4sOl7U-h50s30";
 
 // Secure Admin Hash
-const ADMIN_HASH = "8a25c1b67e2311d948332130ab7eb3ecb99de2fa5a7e6c4b2eb3f50dd5112f45";
+const ADMIN_HASH = "70a7416bc3bc6b0513be897c57663a33288fc84a976a8ea85d5a8649b84755b0";
 
 // ─────────────────────────────────────────────
 // IPL 2026 DATA
