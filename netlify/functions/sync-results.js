@@ -141,4 +141,4 @@ const runSync = async () => {
 };
 
 // THE FIX: Run at 21:00 UTC (10:00 PM BST) every single day
-export const handler = schedule('0 21 * * *', runSync);
+export const handler = schedule('0 21,18 * * *', runSync);
