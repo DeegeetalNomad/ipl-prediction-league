@@ -1,8 +1,7 @@
 // ============================================================
 // sync-results-locally.js
 // NORMAL RUN:  node sync-results-locally.js
-// PATCH POTM (Single Match):  node sync-results-locally.js --potm "Jacob Duffy" --date 2026-03-28
-// PATCH POTM (Double Header): node sync-results-locally.js --potm "Virat Kohli" --date 2026-04-05 --team "Royal Challengers Bengaluru"
+// PATCH POTM:  node sync-results-locally.js --potm "Jacob Duffy" --date 2026-03-28
 // ============================================================
 
 import { fileURLToPath } from 'url';
@@ -29,9 +28,6 @@ const TEAM_NORMALISE = {
 const normaliseTeam = (name) => TEAM_NORMALISE[name] || name;
 const DPOINTS = { winner: 10, top_batter: 8, top_bowler: 8, potm: 10 };
 
-// Helper to safely compare strings (lowercase & trim spaces)
-const safeString = (str) => (str || "").trim().toLowerCase();
-
 // ─── Supabase helper ────────────────────────────────────────
 const sbFetch = async (path, opts = {}) => {
   const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
@@ -57,14 +53,12 @@ const getArg = (flag) => {
 };
 const potmOverride = getArg("--potm");   // e.g. "Jacob Duffy"
 const dateOverride = getArg("--date");   // e.g. "2026-03-28"
-const teamOverride = getArg("--team");   // e.g. "Royal Challengers Bengaluru"
 
 // ─── MODE: Manual POTM patch ────────────────────────────────
-const patchPotm = async (potmName, dateStr, teamName) => {
+const patchPotm = async (potmName, dateStr) => {
   console.log(`\n🔧 POTM PATCH MODE`);
   console.log(`   Player: ${potmName}`);
   console.log(`   Date:   ${dateStr}`);
-  if (teamName) console.log(`   Team filter: ${teamName}`);
 
   // Find the match in DB for that date
   const matches = await sbFetch(
@@ -77,30 +71,8 @@ const patchPotm = async (potmName, dateStr, teamName) => {
     return;
   }
 
-  let targetMatches = matches;
-
-  // If a team is provided, filter the matches down to only the one involving that team
-  if (teamName) {
-    const normTeam = normaliseTeam(teamName);
-    targetMatches = matches.filter(m => m.team1 === normTeam || m.team2 === normTeam);
-    
-    if (targetMatches.length === 0) {
-      console.log(`\n❌ Found matches on ${dateStr}, but none involving "${normTeam}".`);
-      return;
-    }
-  }
-
-  // SAFETY NET: If there are multiple matches on this date and no team was specified, ABORT!
-  if (targetMatches.length > 1) {
-    console.log(`\n🚨 SAFETY ABORT: There are ${targetMatches.length} matches completed on ${dateStr}!`);
-    console.log(`   To avoid overwriting the POTM for BOTH matches, please run the command again`);
-    console.log(`   and include the --team flag to specify which match you want to patch.\n`);
-    console.log(`   Example: node sync-results-locally.js --potm "${potmName}" --date ${dateStr} --team "${targetMatches[0].team1}"`);
-    return;
-  }
-
-  // Proceed with patching the single target match
-  for (const dbMatch of targetMatches) {
+  // If multiple matches on same day, show them and patch all (double-header)
+  for (const dbMatch of matches) {
     console.log(`\n   Patching: ${dbMatch.team1} vs ${dbMatch.team2}`);
 
     // Save POTM to DB
@@ -117,16 +89,13 @@ const patchPotm = async (potmName, dateStr, teamName) => {
 
     let potmWinners = 0;
     await Promise.all((predictions || []).map(async pred => {
-      // Safely compare the strings by making them lowercase and removing extra spaces
-      const isPotmMatch = safeString(pred.predicted_potm) === safeString(potmName);
-
       const pts =
         (pred.predicted_winner === dbMatch.actual_winner     ? DPOINTS.winner     : 0) +
         (pred.predicted_batter === dbMatch.actual_top_batter ? DPOINTS.top_batter : 0) +
         (pred.predicted_bowler === dbMatch.actual_top_bowler ? DPOINTS.top_bowler : 0) +
-        (isPotmMatch                                         ? DPOINTS.potm       : 0);
+        (pred.predicted_potm   === potmName                  ? DPOINTS.potm       : 0);
 
-      if (isPotmMatch) potmWinners++;
+      if (pred.predicted_potm === potmName) potmWinners++;
 
       await sbFetch(`daily_predictions?id=eq.${pred.id}`, {
         method: "PATCH",
@@ -271,14 +240,11 @@ const runLocalSync = async () => {
             `daily_predictions?match_id=eq.${dbMatch.id}&select=id,predicted_winner,predicted_batter,predicted_bowler,predicted_potm`
           );
           await Promise.all((predictions || []).map(async pred => {
-            // Safely compare for the automated run as well!
-            const isPotmMatch = effectivePotm && safeString(pred.predicted_potm) === safeString(effectivePotm);
-
             const pts =
               (pred.predicted_winner === winner            ? DPOINTS.winner     : 0) +
               (pred.predicted_batter === topBatter         ? DPOINTS.top_batter : 0) +
               (pred.predicted_bowler === topBowler         ? DPOINTS.top_bowler : 0) +
-              (isPotmMatch                                 ? DPOINTS.potm       : 0);
+              (effectivePotm && pred.predicted_potm === effectivePotm ? DPOINTS.potm : 0);
             await sbFetch(`daily_predictions?id=eq.${pred.id}`, {
               method: "PATCH", prefer: "return=minimal", body: { points_earned: pts },
             });
@@ -302,7 +268,7 @@ const runLocalSync = async () => {
 // ─── Entry point ────────────────────────────────────────────
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (potmOverride && dateOverride) {
-    patchPotm(potmOverride, dateOverride, teamOverride);
+    patchPotm(potmOverride, dateOverride);
   } else if (potmOverride || dateOverride) {
     console.log("❌ Please provide both --potm \"Player Name\" and --date YYYY-MM-DD");
   } else {

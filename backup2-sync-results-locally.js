@@ -29,9 +29,6 @@ const TEAM_NORMALISE = {
 const normaliseTeam = (name) => TEAM_NORMALISE[name] || name;
 const DPOINTS = { winner: 10, top_batter: 8, top_bowler: 8, potm: 10 };
 
-// Helper to safely compare strings (lowercase & trim spaces)
-const safeString = (str) => (str || "").trim().toLowerCase();
-
 // ─── Supabase helper ────────────────────────────────────────
 const sbFetch = async (path, opts = {}) => {
   const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
@@ -117,16 +114,13 @@ const patchPotm = async (potmName, dateStr, teamName) => {
 
     let potmWinners = 0;
     await Promise.all((predictions || []).map(async pred => {
-      // Safely compare the strings by making them lowercase and removing extra spaces
-      const isPotmMatch = safeString(pred.predicted_potm) === safeString(potmName);
-
       const pts =
         (pred.predicted_winner === dbMatch.actual_winner     ? DPOINTS.winner     : 0) +
         (pred.predicted_batter === dbMatch.actual_top_batter ? DPOINTS.top_batter : 0) +
         (pred.predicted_bowler === dbMatch.actual_top_bowler ? DPOINTS.top_bowler : 0) +
-        (isPotmMatch                                         ? DPOINTS.potm       : 0);
+        (pred.predicted_potm   === potmName                  ? DPOINTS.potm       : 0);
 
-      if (isPotmMatch) potmWinners++;
+      if (pred.predicted_potm === potmName) potmWinners++;
 
       await sbFetch(`daily_predictions?id=eq.${pred.id}`, {
         method: "PATCH",
@@ -271,14 +265,11 @@ const runLocalSync = async () => {
             `daily_predictions?match_id=eq.${dbMatch.id}&select=id,predicted_winner,predicted_batter,predicted_bowler,predicted_potm`
           );
           await Promise.all((predictions || []).map(async pred => {
-            // Safely compare for the automated run as well!
-            const isPotmMatch = effectivePotm && safeString(pred.predicted_potm) === safeString(effectivePotm);
-
             const pts =
               (pred.predicted_winner === winner            ? DPOINTS.winner     : 0) +
               (pred.predicted_batter === topBatter         ? DPOINTS.top_batter : 0) +
               (pred.predicted_bowler === topBowler         ? DPOINTS.top_bowler : 0) +
-              (isPotmMatch                                 ? DPOINTS.potm       : 0);
+              (effectivePotm && pred.predicted_potm === effectivePotm ? DPOINTS.potm : 0);
             await sbFetch(`daily_predictions?id=eq.${pred.id}`, {
               method: "PATCH", prefer: "return=minimal", body: { points_earned: pts },
             });
