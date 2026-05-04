@@ -1,7 +1,10 @@
+// 1. Let Netlify securely inject your real Cricket API keys
+const CRICKET_API_KEY = process.env.CRICKET_API_KEY;
+const IPL_SERIES_ID   = process.env.IPL_SERIES_ID;
+
+// 2. We need your REAL Supabase keys here
 const SB_URL = "https://rpzpnbhaqpfejolgjggu.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwenBuYmhhcXBmZWpvbGdqZ2d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTcyODQsImV4cCI6MjA4OTk3MzI4NH0.tDRO6axPkvI4udJJz2cJCOcH0WQFlu4sOl7U-h50s30";
-const CRICKET_API_KEY = "f11db63d-469c-4694-beed-3567c4de6fdd";
-const IPL_SERIES_ID   = "87c62aac-bc3c-4738-ab93-19da0690488f";
 
 const TEAM_NORMALISE = {
   "Royal Challengers Bangalore":  "Royal Challengers Bengaluru",
@@ -47,6 +50,10 @@ export default async (req) => {
     const seriesRes = await fetch(`https://api.cricapi.com/v1/series_info?apikey=${CRICKET_API_KEY}&id=${IPL_SERIES_ID}`);
     const seriesData = await seriesRes.json();
     
+    // ADD THIS EXACT LINE:
+    console.log("🔍 RAW API RESPONSE:", JSON.stringify(seriesData, null, 2));
+    
+        
     if (!seriesData?.data?.matchList) {
       console.log(`❌ [API ERROR] No match list returned by CricAPI.`);
       return new Response("No match list", { status: 500 });
