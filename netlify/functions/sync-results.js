@@ -1,5 +1,3 @@
-import { schedule } from '@netlify/functions';
-
 const SB_URL = "https://rpzpnbhaqpfejolgjggu.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwenBuYmhhcXBmZWpvbGdqZ2d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTcyODQsImV4cCI6MjA4OTk3MzI4NH0.tDRO6axPkvI4udJJz2cJCOcH0WQFlu4sOl7U-h50s30";
 const CRICKET_API_KEY = "f11db63d-469c-4694-beed-3567c4de6fdd";
@@ -39,7 +37,8 @@ const sbFetch = async (path, opts = {}) => {
   return txt ? JSON.parse(txt) : null;
 };
 
-const runSync = async () => {
+// V2 Syntax: Export default async function
+export default async (req) => {
   console.log(`\n=========================================`);
   console.log(`🚀 [START] Cloud Sync Job Triggered at ${new Date().toISOString()}`);
   
@@ -50,7 +49,7 @@ const runSync = async () => {
     
     if (!seriesData?.data?.matchList) {
       console.log(`❌ [API ERROR] No match list returned by CricAPI.`);
-      return { statusCode: 500, body: "No match list" };
+      return new Response("No match list", { status: 500 });
     }
 
     const now = new Date();
@@ -64,7 +63,7 @@ const runSync = async () => {
     console.log(`📊 [LOGIC] Found ${completedMatches.length} completed match(es) in the last 48 hours.`);
 
     if (completedMatches.length === 0) {
-       console.log(`⚠️  [LOGIC] CricAPI says 0 matches have ended. (If a game just finished, CricAPI is delaying the 'matchEnded' status).`);
+       console.log(`⚠️  [LOGIC] CricAPI says 0 matches have ended.`);
     }
 
     for (const match of completedMatches) {
@@ -108,7 +107,6 @@ const runSync = async () => {
         });
       });
 
-      // Explicitly log exactly what the API gave us
       console.log(`   --> [API DATA] Winner: ${winner || "MISSING"}`);
       console.log(`   --> [API DATA] POTM: ${potm || "MISSING"}`);
       console.log(`   --> [API DATA] Batter: ${topBatter || "MISSING"} (${topBatterRuns > -1 ? topBatterRuns + ' runs' : 'N/A'})`);
@@ -161,12 +159,14 @@ const runSync = async () => {
     }
     
     console.log(`🏁 [END] Cloud Sync Job Finished Successfully.\n=========================================`);
-    return { statusCode: 200, body: "Sync Complete" };
+    return new Response("Sync Complete", { status: 200 });
   } catch (err) {
     console.log(`💥 [FATAL ERROR] Script crashed: ${err.message}`);
-    return { statusCode: 500, body: err.message };
+    return new Response(err.message, { status: 500 });
   }
 };
 
-// RUNS 4 TIMES A DAY: 10:00 PM, 12:00 AM (Midnight), 8:00 AM, 2:00 PM (All times UTC)
-export const handler = schedule('0 22,0,8,14 * * *', runSync);
+// V2 Syntax: Set the cron schedule
+export const config = {
+  schedule: "0 22,0,8,14 * * *"
+};
