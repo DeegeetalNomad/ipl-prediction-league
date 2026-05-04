@@ -40,13 +40,20 @@ const sbFetch = async (path, opts = {}) => {
 };
 
 const runSync = async () => {
+  console.log(`\n=========================================`);
+  console.log(`🚀 [START] Cloud Sync Job Triggered at ${new Date().toISOString()}`);
+  
   try {
+    console.log(`📡 [API] Fetching master schedule from CricAPI...`);
     const seriesRes = await fetch(`https://api.cricapi.com/v1/series_info?apikey=${CRICKET_API_KEY}&id=${IPL_SERIES_ID}`);
     const seriesData = await seriesRes.json();
-    if (!seriesData?.data?.matchList) return { statusCode: 500, body: "No match list" };
+    
+    if (!seriesData?.data?.matchList) {
+      console.log(`❌ [API ERROR] No match list returned by CricAPI.`);
+      return { statusCode: 500, body: "No match list" };
+    }
 
     const now = new Date();
-    // THE FIX: Widen window to 48 hours to catch late matches
     const searchWindow = new Date(now.getTime() - 48 * 60 * 60 * 1000); 
 
     const completedMatches = seriesData.data.matchList.filter(m => {
@@ -54,7 +61,16 @@ const runSync = async () => {
       return m.matchEnded === true && d >= searchWindow && d <= now;
     });
 
+    console.log(`📊 [LOGIC] Found ${completedMatches.length} completed match(es) in the last 48 hours.`);
+
+    if (completedMatches.length === 0) {
+       console.log(`⚠️  [LOGIC] CricAPI says 0 matches have ended. (If a game just finished, CricAPI is delaying the 'matchEnded' status).`);
+    }
+
     for (const match of completedMatches) {
+      console.log(`\n-----------------------------------------`);
+      console.log(`🏏 Processing: ${match.name}`);
+      
       const [infoData, scoreData] = await Promise.all([
         fetch(`https://api.cricapi.com/v1/match_info?apikey=${CRICKET_API_KEY}&id=${match.id}`).then(r => r.json()),
         fetch(`https://api.cricapi.com/v1/match_scorecard?apikey=${CRICKET_API_KEY}&id=${match.id}`).then(r => r.json()),
@@ -64,9 +80,8 @@ const runSync = async () => {
       const scorecard = scoreData?.data || {};
       const winner = normaliseTeam(info.matchWinner || info.winner || scorecard.matchWinner || match.matchWinner || "");
 
-      // Extract POTM safely
-      const POTM_FIELDS = ["player_of_match","playersOfTheMatch","playerOfTheMatch","matchMom","mom","manOfTheMatch","playerOfMatch"];
       let potm = null;
+      const POTM_FIELDS = ["player_of_match","playersOfTheMatch","playerOfTheMatch","matchMom","mom","manOfTheMatch","playerOfMatch"];
       for (const src of [info, scorecard, match]) {
         if (potm) break;
         for (const field of POTM_FIELDS) {
@@ -79,7 +94,6 @@ const runSync = async () => {
         }
       }
 
-      // Extract Batter/Bowler
       let topBatter = null, topBatterRuns = -1;
       let topBowler = null, topBowlerWkts = -1;
       const inningsList = scorecard.scorecard || scorecard.score || [];
@@ -94,7 +108,12 @@ const runSync = async () => {
         });
       });
 
-      // Find in DB
+      // Explicitly log exactly what the API gave us
+      console.log(`   --> [API DATA] Winner: ${winner || "MISSING"}`);
+      console.log(`   --> [API DATA] POTM: ${potm || "MISSING"}`);
+      console.log(`   --> [API DATA] Batter: ${topBatter || "MISSING"} (${topBatterRuns > -1 ? topBatterRuns + ' runs' : 'N/A'})`);
+      console.log(`   --> [API DATA] Bowler: ${topBowler || "MISSING"} (${topBowlerWkts > -1 ? topBowlerWkts + ' wkts' : 'N/A'})`);
+
       const matchDateStr = match.dateTimeGMT.split("T")[0];
       const team1 = normaliseTeam(match.teams?.[0] || "");
       const team2 = normaliseTeam(match.teams?.[1] || "");
@@ -102,9 +121,13 @@ const runSync = async () => {
       const existing = await sbFetch(`daily_matches?match_date=gte.${matchDateStr}T00:00:00Z&match_date=lte.${matchDateStr}T23:59:59Z`);
       const dbMatch = (existing || []).find(m => (m.team1 === team1 && m.team2 === team2) || (m.team1 === team2 && m.team2 === team1));
       
-      if (!dbMatch) continue;
+      if (!dbMatch) {
+        console.log(`❌ [DB ERROR] Could not find ${team1} vs ${team2} in Supabase for date ${matchDateStr}`);
+        continue;
+      }
 
-      // Update DB safely (only update what we actually found so we don't overwrite manual fixes with nulls)
+      console.log(`✅ [DB SUCCESS] Found match in Supabase (ID: ${dbMatch.id}). Patching results...`);
+
       const updatePayload = { status: "completed", actual_winner: winner || null };
       if (potm) updatePayload.actual_potm = potm;
       if (topBatterRuns > -1) updatePayload.actual_top_batter = topBatter;
@@ -113,7 +136,6 @@ const runSync = async () => {
       await sbFetch(`daily_matches?id=eq.${dbMatch.id}`, { method: "PATCH", prefer: "return=minimal", body: updatePayload });
 
       if (winner) {
-        // Grab the freshest POTM/Batter/Bowler from DB in case API is delayed but we manually patched it earlier
         const fresh = await sbFetch(`daily_matches?id=eq.${dbMatch.id}`);
         const effectivePotm = potm || fresh?.[0]?.actual_potm || null;
         const effectiveBatter = topBatterRuns > -1 ? topBatter : fresh?.[0]?.actual_top_batter;
@@ -121,7 +143,6 @@ const runSync = async () => {
 
         const predictions = await sbFetch(`daily_predictions?match_id=eq.${dbMatch.id}&select=id,predicted_winner,predicted_batter,predicted_bowler,predicted_potm`);
         
-        // SPEED FIX: Promise.all executes these concurrently to beat the 10s timeout
         await Promise.all((predictions || []).map(async pred => {
           const isPotmMatch = effectivePotm && safeString(pred.predicted_potm) === safeString(effectivePotm);
           const pts =
@@ -132,13 +153,20 @@ const runSync = async () => {
           
           return sbFetch(`daily_predictions?id=eq.${pred.id}`, { method: "PATCH", prefer: "return=minimal", body: { points_earned: pts } });
         }));
+
+        console.log(`💰 [SCORING] Successfully recalculated points for ${(predictions || []).length} users!`);
+      } else {
+        console.log(`⚠️  [SCORING] Skipped scoring because the API did not provide a Winner yet.`);
       }
     }
+    
+    console.log(`🏁 [END] Cloud Sync Job Finished Successfully.\n=========================================`);
     return { statusCode: 200, body: "Sync Complete" };
   } catch (err) {
+    console.log(`💥 [FATAL ERROR] Script crashed: ${err.message}`);
     return { statusCode: 500, body: err.message };
   }
 };
 
-// THE FIX: Run at 21:00 UTC (10:00 PM BST) every single day
-export const handler = schedule('0 21,18 * * *', runSync);
+// RUNS 4 TIMES A DAY: 10:00 PM, 12:00 AM (Midnight), 8:00 AM, 2:00 PM (All times UTC)
+export const handler = schedule('0 22,0,8,14 * * *', runSync);
